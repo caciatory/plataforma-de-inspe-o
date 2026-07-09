@@ -26,4 +26,16 @@ insert into public.review_events (inspection_id, tipo, autor_id) values
 insert into public.audit_log_entries (inspection_id, admin_id, descricao) values
   ('00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000001', 'Editou VIN do veículo');
 
+-- RNF-11: deletar uma inspeção com log de auditoria deve falhar (sem cascade) —
+-- o log não pode sumir silenciosamente junto com a inspeção.
+do $$
+begin
+  begin
+    delete from public.inspections where id = '00000000-0000-0000-0000-000000000010';
+    raise exception 'FALHOU: deveria ter bloqueado delete de inspection com audit_log_entries';
+  exception when foreign_key_violation then
+    raise notice 'OK: audit_log_entries sem cascade bloqueou delete da inspection';
+  end;
+end $$;
+
 rollback;

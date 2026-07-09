@@ -16,9 +16,13 @@ create table public.review_events (
 create index on public.review_events (inspection_id);
 
 -- RF-36: log simples (quem, o quê, quando) — sem valor anterior/novo.
+-- RNF-11: inspection_id NÃO usa "on delete cascade" (diferente de review_events) —
+-- deletar uma inspeção com log de auditoria deve falhar (foreign_key_violation),
+-- não apagar o log junto. Isso é o que torna "log imutável" uma garantia real de
+-- banco, não só a revogação de UPDATE/DELETE abaixo (que não bloqueia cascade).
 create table public.audit_log_entries (
   id uuid primary key default gen_random_uuid(),
-  inspection_id uuid not null references public.inspections(id) on delete cascade,
+  inspection_id uuid not null references public.inspections(id),
   admin_id uuid not null references public.users(id),
   descricao text not null,
   timestamp timestamptz not null default now()

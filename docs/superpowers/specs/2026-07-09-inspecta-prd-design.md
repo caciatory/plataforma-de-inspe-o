@@ -6,7 +6,7 @@
 
 **Problema:** a empresa não tem hoje nenhum processo formal de vistoria veicular. Avaliação, comunicação com o cliente e emissão de laudo acontecem de forma ad-hoc, sem registro estruturado nem consistência entre técnicos. Não existe ferramenta legada a substituir — o Inspecta nasce do zero.
 
-**Objetivo do v1.0:** dar ao técnico uma ferramenta em tablet que estrutura a vistoria (300+ itens de checklist, 12 grupos) e gera automaticamente um relatório profissional e verificável para o cliente, com o mínimo de fricção possível no preenchimento em campo.
+**Objetivo do v1.0:** dar ao técnico uma ferramenta em tablet que estrutura a vistoria (285 itens de checklist, 11 grupos) e gera automaticamente um relatório profissional e verificável para o cliente, com o mínimo de fricção possível no preenchimento em campo.
 
 ## 2. Persona & Jornada do usuário
 
@@ -15,7 +15,7 @@
 
 **Fluxo ponta a ponta:**
 1. Técnico faz login → cria inspeção → preenche dados do veículo/cliente.
-2. Percorre os 12 grupos / 300+ itens: classifica cada item (ótimo/médio/ruim/NF), adiciona foto+observação quando aplicável. Para itens repetidos (vidros, pneus, jantes, faróis...) preenche um e usa "aplicar aos demais", podendo ajustar individualmente depois. Indicador ✅/⚠️ mostra progresso por grupo.
+2. Percorre os 11 grupos / 285 itens (ou o subconjunto marcado `aplica_stand` quando o cliente é stand — ver §3): classifica cada item (ótimo/médio/ruim/NF), adiciona foto+observação quando aplicável. Para itens repetidos (vidros, pneus, jantes, faróis...) preenche um e usa "aplicar aos demais", podendo ajustar individualmente depois. Indicador ✅/⚠️ mostra progresso por grupo.
 3. Finaliza (só permitido com 100% dos grupos aplicáveis respondidos) → envia para aprovação.
 4. Admin aprova (gera relatório) ou devolve com motivo obrigatório — ciclo pode se repetir.
 5. Na aprovação: admin adiciona fotos de capa; sistema calcula nota A/B/C e gera link único do relatório + código de certificado.
@@ -26,7 +26,8 @@
 
 - Autenticação (Técnico/Admin).
 - Dados básicos da inspeção (veículo + cliente).
-- Checklist completa (300+ itens, 12 grupos), carregada uma vez via planilha/JSON no lançamento. Regra especial: grupo "Teste de Condução" só aparece para `tipo_cliente = particular`.
+- Checklist completa (285 itens, 11 grupos — grupo "Teste de Condução" descartado, não será aplicado a nenhum tipo de cliente), carregada uma vez via planilha/JSON no lançamento.
+- Filtro por tipo de cliente a nível de item (não de grupo): cada item do checklist tem um flag `aplica_stand`. Quando `tipo_cliente = particular`, o técnico vê todos os 285 itens. Quando `tipo_cliente = stand`, vê só os itens com `aplica_stand = true` — subconjunto definido pelos sócios (não é uma tela de configuração, é uma decisão carregada no seed, mesmo mecanismo do checklist em si).
 - Ação "aplicar aos demais" para itens repetidos (vidros, pneus, jantes, faróis etc.) — preenche um, aplica a outros selecionados, mantém edição individual depois.
 - NF com confirmação explícita; foto obrigatória quando classificação = "ruim".
 - Regra de finalização: só libera envio com 100% dos grupos aplicáveis respondidos.
@@ -55,6 +56,7 @@
 - **Múltiplos admins** — sem redesenho especulativo de schema para um cenário que não existe ainda.
 - **Exportação de PDF dedicada** — só entra se surgir necessidade real além do CSS de impressão do navegador.
 - Herdado do PRD anterior, mantido fora: portal público / Hall da Fama, catálogo de stands, templates versionáveis de checklist, relatórios analíticos.
+- **Motorização Especial (BEV/HEV/GPL)** — 35 itens de checklist para veículos elétricos, híbridos e a GPL, condicionados à compra de equipamento específico (scanner de bateria de alta tensão, detetor de fugas de gás). Não é especulativo: é uma fase futura já confirmada pelos sócios, com conteúdo pronto em `docs/data/checklist-inspecta-v5.csv` — só não entra no v1.0 porque o equipamento ainda não foi adquirido.
 
 ## 5. Cortes de over-engineering aplicados (ponytail-review + ponytail-audit, 2026-07-09)
 
@@ -81,13 +83,14 @@ Aplicados sobre o desenho inicial (que ainda carregava premissas do PRD anterior
 
 ## 7. Riscos / perguntas em aberto
 
-- Conteúdo exato dos 300+ itens (planilha/JSON) precisa estar pronto antes de implementar a checklist.
+- ~~Conteúdo exato dos 300+ itens~~ resolvido em 2026-07-10: `docs/data/checklist-inspecta-v5.csv`, 285 itens v1.0.
+- **Bloqueante para o seed final:** quais dos 285 itens têm `aplica_stand = true` — decisão dos sócios, ainda não tomada (coluna `aplica_stand` no CSV está `PENDENTE` em toda linha).
 - Falta design de tela para dashboard/checklist do técnico e do admin (só o relatório final tem design pronto).
 - Comportamento exato de "aplicar aos demais": copia só a classificação, ou também foto/observação? — a definir no detalhamento técnico.
 - Formato exato do campo "origem/rastreio" no gate do relatório (select fixo vs texto livre vs UTM).
-- A especificação técnica (`docs/especificacao-tecnica-v1.md`) ainda reflete o desenho anterior (offline-first, certificado como entidade, auditoria com diff completo) e precisa de uma atualização para ficar consistente com este PRD.
 
 ## 8. Referências
 
-- `docs/especificacao-tecnica-v1.md` — especificação técnica original (RF-01 a RF-62, RNF-01 a RNF-23), a ser atualizada.
-- Sessão de brainstorming + ponytail-review/audit, 2026-07-09.
+- `docs/especificacao-tecnica-v1.md` — especificação técnica (RF-01 a RF-63, RNF-01 a RNF-23).
+- `docs/data/checklist-inspecta-v5.csv` — conteúdo real dos 285 itens do checklist v1.0 (+ 35 itens Fase 2).
+- Sessão de brainstorming + ponytail-review/audit, 2026-07-09. Ajuste de escopo (Teste de Condução removido, `aplica_stand` por item), 2026-07-10.

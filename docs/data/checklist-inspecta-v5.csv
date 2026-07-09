@@ -1,336 +1,321 @@
-num,item,categoria,subcategoria,tipo,qtd_pontos_medicao,particular,stand,observacoes
-1,Marca,1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,
-2,Modelo,1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,
-3,Versão / Trim,1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,
-4,Ano de fabrico,1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,
-5,Ano do modelo,1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,
-6,Cor do veículo,1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,Incluir código de cor se disponível
-7,Número de chassis (VIN),1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,Verificar coerência com docs
-8,Número do motor,1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,
-9,Matrícula portuguesa,1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,
-10,Número de portas,1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,
-11,Tipo de combustível,1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,
-12,Tipo de caixa de velocidades,1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,
-13,Tipo de tração,1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,
-14,Potência do motor (cv/kW),1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,
-15,Torque do motor (Nm),1. Identificação e Documentação,Identificação,padrao,,Sim,Sim,
-16,Documento -nico Automóvel (DUA),1. Identificação e Documentação,Documentação,padrao,,Sim,Sim,Verificar titularidade
-17,IPO - válido?,1. Identificação e Documentação,Documentação,padrao,,Sim,Sim,Data de validade
-18,Seguro automóvel - válido?,1. Identificação e Documentação,Documentação,padrao,,Sim,Sim,Data de validade
-19,Livro de revisões/manutenção,1. Identificação e Documentação,Documentação,padrao,,Sim,Sim,Se disponível
-20,Quilometragem atual,1. Identificação e Documentação,Histórico,padrao,,Sim,Sim,
-21,Próxima manutenção (kms restantes),1. Identificação e Documentação,Histórico,padrao,,Sim,Sim,Registar intervalo e kms actuais
-22,Indícios de adulteração de quilometragem,1. Identificação e Documentação,Histórico,padrao,,Sim,Sim,Comparar revisões e IPO
-23,Número de proprietários anteriores,1. Identificação e Documentação,Histórico,padrao,,Sim,Sim,
-24,Registo de acidentes anteriores,1. Identificação e Documentação,Histórico,padrao,,Sim,Sim,
-25,Histórico de manutenção,1. Identificação e Documentação,Histórico,padrao,,Sim,Sim,
-26,Situação fiscal - IUC / multas,1. Identificação e Documentação,Histórico,padrao,,Sim,Sim,Verificar portal AT
-27,Estado geral da pintura,2. Exterior,Pintura,padrao,,Sim,Sim,
-28,Presença de riscos,2. Exterior,Pintura,padrao,,Sim,Sim,
-29,Diferenças de tonalidade entre painéis,2. Exterior,Pintura,padrao,,Sim,Sim,Sinal de repintura
-30,Manchas ou oxidação na pintura,2. Exterior,Pintura,padrao,,Sim,Sim,
-31,Sinais de desgaste natural,2. Exterior,Pintura,padrao,,Sim,Sim,
-32,Película de proteção PPF - estado,2. Exterior,Pintura,padrao,,Sim,Sim,Se aplicável
-33,Espessura de pintura - Capô,2. Exterior,Espessura Pintura,medicao,5,Sim,Sim,5 pts medição | Ref: 80-180µm | >200µm repintura | >400µm rechape
-34,Espessura de pintura - Tejadilho,2. Exterior,Espessura Pintura,medicao,5,Sim,Sim,5 pts medição
-35,Espessura de pintura - Porta diant. esq.,2. Exterior,Espessura Pintura,medicao,4,Sim,Sim,4 pts medição
-36,Espessura de pintura - Porta diant. dir.,2. Exterior,Espessura Pintura,medicao,4,Sim,Sim,4 pts medição
-37,Espessura de pintura - Porta tras. esq.,2. Exterior,Espessura Pintura,medicao,4,Sim,Sim,4 pts medição
-38,Espessura de pintura - Porta tras. dir.,2. Exterior,Espessura Pintura,medicao,4,Sim,Sim,4 pts medição
-39,Espessura de pintura - Para-lamas diant. esq.,2. Exterior,Espessura Pintura,medicao,3,Sim,Sim,3 pts medição
-40,Espessura de pintura - Para-lamas diant. dir.,2. Exterior,Espessura Pintura,medicao,3,Sim,Sim,3 pts medição
-41,Espessura de pintura - Tampa porta-bagagens,2. Exterior,Espessura Pintura,medicao,4,Sim,Sim,4 pts medição
-42,Espessura de pintura - Para-choques diant.,2. Exterior,Espessura Pintura,medicao,5,Sim,Sim,5 pts | Plástico: usar modo não-ferroso
-43,Espessura de pintura - Para-choques tras.,2. Exterior,Espessura Pintura,medicao,5,Sim,Sim,5 pts | Plástico: usar modo não-ferroso
-44,Espessura de pintura - Lateral esq. / soleira,2. Exterior,Espessura Pintura,medicao,3,Sim,Sim,3 pts medição
-45,Espessura de pintura - Lateral dir. / soleira,2. Exterior,Espessura Pintura,medicao,3,Sim,Sim,3 pts medição
-46,"Capô - estado (amolgadelas, danos)",2. Exterior,Carroçaria,padrao,,Sim,Sim,
-47,Tejadilho - estado,2. Exterior,Carroçaria,padrao,,Sim,Sim,
-48,Lateral esquerda - estado geral,2. Exterior,Carroçaria,padrao,,Sim,Sim,
-49,Lateral direita - estado geral,2. Exterior,Carroçaria,padrao,,Sim,Sim,
-50,Zona inferior / friso - estado,2. Exterior,Carroçaria,padrao,,Sim,Sim,
-51,Para-lamas dianteiro esquerdo - estado,2. Exterior,Carroçaria,padrao,,Sim,Sim,
-52,Para-lamas dianteiro direito - estado,2. Exterior,Carroçaria,padrao,,Sim,Sim,
-53,Alinhamento dos painéis (folgas uniformes),2. Exterior,Carroçaria,padrao,,Sim,Sim,
-54,Deformações estruturais visíveis,2. Exterior,Carroçaria,padrao,,Sim,Sim,
-55,Emblemas e acabamentos externos,2. Exterior,Carroçaria,padrao,,Sim,Sim,
-56,Ferrugem externa visível,2. Exterior,Ferrugem,padrao,,Sim,Sim,
-57,Corrosão nas portas,2. Exterior,Ferrugem,padrao,,Sim,Sim,
-58,Corrosão nas cavas das rodas,2. Exterior,Ferrugem,padrao,,Sim,Sim,
-59,Corrosão na parte inferior (underbody),2. Exterior,Ferrugem,padrao,,Sim,Sim,
-60,Para-choques dianteiro - estado geral,2. Exterior,Para-choques,padrao,,Sim,Sim,
-61,Para-choques dianteiro - alinhamento,2. Exterior,Para-choques,padrao,,Sim,Sim,
-62,Para-choques dianteiro - fixações,2. Exterior,Para-choques,padrao,,Sim,Sim,
-63,Para-choques traseiro - estado geral,2. Exterior,Para-choques,padrao,,Sim,Sim,
-64,Para-choques traseiro - alinhamento,2. Exterior,Para-choques,padrao,,Sim,Sim,
-65,Para-choques traseiro - fixações,2. Exterior,Para-choques,padrao,,Sim,Sim,
-66,Borrachas das portas,2. Exterior,Vedações,padrao,,Sim,Sim,
-67,Borrachas das janelas,2. Exterior,Vedações,padrao,,Sim,Sim,
-68,Borrachas do porta-bagagens,2. Exterior,Vedações,padrao,,Sim,Sim,
-69,Borrachas do capô,2. Exterior,Vedações,padrao,,Sim,Sim,
-70,Porta dianteira esquerda - alinhamento,2. Exterior,Portas,padrao,,Sim,Sim,
-71,Porta dianteira esquerda - fechadura,2. Exterior,Portas,padrao,,Sim,Sim,
-72,Porta dianteira direita - alinhamento,2. Exterior,Portas,padrao,,Sim,Sim,
-73,Porta dianteira direita - fechadura,2. Exterior,Portas,padrao,,Sim,Sim,
-74,Porta traseira esquerda - alinhamento,2. Exterior,Portas,padrao,,Sim,Sim,
-75,Porta traseira esquerda - fechadura,2. Exterior,Portas,padrao,,Sim,Sim,
-76,Porta traseira direita - alinhamento,2. Exterior,Portas,padrao,,Sim,Sim,
-77,Porta traseira direita - fechadura,2. Exterior,Portas,padrao,,Sim,Sim,
-78,Ruídos nas portas ao abrir/fechar,2. Exterior,Portas,padrao,,Sim,Sim,
-79,Botões elétricos portas traseiras - funcionamento,2. Exterior,Portas,padrao,,Sim,Sim,Se aplicável
-80,Capô - abertura e fecho,2. Exterior,Capô e PB,padrao,,Sim,Sim,
-81,Capô - amortecedores de gás,2. Exterior,Capô e PB,padrao,,Sim,Sim,
-82,Porta-bagagens - abertura e fecho,2. Exterior,Capô e PB,padrao,,Sim,Sim,
-83,Porta-bagagens - amortecedores de gás,2. Exterior,Capô e PB,padrao,,Sim,Sim,
-84,Porta-bagagens - sinais de infiltração de água,2. Exterior,Capô e PB,padrao,,Sim,Sim,
-85,Farol dianteiro esquerdo - estado,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-86,Farol dianteiro direito - estado,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-87,Luz média (cruzamento) esquerda,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-88,Luz média (cruzamento) direita,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-89,Luz máxima (estrada) esquerda,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-90,Luz máxima (estrada) direita,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-91,Pisca dianteiro esquerdo,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-92,Pisca dianteiro direito,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-93,Farol traseiro esquerdo - estado,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-94,Farol traseiro direito - estado,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-95,Luz de travagem esquerda,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-96,Luz de travagem direita,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-97,Luz de travagem central (3ª luz),2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,Se aplicável
-98,Pisca traseiro esquerdo,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-99,Pisca traseiro direito,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-100,Luz de nevoeiro dianteira esquerda,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,Se aplicável
-101,Luz de nevoeiro dianteira direita,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,Se aplicável
-102,Luz de nevoeiro traseira esquerda,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-103,Luz de nevoeiro traseira direita,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-104,Luz de marcha-atrás esquerda,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-105,Luz de marcha-atrás direita,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-106,Presença de humidade nos faróis,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,
-107,Luzes de condução diurna (DRL) esquerda,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,Se aplicável
-108,Luzes de condução diurna (DRL) direita,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,Se aplicável
-109,Iluminação interior - estado e funcionamento,2. Exterior,Faróis e Luzes,padrao,,Sim,Sim,"Teto, leitura, malas"
-110,Para-brisas - estado,2. Exterior,Vidros,padrao,,Sim,Sim,"Fissuras, lascas, chip"
-111,Vidro lateral dianteiro esquerdo - estado,2. Exterior,Vidros,padrao,,Sim,Sim,
-112,Vidro lateral dianteiro direito - estado,2. Exterior,Vidros,padrao,,Sim,Sim,
-113,Vidro lateral traseiro esquerdo - estado,2. Exterior,Vidros,padrao,,Sim,Sim,
-114,Vidro lateral traseiro direito - estado,2. Exterior,Vidros,padrao,,Sim,Sim,
-115,Vidro traseiro - estado,2. Exterior,Vidros,padrao,,Sim,Sim,
-116,Elevador vidro dianteiro esquerdo,2. Exterior,Vidros,padrao,,Sim,Sim,
-117,Elevador vidro dianteiro direito,2. Exterior,Vidros,padrao,,Sim,Sim,
-118,Elevador vidro traseiro esquerdo,2. Exterior,Vidros,padrao,,Sim,Sim,
-119,Elevador vidro traseiro direito,2. Exterior,Vidros,padrao,,Sim,Sim,
-120,Sistema limpa para-brisas - escovas e washers,2. Exterior,Vidros,padrao,,Sim,Sim,"Escovas, mecânica, jatos de água"
-121,Retrovisor esquerdo - estado,2. Exterior,Espelhos,padrao,,Sim,Sim,
-122,Retrovisor direito - estado,2. Exterior,Espelhos,padrao,,Sim,Sim,
-123,Retrovisor esquerdo - ajuste elétrico,2. Exterior,Espelhos,padrao,,Sim,Sim,Se aplicável
-124,Retrovisor direito - ajuste elétrico,2. Exterior,Espelhos,padrao,,Sim,Sim,Se aplicável
-125,Retrovisor esquerdo - aquecimento,2. Exterior,Espelhos,padrao,,Sim,Sim,Se aplicável
-126,Retrovisor direito - aquecimento,2. Exterior,Espelhos,padrao,,Sim,Sim,Se aplicável
-127,Banco do condutor - estado,3. Interior,Bancos,padrao,,Sim,Sim,
-128,Banco passageiro dianteiro - estado,3. Interior,Bancos,padrao,,Sim,Sim,
-129,Banco traseiro esquerdo - estado,3. Interior,Bancos,padrao,,Sim,Sim,
-130,Banco traseiro central - estado,3. Interior,Bancos,padrao,,Sim,Sim,Se aplicável
-131,Banco traseiro direito - estado,3. Interior,Bancos,padrao,,Sim,Sim,
-132,Ajuste do banco do condutor (manual/elétrico),3. Interior,Bancos,padrao,,Sim,Sim,
-133,Reclinação dos bancos dianteiros,3. Interior,Bancos,padrao,,Sim,Sim,
-134,Cinto de segurança dianteiro condutor,3. Interior,Bancos,padrao,,Sim,Sim,Retração e fecho
-135,Cinto de segurança dianteiro passageiro,3. Interior,Bancos,padrao,,Sim,Sim,
-136,Cinto de segurança traseiro esquerdo,3. Interior,Bancos,padrao,,Sim,Sim,
-137,Cinto de segurança traseiro central,3. Interior,Bancos,padrao,,Sim,Sim,
-138,Cinto de segurança traseiro direito,3. Interior,Bancos,padrao,,Sim,Sim,
-139,Tablier - estado geral,3. Interior,Painel,padrao,,Sim,Sim,"Fissuras, degradação"
-140,Indicadores do painel - funcionamento,3. Interior,Painel,padrao,,Sim,Sim,
-141,Luzes de aviso do painel - verificação,3. Interior,Painel,padrao,,Sim,Sim,"Check engine, ABS, airbag-"
-142,Botões e interruptores - funcionamento geral,3. Interior,Painel,padrao,,Sim,Sim,
-143,Buzina - funcionamento,3. Interior,Painel,padrao,,Sim,Sim,
-144,Computador de bordo - funcionamento,3. Interior,Painel,padrao,,Sim,Sim,"Trip computer, info carro"
-145,Comandos do volante - funcionamento,3. Interior,Painel,padrao,,Sim,Sim,Se aplicável
-146,Ar condicionado - funcionamento (frio e calor),3. Interior,Painel,padrao,,Sim,Sim,
-147,Rádio / multimédia - funcionamento,3. Interior,Painel,padrao,,Sim,Sim,
-148,GPS / navegação integrada,3. Interior,Painel,padrao,,Sim,Sim,Se aplicável
-149,Bluetooth - funcionamento,3. Interior,Painel,padrao,,Sim,Sim,Se aplicável
-150,Forro do teto - estado,3. Interior,Teto,padrao,,Sim,Sim,
-151,Sinais de infiltração no teto,3. Interior,Teto,padrao,,Sim,Sim,Manchas de humidade
-152,Teto de abrir manual - funcionamento,3. Interior,Teto,padrao,,Sim,Sim,Se aplicável
-153,Teto de abrir elétrico - abertura/fecho,3. Interior,Teto,padrao,,Sim,Sim,Se aplicável
-154,Revestimento do porta-bagagens - estado,3. Interior,Porta-bagagens,padrao,,Sim,Sim,
-155,Presença do pneu suplente,3. Interior,Porta-bagagens,padrao,,Sim,Sim,Ou kit de reparação
-156,Presença do macaco e chave de rodas,3. Interior,Porta-bagagens,padrao,,Sim,Sim,
-157,Pneu dianteiro esquerdo - estado geral,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,Marca / modelo / medida / DOT
-158,Pneu dianteiro direito - estado geral,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,
-159,Pneu traseiro esquerdo - estado geral,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,
-160,Pneu traseiro direito - estado geral,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,
-161,Pneu suplente - estado,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,Se aplicável
-162,Pneumáticos adicionais (jogo extra),4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,Inverno/verão - se existirem
-163,Profundidade do piso - dianteiro esq.,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,"Mín. legal 1,6mm"
-164,Profundidade do piso - dianteiro dir.,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,
-165,Profundidade do piso - traseiro esq.,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,
-166,Profundidade do piso - traseiro dir.,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,
-167,Desgaste irregular - dianteiro esq.,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,Ind. problemas suspensão
-168,Desgaste irregular - dianteiro dir.,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,
-169,Desgaste irregular - traseiro esq.,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,
-170,Desgaste irregular - traseiro dir.,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,
-171,Cortes/bolhas - dianteiro esq.,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,
-172,Cortes/bolhas - dianteiro dir.,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,
-173,Cortes/bolhas - traseiro esq.,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,
-174,Cortes/bolhas - traseiro dir.,4. Pneus e Rodas,Pneus,padrao,,Sim,Sim,
-175,Jante dianteira esquerda - estado,4. Pneus e Rodas,Jantes,padrao,,Sim,Sim,"Riscos, amolgadelas"
-176,Jante dianteira direita - estado,4. Pneus e Rodas,Jantes,padrao,,Sim,Sim,
-177,Jante traseira esquerda - estado,4. Pneus e Rodas,Jantes,padrao,,Sim,Sim,
-178,Jante traseira direita - estado,4. Pneus e Rodas,Jantes,padrao,,Sim,Sim,
-179,Corrosão nas jantes,4. Pneus e Rodas,Jantes,padrao,,Sim,Sim,
-180,Nível do óleo do motor,5. Motor,Fluidos,padrao,,Sim,Sim,
-181,Qualidade do óleo do motor,5. Motor,Fluidos,padrao,,Sim,Sim,Cor e consistência
-182,Nível do líquido de arrefecimento,5. Motor,Fluidos,padrao,,Sim,Sim,
-183,Qualidade do líquido de arrefecimento,5. Motor,Fluidos,padrao,,Sim,Sim,Cor - verificar contaminação
-184,Nível do fluido de travões,5. Motor,Fluidos,padrao,,Sim,Sim,
-185,Teste do fluido de travões,5. Motor,Fluidos,padrao,,Sim,Sim,Humidade - recomendar subst. se >3%
-186,Nível do fluido de direção assistida,5. Motor,Fluidos,padrao,,Sim,Sim,Se aplicável
-187,Nível do líquido da caixa automática,5. Motor,Fluidos,padrao,,Sim,Sim,Se acessível / aplicável
-188,Nível do líquido do diferencial,5. Motor,Fluidos,padrao,,Sim,Sim,AWD/4x4 - se acessível
-189,Nível do líquido limpa para-brisas,5. Motor,Fluidos,padrao,,Sim,Sim,
-190,Diagnóstico eletrónico (OBD) - luzes avisadoras,5. Motor,Componentes,padrao,,Sim,Sim,Sem códigos de erro activos
-191,Estanquicidade geral do motor,5. Motor,Componentes,padrao,,Sim,Sim,Fugas visíveis de qualquer fluido
-192,Sistema de arrefecimento - estado,5. Motor,Componentes,padrao,,Sim,Sim,"Radiador, mangueiras, pressão"
-193,Estado da correia de distribuição,5. Motor,Componentes,padrao,,Sim,Sim,Verificar kms/data última troca
-194,Estado da correia do alternador,5. Motor,Componentes,padrao,,Sim,Sim,
-195,Estado das mangueiras do motor,5. Motor,Componentes,padrao,,Sim,Sim,"Fissuras, folgas"
-196,Fugas de óleo visíveis,5. Motor,Componentes,padrao,,Sim,Sim,
-197,Fugas de líquido de arrefecimento,5. Motor,Componentes,padrao,,Sim,Sim,
-198,Estado da bateria,5. Motor,Componentes,padrao,,Sim,Sim,Corrosão nos terminais
-199,Alternador - tensão de carga,5. Motor,Componentes,padrao,,Sim,Sim,"~13,8-14,4V com motor ligado"
-200,Estado do filtro de ar,5. Motor,Componentes,padrao,,Sim,Sim,Visível sem desmontagem
-201,Sistema de escape - estado e fugas,5. Motor,Componentes,padrao,,Sim,Sim,"Fugas, ruídos, fixações, corrosão"
-202,Fumo no escape - cor e quantidade,5. Motor,Componentes,padrao,,Sim,Sim,Azul=óleo | Branco=água | Preto=comb.
-203,Caixa de velocidades - estado,5. Motor,Componentes,padrao,,Sim,Sim,
-204,Embraiagem - estado,5. Motor,Componentes,padrao,,Sim,Sim,Manual; N/A se automática
-205,Velas de ignição - verificação visual,5. Motor,Componentes,padrao,,Sim,Sim,Se acessível sem desmontagem
-206,Cabos e fiação visíveis - estado,5. Motor,Componentes,padrao,,Sim,Sim,"Isolamento, conexões"
-207,Sinais de reparação de colisão - longarinas,6. Chassis e Estrutura,Chassis,padrao,,Sim,Sim,"Soldas, reforços, massa"
-208,Sinais de reparação de colisão - travessas,6. Chassis e Estrutura,Chassis,padrao,,Sim,Sim,
-209,Deformação do chassis visível,6. Chassis e Estrutura,Chassis,padrao,,Sim,Sim,
-210,Proteção inferior (underbody) - estado,6. Chassis e Estrutura,Chassis,padrao,,Sim,Sim,"Danos, corrosão, fixações"
-211,Pontos de ancoragem dos cintos - integridade,6. Chassis e Estrutura,Chassis,padrao,,Sim,Sim,
-212,Passaruedas - estado e fixação,6. Chassis e Estrutura,Chassis,padrao,,Sim,Sim,
-213,Pastilhas dianteiras - desgaste,7. Travagem e Suspensão,Travões,padrao,,Sim,Sim,
-214,Pastilhas traseiras - desgaste,7. Travagem e Suspensão,Travões,padrao,,Sim,Sim,
-215,Disco dianteiro esquerdo - estado,7. Travagem e Suspensão,Travões,padrao,,Sim,Sim,
-216,Disco dianteiro direito - estado,7. Travagem e Suspensão,Travões,padrao,,Sim,Sim,
-217,Disco traseiro esquerdo - estado,7. Travagem e Suspensão,Travões,padrao,,Sim,Sim,Se disco; tambor = N/A
-218,Disco traseiro direito - estado,7. Travagem e Suspensão,Travões,padrao,,Sim,Sim,
-219,Tambores traseiros - estado,7. Travagem e Suspensão,Travões,padrao,,Sim,Sim,Se aplicável
-220,Pinças de travão - estado e fugas,7. Travagem e Suspensão,Travões,padrao,,Sim,Sim,
-221,Tubagem de travão - fugas visíveis,7. Travagem e Suspensão,Travões,padrao,,Sim,Sim,
-222,Travão de mão - funcionamento,7. Travagem e Suspensão,Travões,padrao,,Sim,Sim,
-223,Amortecedor dianteiro esquerdo - estado,7. Travagem e Suspensão,Suspensão,padrao,,Sim,Sim,
-224,Amortecedor dianteiro direito - estado,7. Travagem e Suspensão,Suspensão,padrao,,Sim,Sim,
-225,Amortecedor traseiro esquerdo - estado,7. Travagem e Suspensão,Suspensão,padrao,,Sim,Sim,
-226,Amortecedor traseiro direito - estado,7. Travagem e Suspensão,Suspensão,padrao,,Sim,Sim,
-227,Mola dianteira esquerda - estado,7. Travagem e Suspensão,Suspensão,padrao,,Sim,Sim,
-228,Mola dianteira direita - estado,7. Travagem e Suspensão,Suspensão,padrao,,Sim,Sim,
-229,Mola traseira esquerda - estado,7. Travagem e Suspensão,Suspensão,padrao,,Sim,Sim,
-230,Mola traseira direita - estado,7. Travagem e Suspensão,Suspensão,padrao,,Sim,Sim,
-231,Direção e suspensão - estado geral,7. Travagem e Suspensão,Suspensão,padrao,,Sim,Sim,"Folgas, braços, rótulas"
-232,Ruídos na suspensão (estática),7. Travagem e Suspensão,Suspensão,padrao,,Sim,Sim,
-233,Tomada OBD - funcional,8. Elétrico,Elétrico,padrao,,Sim,Sim,
-234,Fusíveis - presença e estado visual,8. Elétrico,Elétrico,padrao,,Sim,Sim,Caixa de fusíveis
-235,Estado dos cabos visíveis,8. Elétrico,Elétrico,padrao,,Sim,Sim,
-236,Fecho centralizado - funcionamento,8. Elétrico,Elétrico,padrao,,Sim,Sim,
-237,Alarme antifurto - funcionamento,8. Elétrico,Elétrico,padrao,,Sim,Sim,Se aplicável
-238,Sistema Start/Stop - funcionamento,8. Elétrico,Elétrico,padrao,,Sim,Sim,Se aplicável
-239,Travão de mão elétrico - funcionamento,8. Elétrico,Elétrico,padrao,,Sim,Sim,Se aplicável
-240,Sistema ISOFIX - presença,8. Elétrico,Elétrico,padrao,,Sim,Sim,
-241,Resposta do motor (aceleração),9. Teste de Condução,Motor,padrao,,Sim,Particular,Apenas particulares
-242,Funcionamento da caixa de velocidades,9. Teste de Condução,Motor,padrao,,Sim,Particular,
-243,Funcionamento da embraiagem,9. Teste de Condução,Motor,padrao,,Sim,Particular,Manual
-244,Vibração ao acelerar,9. Teste de Condução,Motor,padrao,,Sim,Particular,
-245,Ruídos anormais ao acelerar,9. Teste de Condução,Motor,padrao,,Sim,Particular,
-246,Resposta da direção assistida,9. Teste de Condução,Direção,padrao,,Sim,Particular,
-247,Alinhamento - desvio em linha reta,9. Teste de Condução,Direção,padrao,,Sim,Particular,
-248,Vibrações no volante,9. Teste de Condução,Direção,padrao,,Sim,Particular,
-249,Eficiência do sistema de travagem,9. Teste de Condução,Travagem,padrao,,Sim,Particular,
-250,Vibração ao travar,9. Teste de Condução,Travagem,padrao,,Sim,Particular,
-251,Ruídos anormais ao travar,9. Teste de Condução,Travagem,padrao,,Sim,Particular,
-252,Estabilidade em linha reta,9. Teste de Condução,Comportamento,padrao,,Sim,Particular,
-253,Estabilidade em curvas,9. Teste de Condução,Comportamento,padrao,,Sim,Particular,
-254,Temperatura do motor após condução,9. Teste de Condução,Comportamento,padrao,,Sim,Particular,
-255,Fugas após estacionamento,9. Teste de Condução,Comportamento,padrao,,Sim,Particular,Verificar chão após 5 min
-256,Android Auto / Apple CarPlay,10. Equipamentos,Multimédia,padrao,,Sim,Sim,N/A se não tem
-257,Ecrã central touchscreen,10. Equipamentos,Multimédia,padrao,,Sim,Sim,N/A se não tem
-258,Entrada USB - funcionamento,10. Equipamentos,Multimédia,padrao,,Sim,Sim,N/A se não tem
-259,Sistema de som completo,10. Equipamentos,Multimédia,padrao,,Sim,Sim,
-260,Volante multifunções,10. Equipamentos,Multimédia,padrao,,Sim,Sim,N/A se não tem
-261,Comandos de voz,10. Equipamentos,Multimédia,padrao,,Sim,Sim,N/A se não tem
-262,Carregamento sem fios,10. Equipamentos,Multimédia,padrao,,Sim,Sim,N/A se não tem
-263,Ar condicionado automático (clima),10. Equipamentos,Conforto,padrao,,Sim,Sim,N/A se não tem
-264,Vidros elétricos com um toque,10. Equipamentos,Conforto,padrao,,Sim,Sim,N/A se não tem
-265,Retrovisores elétricos c/ rebatimento,10. Equipamentos,Conforto,padrao,,Sim,Sim,N/A se não tem
-266,Bancos elétricos,10. Equipamentos,Conforto,padrao,,Sim,Sim,N/A se não tem
-267,Bancos aquecidos / ventilados,10. Equipamentos,Conforto,padrao,,Sim,Sim,N/A se não tem
-268,Sensor de chuva,10. Equipamentos,Conforto,padrao,,Sim,Sim,N/A se não tem
-269,Sensor de luz automático,10. Equipamentos,Conforto,padrao,,Sim,Sim,N/A se não tem
-270,Sensores estacionamento dianteiros,10. Equipamentos,ADAS,padrao,,Sim,Sim,N/A se não tem
-271,Sensores estacionamento traseiros,10. Equipamentos,ADAS,padrao,,Sim,Sim,N/A se não tem
-272,Câmara de ré / 360°,10. Equipamentos,ADAS,padrao,,Sim,Sim,N/A se não tem
-273,Cruise control,10. Equipamentos,ADAS,padrao,,Sim,Sim,N/A se não tem
-274,Cruise control adaptativo (ACC),10. Equipamentos,ADAS,padrao,,Sim,Sim,N/A se não tem
-275,Assistente de faixa (Lane Assist),10. Equipamentos,ADAS,padrao,,Sim,Sim,N/A se não tem
-276,Sensor de ângulo morto (BSD),10. Equipamentos,ADAS,padrao,,Sim,Sim,N/A se não tem
-277,Leitor de sinais de trânsito,10. Equipamentos,ADAS,padrao,,Sim,Sim,N/A se não tem
-278,Assistente de estacionamento auto,10. Equipamentos,ADAS,padrao,,Sim,Sim,N/A se não tem
-279,Head-Up Display (HUD),10. Equipamentos,ADAS,padrao,,Sim,Sim,N/A se não tem
-280,Airbags frontais - luz painel OK,10. Equipamentos,Segurança,padrao,,Sim,Sim,Luz apaga após arranque
-281,Airbags laterais - luz painel OK,10. Equipamentos,Segurança,padrao,,Sim,Sim,N/A se não tem
-282,Airbags de cortina - luz painel OK,10. Equipamentos,Segurança,padrao,,Sim,Sim,N/A se não tem
-283,ABS / ESP - luz painel OK,10. Equipamentos,Segurança,padrao,,Sim,Sim,
-284,Travagem auto emergência (AEB),10. Equipamentos,Segurança,padrao,,Sim,Sim,N/A se não tem
-285,Monitor pressão pneus (TPMS),10. Equipamentos,Segurança,padrao,,Sim,Sim,N/A se não tem
-286,Vidro do teto solar - estado,11. Teto Solar,Teto Solar,padrao,,Sim,Sim,N/A se não tem
-287,Abertura e fecho do teto solar,11. Teto Solar,Teto Solar,padrao,,Sim,Sim,N/A se não tem
-288,Inclinação do teto solar,11. Teto Solar,Teto Solar,padrao,,Sim,Sim,N/A se não tem
-289,Sinais de infiltração de água,11. Teto Solar,Teto Solar,padrao,,Sim,Sim,N/A se não tem
-290,Vedação do teto solar,11. Teto Solar,Teto Solar,padrao,,Sim,Sim,N/A se não tem
-291,Cortina interna - funcionamento,11. Teto Solar,Teto Solar,padrao,,Sim,Sim,N/A se não tem
-292,Estado geral da capota,12. Capota Conversível,Capota,padrao,,Sim,Sim,N/A se não tem
-293,Abertura elétrica/manual,12. Capota Conversível,Capota,padrao,,Sim,Sim,N/A se não tem
-294,Fecho elétrico/manual,12. Capota Conversível,Capota,padrao,,Sim,Sim,N/A se não tem
-295,Rasgos/furos na lona,12. Capota Conversível,Capota,padrao,,Sim,Sim,N/A se não tem
-296,Infiltrações pela capota,12. Capota Conversível,Capota,padrao,,Sim,Sim,N/A se não tem
-297,Borrachas de vedação - estado,12. Capota Conversível,Capota,padrao,,Sim,Sim,N/A se não tem
-298,Estrutura metálica - estado,12. Capota Conversível,Capota,padrao,,Sim,Sim,N/A se não tem
-299,Travamento da capota,12. Capota Conversível,Capota,padrao,,Sim,Sim,N/A se não tem
-300,Ruídos anormais na operação,12. Capota Conversível,Capota,padrao,,Sim,Sim,N/A se não tem
-301,Estado geral da bateria de alta tensão,13. Motoriz. Especial (F2),Bateria BEV,padrao,,Fase 2,Fase 2,Visual + alertas painel
-302,Degradação da bateria - capacidade real vs. nominal (%),13. Motoriz. Especial (F2),Bateria BEV,padrao,,Fase 2,Fase 2,Scanner BEV
-303,Número de ciclos de carga,13. Motoriz. Especial (F2),Bateria BEV,padrao,,Fase 2,Fase 2,Scanner BEV
-304,Estado do sistema de gestão de bateria (BMS),13. Motoriz. Especial (F2),Bateria BEV,padrao,,Fase 2,Fase 2,Scanner BEV
-305,Temperatura da bateria - sistema aquecimento/arrefecimento,13. Motoriz. Especial (F2),Bateria BEV,padrao,,Fase 2,Fase 2,Scanner BEV
-306,Alertas ou células danificadas na bateria,13. Motoriz. Especial (F2),Bateria BEV,padrao,,Fase 2,Fase 2,Painel + scanner
-307,Porto carregamento AC (Tipo 2) - estado e funcionamento,13. Motoriz. Especial (F2),Carregamento,padrao,,Fase 2,Fase 2,Teste físico
-308,Porto carregamento DC (CCS/CHAdeMO) - estado e funcionamento,13. Motoriz. Especial (F2),Carregamento,padrao,,Fase 2,Fase 2,Se aplicável
-309,Cabo de carregamento - presença e estado,13. Motoriz. Especial (F2),Carregamento,padrao,,Fase 2,Fase 2,
-310,Sistema de carregamento - teste real (ligar -  tomada),13. Motoriz. Especial (F2),Carregamento,padrao,,Fase 2,Fase 2,
-311,Autonomia estimada atual (% bateria e kms indicados),13. Motoriz. Especial (F2),Sistema BEV,padrao,,Fase 2,Fase 2,Painel
-312,Sistema de inversor - sem alertas activos,13. Motoriz. Especial (F2),Sistema BEV,padrao,,Fase 2,Fase 2,Scanner BEV
-313,Modo recuperação de energia (regeneração) - funcionamento,13. Motoriz. Especial (F2),Sistema BEV,padrao,,Fase 2,Fase 2,Teste em movimento
-314,Sistema som artificial para peões (AVAS) - funcionamento,13. Motoriz. Especial (F2),Sistema BEV,padrao,,Fase 2,Fase 2,
-315,Cabos de alta tensão visíveis - isolamento e estado,13. Motoriz. Especial (F2),Sistema BEV,padrao,,Fase 2,Fase 2,Visual - N-O tocar
-316,Aquecimento/arrefecimento cabine (sistema elétrico),13. Motoriz. Especial (F2),Sistema BEV,padrao,,Fase 2,Fase 2,
-317,Estado da bateria de tração híbrida,13. Motoriz. Especial (F2),Bateria HEV,padrao,,Fase 2,Fase 2,Scanner OBD + módulo
-318,Funcionamento transição motor elétrico - motor térmico,13. Motoriz. Especial (F2),Bateria HEV,padrao,,Fase 2,Fase 2,Teste em movimento
-319,Modo elétrico puro - funcionamento e autonomia (PHEV),13. Motoriz. Especial (F2),Bateria HEV,padrao,,Fase 2,Fase 2,PHEV apenas
-320,Porto de carregamento externo (PHEV) - estado e funcionamento,13. Motoriz. Especial (F2),Carregamento,padrao,,Fase 2,Fase 2,PHEV apenas
-321,Sistema de regeneração em travagem - funcionamento,13. Motoriz. Especial (F2),Sistema HEV,padrao,,Fase 2,Fase 2,Teste em movimento
-322,Arranque automático do motor térmico - correto,13. Motoriz. Especial (F2),Sistema HEV,padrao,,Fase 2,Fase 2,
-323,Sistema de paragem automática (EV mode) - funcionamento,13. Motoriz. Especial (F2),Sistema HEV,padrao,,Fase 2,Fase 2,
-324,Alertas do sistema híbrido no painel,13. Motoriz. Especial (F2),Sistema HEV,padrao,,Fase 2,Fase 2,
-325,Estado geral da bateria 12V auxiliar,13. Motoriz. Especial (F2),Sistema HEV,padrao,,Fase 2,Fase 2,
-326,Itens motor térmico aplicam-se - ver Secção 5,13. Motoriz. Especial (F2),Sistema HEV,padrao,,Fase 2,Fase 2,Ver cat. 5
-327,Depósito GPL - certificação e data de validade,13. Motoriz. Especial (F2),GPL,padrao,,Fase 2,Fase 2,Doc. obrigatória
-328,Válvula de segurança do depósito - funcionamento,13. Motoriz. Especial (F2),GPL,padrao,,Fase 2,Fase 2,Visual
-329,Tubagens e ligações GPL - fugas (detetor de gás),13. Motoriz. Especial (F2),GPL,padrao,,Fase 2,Fase 2,Detetor portátil ~50-
-330,"Kit de conversão GPL - marca, homologação e documentação",13. Motoriz. Especial (F2),GPL,padrao,,Fase 2,Fase 2,Doc. obrigatória
-331,Vaporizador / redutor de pressão - estado,13. Motoriz. Especial (F2),GPL,padrao,,Fase 2,Fase 2,Visual
-332,Injetores GPL - estado e funcionamento,13. Motoriz. Especial (F2),GPL,padrao,,Fase 2,Fase 2,
-333,Comutador GPL/Gasolina no interior - funcionamento,13. Motoriz. Especial (F2),GPL,padrao,,Fase 2,Fase 2,
-334,Sistema de arranque - arranca em gasolina primeiro,13. Motoriz. Especial (F2),GPL,padrao,,Fase 2,Fase 2,Verificação funcional
-335,Certificação IPO para GPL - válida?,13. Motoriz. Especial (F2),GPL,padrao,,Fase 2,Fase 2,Doc. obrigatória
+num,item,categoria,subcategoria,tipo,qtd_pontos_medicao,aplica_stand,observacoes
+1,Marca,1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
+2,Modelo,1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
+3,Versão / Trim,1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
+4,Ano de fabrico,1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
+5,Ano do modelo,1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
+6,Cor do veículo,1. Identificação e Documentação,Identificação,padrao,,PENDENTE,Incluir código de cor se disponível
+7,Número de chassis (VIN),1. Identificação e Documentação,Identificação,padrao,,PENDENTE,Verificar coerência com docs
+8,Número do motor,1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
+9,Matrícula portuguesa,1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
+10,Número de portas,1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
+11,Tipo de combustível,1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
+12,Tipo de caixa de velocidades,1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
+13,Tipo de tração,1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
+14,Potência do motor (cv/kW),1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
+15,Torque do motor (Nm),1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
+16,Documento -nico Automóvel (DUA),1. Identificação e Documentação,Documentação,padrao,,PENDENTE,Verificar titularidade
+17,IPO - válido?,1. Identificação e Documentação,Documentação,padrao,,PENDENTE,Data de validade
+18,Seguro automóvel - válido?,1. Identificação e Documentação,Documentação,padrao,,PENDENTE,Data de validade
+19,Livro de revisões/manutenção,1. Identificação e Documentação,Documentação,padrao,,PENDENTE,Se disponível
+20,Quilometragem atual,1. Identificação e Documentação,Histórico,padrao,,PENDENTE,
+21,Próxima manutenção (kms restantes),1. Identificação e Documentação,Histórico,padrao,,PENDENTE,Registar intervalo e kms actuais
+22,Indícios de adulteração de quilometragem,1. Identificação e Documentação,Histórico,padrao,,PENDENTE,Comparar revisões e IPO
+23,Número de proprietários anteriores,1. Identificação e Documentação,Histórico,padrao,,PENDENTE,
+24,Registo de acidentes anteriores,1. Identificação e Documentação,Histórico,padrao,,PENDENTE,
+25,Histórico de manutenção,1. Identificação e Documentação,Histórico,padrao,,PENDENTE,
+26,Situação fiscal - IUC / multas,1. Identificação e Documentação,Histórico,padrao,,PENDENTE,Verificar portal AT
+27,Estado geral da pintura,2. Exterior,Pintura,padrao,,PENDENTE,
+28,Presença de riscos,2. Exterior,Pintura,padrao,,PENDENTE,
+29,Diferenças de tonalidade entre painéis,2. Exterior,Pintura,padrao,,PENDENTE,Sinal de repintura
+30,Manchas ou oxidação na pintura,2. Exterior,Pintura,padrao,,PENDENTE,
+31,Sinais de desgaste natural,2. Exterior,Pintura,padrao,,PENDENTE,
+32,Película de proteção PPF - estado,2. Exterior,Pintura,padrao,,PENDENTE,Se aplicável
+33,Espessura de pintura - Capô,2. Exterior,Espessura Pintura,medicao,5,PENDENTE,5 pts medição | Ref: 80-180µm | >200µm repintura | >400µm rechape
+34,Espessura de pintura - Tejadilho,2. Exterior,Espessura Pintura,medicao,5,PENDENTE,5 pts medição
+35,Espessura de pintura - Porta diant. esq.,2. Exterior,Espessura Pintura,medicao,4,PENDENTE,4 pts medição
+36,Espessura de pintura - Porta diant. dir.,2. Exterior,Espessura Pintura,medicao,4,PENDENTE,4 pts medição
+37,Espessura de pintura - Porta tras. esq.,2. Exterior,Espessura Pintura,medicao,4,PENDENTE,4 pts medição
+38,Espessura de pintura - Porta tras. dir.,2. Exterior,Espessura Pintura,medicao,4,PENDENTE,4 pts medição
+39,Espessura de pintura - Para-lamas diant. esq.,2. Exterior,Espessura Pintura,medicao,3,PENDENTE,3 pts medição
+40,Espessura de pintura - Para-lamas diant. dir.,2. Exterior,Espessura Pintura,medicao,3,PENDENTE,3 pts medição
+41,Espessura de pintura - Tampa porta-bagagens,2. Exterior,Espessura Pintura,medicao,4,PENDENTE,4 pts medição
+42,Espessura de pintura - Para-choques diant.,2. Exterior,Espessura Pintura,medicao,5,PENDENTE,5 pts | Plástico: usar modo não-ferroso
+43,Espessura de pintura - Para-choques tras.,2. Exterior,Espessura Pintura,medicao,5,PENDENTE,5 pts | Plástico: usar modo não-ferroso
+44,Espessura de pintura - Lateral esq. / soleira,2. Exterior,Espessura Pintura,medicao,3,PENDENTE,3 pts medição
+45,Espessura de pintura - Lateral dir. / soleira,2. Exterior,Espessura Pintura,medicao,3,PENDENTE,3 pts medição
+46,"Capô - estado (amolgadelas, danos)",2. Exterior,Carroçaria,padrao,,PENDENTE,
+47,Tejadilho - estado,2. Exterior,Carroçaria,padrao,,PENDENTE,
+48,Lateral esquerda - estado geral,2. Exterior,Carroçaria,padrao,,PENDENTE,
+49,Lateral direita - estado geral,2. Exterior,Carroçaria,padrao,,PENDENTE,
+50,Zona inferior / friso - estado,2. Exterior,Carroçaria,padrao,,PENDENTE,
+51,Para-lamas dianteiro esquerdo - estado,2. Exterior,Carroçaria,padrao,,PENDENTE,
+52,Para-lamas dianteiro direito - estado,2. Exterior,Carroçaria,padrao,,PENDENTE,
+53,Alinhamento dos painéis (folgas uniformes),2. Exterior,Carroçaria,padrao,,PENDENTE,
+54,Deformações estruturais visíveis,2. Exterior,Carroçaria,padrao,,PENDENTE,
+55,Emblemas e acabamentos externos,2. Exterior,Carroçaria,padrao,,PENDENTE,
+56,Ferrugem externa visível,2. Exterior,Ferrugem,padrao,,PENDENTE,
+57,Corrosão nas portas,2. Exterior,Ferrugem,padrao,,PENDENTE,
+58,Corrosão nas cavas das rodas,2. Exterior,Ferrugem,padrao,,PENDENTE,
+59,Corrosão na parte inferior (underbody),2. Exterior,Ferrugem,padrao,,PENDENTE,
+60,Para-choques dianteiro - estado geral,2. Exterior,Para-choques,padrao,,PENDENTE,
+61,Para-choques dianteiro - alinhamento,2. Exterior,Para-choques,padrao,,PENDENTE,
+62,Para-choques dianteiro - fixações,2. Exterior,Para-choques,padrao,,PENDENTE,
+63,Para-choques traseiro - estado geral,2. Exterior,Para-choques,padrao,,PENDENTE,
+64,Para-choques traseiro - alinhamento,2. Exterior,Para-choques,padrao,,PENDENTE,
+65,Para-choques traseiro - fixações,2. Exterior,Para-choques,padrao,,PENDENTE,
+66,Borrachas das portas,2. Exterior,Vedações,padrao,,PENDENTE,
+67,Borrachas das janelas,2. Exterior,Vedações,padrao,,PENDENTE,
+68,Borrachas do porta-bagagens,2. Exterior,Vedações,padrao,,PENDENTE,
+69,Borrachas do capô,2. Exterior,Vedações,padrao,,PENDENTE,
+70,Porta dianteira esquerda - alinhamento,2. Exterior,Portas,padrao,,PENDENTE,
+71,Porta dianteira esquerda - fechadura,2. Exterior,Portas,padrao,,PENDENTE,
+72,Porta dianteira direita - alinhamento,2. Exterior,Portas,padrao,,PENDENTE,
+73,Porta dianteira direita - fechadura,2. Exterior,Portas,padrao,,PENDENTE,
+74,Porta traseira esquerda - alinhamento,2. Exterior,Portas,padrao,,PENDENTE,
+75,Porta traseira esquerda - fechadura,2. Exterior,Portas,padrao,,PENDENTE,
+76,Porta traseira direita - alinhamento,2. Exterior,Portas,padrao,,PENDENTE,
+77,Porta traseira direita - fechadura,2. Exterior,Portas,padrao,,PENDENTE,
+78,Ruídos nas portas ao abrir/fechar,2. Exterior,Portas,padrao,,PENDENTE,
+79,Botões elétricos portas traseiras - funcionamento,2. Exterior,Portas,padrao,,PENDENTE,Se aplicável
+80,Capô - abertura e fecho,2. Exterior,Capô e PB,padrao,,PENDENTE,
+81,Capô - amortecedores de gás,2. Exterior,Capô e PB,padrao,,PENDENTE,
+82,Porta-bagagens - abertura e fecho,2. Exterior,Capô e PB,padrao,,PENDENTE,
+83,Porta-bagagens - amortecedores de gás,2. Exterior,Capô e PB,padrao,,PENDENTE,
+84,Porta-bagagens - sinais de infiltração de água,2. Exterior,Capô e PB,padrao,,PENDENTE,
+85,Farol dianteiro esquerdo - estado,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+86,Farol dianteiro direito - estado,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+87,Luz média (cruzamento) esquerda,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+88,Luz média (cruzamento) direita,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+89,Luz máxima (estrada) esquerda,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+90,Luz máxima (estrada) direita,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+91,Pisca dianteiro esquerdo,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+92,Pisca dianteiro direito,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+93,Farol traseiro esquerdo - estado,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+94,Farol traseiro direito - estado,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+95,Luz de travagem esquerda,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+96,Luz de travagem direita,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+97,Luz de travagem central (3ª luz),2. Exterior,Faróis e Luzes,padrao,,PENDENTE,Se aplicável
+98,Pisca traseiro esquerdo,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+99,Pisca traseiro direito,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+100,Luz de nevoeiro dianteira esquerda,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,Se aplicável
+101,Luz de nevoeiro dianteira direita,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,Se aplicável
+102,Luz de nevoeiro traseira esquerda,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+103,Luz de nevoeiro traseira direita,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+104,Luz de marcha-atrás esquerda,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+105,Luz de marcha-atrás direita,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+106,Presença de humidade nos faróis,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,
+107,Luzes de condução diurna (DRL) esquerda,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,Se aplicável
+108,Luzes de condução diurna (DRL) direita,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,Se aplicável
+109,Iluminação interior - estado e funcionamento,2. Exterior,Faróis e Luzes,padrao,,PENDENTE,"Teto, leitura, malas"
+110,Para-brisas - estado,2. Exterior,Vidros,padrao,,PENDENTE,"Fissuras, lascas, chip"
+111,Vidro lateral dianteiro esquerdo - estado,2. Exterior,Vidros,padrao,,PENDENTE,
+112,Vidro lateral dianteiro direito - estado,2. Exterior,Vidros,padrao,,PENDENTE,
+113,Vidro lateral traseiro esquerdo - estado,2. Exterior,Vidros,padrao,,PENDENTE,
+114,Vidro lateral traseiro direito - estado,2. Exterior,Vidros,padrao,,PENDENTE,
+115,Vidro traseiro - estado,2. Exterior,Vidros,padrao,,PENDENTE,
+116,Elevador vidro dianteiro esquerdo,2. Exterior,Vidros,padrao,,PENDENTE,
+117,Elevador vidro dianteiro direito,2. Exterior,Vidros,padrao,,PENDENTE,
+118,Elevador vidro traseiro esquerdo,2. Exterior,Vidros,padrao,,PENDENTE,
+119,Elevador vidro traseiro direito,2. Exterior,Vidros,padrao,,PENDENTE,
+120,Sistema limpa para-brisas - escovas e washers,2. Exterior,Vidros,padrao,,PENDENTE,"Escovas, mecânica, jatos de água"
+121,Retrovisor esquerdo - estado,2. Exterior,Espelhos,padrao,,PENDENTE,
+122,Retrovisor direito - estado,2. Exterior,Espelhos,padrao,,PENDENTE,
+123,Retrovisor esquerdo - ajuste elétrico,2. Exterior,Espelhos,padrao,,PENDENTE,Se aplicável
+124,Retrovisor direito - ajuste elétrico,2. Exterior,Espelhos,padrao,,PENDENTE,Se aplicável
+125,Retrovisor esquerdo - aquecimento,2. Exterior,Espelhos,padrao,,PENDENTE,Se aplicável
+126,Retrovisor direito - aquecimento,2. Exterior,Espelhos,padrao,,PENDENTE,Se aplicável
+127,Banco do condutor - estado,3. Interior,Bancos,padrao,,PENDENTE,
+128,Banco passageiro dianteiro - estado,3. Interior,Bancos,padrao,,PENDENTE,
+129,Banco traseiro esquerdo - estado,3. Interior,Bancos,padrao,,PENDENTE,
+130,Banco traseiro central - estado,3. Interior,Bancos,padrao,,PENDENTE,Se aplicável
+131,Banco traseiro direito - estado,3. Interior,Bancos,padrao,,PENDENTE,
+132,Ajuste do banco do condutor (manual/elétrico),3. Interior,Bancos,padrao,,PENDENTE,
+133,Reclinação dos bancos dianteiros,3. Interior,Bancos,padrao,,PENDENTE,
+134,Cinto de segurança dianteiro condutor,3. Interior,Bancos,padrao,,PENDENTE,Retração e fecho
+135,Cinto de segurança dianteiro passageiro,3. Interior,Bancos,padrao,,PENDENTE,
+136,Cinto de segurança traseiro esquerdo,3. Interior,Bancos,padrao,,PENDENTE,
+137,Cinto de segurança traseiro central,3. Interior,Bancos,padrao,,PENDENTE,
+138,Cinto de segurança traseiro direito,3. Interior,Bancos,padrao,,PENDENTE,
+139,Tablier - estado geral,3. Interior,Painel,padrao,,PENDENTE,"Fissuras, degradação"
+140,Indicadores do painel - funcionamento,3. Interior,Painel,padrao,,PENDENTE,
+141,Luzes de aviso do painel - verificação,3. Interior,Painel,padrao,,PENDENTE,"Check engine, ABS, airbag-"
+142,Botões e interruptores - funcionamento geral,3. Interior,Painel,padrao,,PENDENTE,
+143,Buzina - funcionamento,3. Interior,Painel,padrao,,PENDENTE,
+144,Computador de bordo - funcionamento,3. Interior,Painel,padrao,,PENDENTE,"Trip computer, info carro"
+145,Comandos do volante - funcionamento,3. Interior,Painel,padrao,,PENDENTE,Se aplicável
+146,Ar condicionado - funcionamento (frio e calor),3. Interior,Painel,padrao,,PENDENTE,
+147,Rádio / multimédia - funcionamento,3. Interior,Painel,padrao,,PENDENTE,
+148,GPS / navegação integrada,3. Interior,Painel,padrao,,PENDENTE,Se aplicável
+149,Bluetooth - funcionamento,3. Interior,Painel,padrao,,PENDENTE,Se aplicável
+150,Forro do teto - estado,3. Interior,Teto,padrao,,PENDENTE,
+151,Sinais de infiltração no teto,3. Interior,Teto,padrao,,PENDENTE,Manchas de humidade
+152,Teto de abrir manual - funcionamento,3. Interior,Teto,padrao,,PENDENTE,Se aplicável
+153,Teto de abrir elétrico - abertura/fecho,3. Interior,Teto,padrao,,PENDENTE,Se aplicável
+154,Revestimento do porta-bagagens - estado,3. Interior,Porta-bagagens,padrao,,PENDENTE,
+155,Presença do pneu suplente,3. Interior,Porta-bagagens,padrao,,PENDENTE,Ou kit de reparação
+156,Presença do macaco e chave de rodas,3. Interior,Porta-bagagens,padrao,,PENDENTE,
+157,Pneu dianteiro esquerdo - estado geral,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,Marca / modelo / medida / DOT
+158,Pneu dianteiro direito - estado geral,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,
+159,Pneu traseiro esquerdo - estado geral,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,
+160,Pneu traseiro direito - estado geral,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,
+161,Pneu suplente - estado,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,Se aplicável
+162,Pneumáticos adicionais (jogo extra),4. Pneus e Rodas,Pneus,padrao,,PENDENTE,Inverno/verão - se existirem
+163,Profundidade do piso - dianteiro esq.,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,"Mín. legal 1,6mm"
+164,Profundidade do piso - dianteiro dir.,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,
+165,Profundidade do piso - traseiro esq.,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,
+166,Profundidade do piso - traseiro dir.,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,
+167,Desgaste irregular - dianteiro esq.,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,Ind. problemas suspensão
+168,Desgaste irregular - dianteiro dir.,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,
+169,Desgaste irregular - traseiro esq.,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,
+170,Desgaste irregular - traseiro dir.,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,
+171,Cortes/bolhas - dianteiro esq.,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,
+172,Cortes/bolhas - dianteiro dir.,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,
+173,Cortes/bolhas - traseiro esq.,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,
+174,Cortes/bolhas - traseiro dir.,4. Pneus e Rodas,Pneus,padrao,,PENDENTE,
+175,Jante dianteira esquerda - estado,4. Pneus e Rodas,Jantes,padrao,,PENDENTE,"Riscos, amolgadelas"
+176,Jante dianteira direita - estado,4. Pneus e Rodas,Jantes,padrao,,PENDENTE,
+177,Jante traseira esquerda - estado,4. Pneus e Rodas,Jantes,padrao,,PENDENTE,
+178,Jante traseira direita - estado,4. Pneus e Rodas,Jantes,padrao,,PENDENTE,
+179,Corrosão nas jantes,4. Pneus e Rodas,Jantes,padrao,,PENDENTE,
+180,Nível do óleo do motor,5. Motor,Fluidos,padrao,,PENDENTE,
+181,Qualidade do óleo do motor,5. Motor,Fluidos,padrao,,PENDENTE,Cor e consistência
+182,Nível do líquido de arrefecimento,5. Motor,Fluidos,padrao,,PENDENTE,
+183,Qualidade do líquido de arrefecimento,5. Motor,Fluidos,padrao,,PENDENTE,Cor - verificar contaminação
+184,Nível do fluido de travões,5. Motor,Fluidos,padrao,,PENDENTE,
+185,Teste do fluido de travões,5. Motor,Fluidos,padrao,,PENDENTE,Humidade - recomendar subst. se >3%
+186,Nível do fluido de direção assistida,5. Motor,Fluidos,padrao,,PENDENTE,Se aplicável
+187,Nível do líquido da caixa automática,5. Motor,Fluidos,padrao,,PENDENTE,Se acessível / aplicável
+188,Nível do líquido do diferencial,5. Motor,Fluidos,padrao,,PENDENTE,AWD/4x4 - se acessível
+189,Nível do líquido limpa para-brisas,5. Motor,Fluidos,padrao,,PENDENTE,
+190,Diagnóstico eletrónico (OBD) - luzes avisadoras,5. Motor,Componentes,padrao,,PENDENTE,Sem códigos de erro activos
+191,Estanquicidade geral do motor,5. Motor,Componentes,padrao,,PENDENTE,Fugas visíveis de qualquer fluido
+192,Sistema de arrefecimento - estado,5. Motor,Componentes,padrao,,PENDENTE,"Radiador, mangueiras, pressão"
+193,Estado da correia de distribuição,5. Motor,Componentes,padrao,,PENDENTE,Verificar kms/data última troca
+194,Estado da correia do alternador,5. Motor,Componentes,padrao,,PENDENTE,
+195,Estado das mangueiras do motor,5. Motor,Componentes,padrao,,PENDENTE,"Fissuras, folgas"
+196,Fugas de óleo visíveis,5. Motor,Componentes,padrao,,PENDENTE,
+197,Fugas de líquido de arrefecimento,5. Motor,Componentes,padrao,,PENDENTE,
+198,Estado da bateria,5. Motor,Componentes,padrao,,PENDENTE,Corrosão nos terminais
+199,Alternador - tensão de carga,5. Motor,Componentes,padrao,,PENDENTE,"~13,8-14,4V com motor ligado"
+200,Estado do filtro de ar,5. Motor,Componentes,padrao,,PENDENTE,Visível sem desmontagem
+201,Sistema de escape - estado e fugas,5. Motor,Componentes,padrao,,PENDENTE,"Fugas, ruídos, fixações, corrosão"
+202,Fumo no escape - cor e quantidade,5. Motor,Componentes,padrao,,PENDENTE,Azul=óleo | Branco=água | Preto=comb.
+203,Caixa de velocidades - estado,5. Motor,Componentes,padrao,,PENDENTE,
+204,Embraiagem - estado,5. Motor,Componentes,padrao,,PENDENTE,Manual; N/A se automática
+205,Velas de ignição - verificação visual,5. Motor,Componentes,padrao,,PENDENTE,Se acessível sem desmontagem
+206,Cabos e fiação visíveis - estado,5. Motor,Componentes,padrao,,PENDENTE,"Isolamento, conexões"
+207,Sinais de reparação de colisão - longarinas,6. Chassis e Estrutura,Chassis,padrao,,PENDENTE,"Soldas, reforços, massa"
+208,Sinais de reparação de colisão - travessas,6. Chassis e Estrutura,Chassis,padrao,,PENDENTE,
+209,Deformação do chassis visível,6. Chassis e Estrutura,Chassis,padrao,,PENDENTE,
+210,Proteção inferior (underbody) - estado,6. Chassis e Estrutura,Chassis,padrao,,PENDENTE,"Danos, corrosão, fixações"
+211,Pontos de ancoragem dos cintos - integridade,6. Chassis e Estrutura,Chassis,padrao,,PENDENTE,
+212,Passaruedas - estado e fixação,6. Chassis e Estrutura,Chassis,padrao,,PENDENTE,
+213,Pastilhas dianteiras - desgaste,7. Travagem e Suspensão,Travões,padrao,,PENDENTE,
+214,Pastilhas traseiras - desgaste,7. Travagem e Suspensão,Travões,padrao,,PENDENTE,
+215,Disco dianteiro esquerdo - estado,7. Travagem e Suspensão,Travões,padrao,,PENDENTE,
+216,Disco dianteiro direito - estado,7. Travagem e Suspensão,Travões,padrao,,PENDENTE,
+217,Disco traseiro esquerdo - estado,7. Travagem e Suspensão,Travões,padrao,,PENDENTE,Se disco; tambor = N/A
+218,Disco traseiro direito - estado,7. Travagem e Suspensão,Travões,padrao,,PENDENTE,
+219,Tambores traseiros - estado,7. Travagem e Suspensão,Travões,padrao,,PENDENTE,Se aplicável
+220,Pinças de travão - estado e fugas,7. Travagem e Suspensão,Travões,padrao,,PENDENTE,
+221,Tubagem de travão - fugas visíveis,7. Travagem e Suspensão,Travões,padrao,,PENDENTE,
+222,Travão de mão - funcionamento,7. Travagem e Suspensão,Travões,padrao,,PENDENTE,
+223,Amortecedor dianteiro esquerdo - estado,7. Travagem e Suspensão,Suspensão,padrao,,PENDENTE,
+224,Amortecedor dianteiro direito - estado,7. Travagem e Suspensão,Suspensão,padrao,,PENDENTE,
+225,Amortecedor traseiro esquerdo - estado,7. Travagem e Suspensão,Suspensão,padrao,,PENDENTE,
+226,Amortecedor traseiro direito - estado,7. Travagem e Suspensão,Suspensão,padrao,,PENDENTE,
+227,Mola dianteira esquerda - estado,7. Travagem e Suspensão,Suspensão,padrao,,PENDENTE,
+228,Mola dianteira direita - estado,7. Travagem e Suspensão,Suspensão,padrao,,PENDENTE,
+229,Mola traseira esquerda - estado,7. Travagem e Suspensão,Suspensão,padrao,,PENDENTE,
+230,Mola traseira direita - estado,7. Travagem e Suspensão,Suspensão,padrao,,PENDENTE,
+231,Direção e suspensão - estado geral,7. Travagem e Suspensão,Suspensão,padrao,,PENDENTE,"Folgas, braços, rótulas"
+232,Ruídos na suspensão (estática),7. Travagem e Suspensão,Suspensão,padrao,,PENDENTE,
+233,Tomada OBD - funcional,8. Elétrico,Elétrico,padrao,,PENDENTE,
+234,Fusíveis - presença e estado visual,8. Elétrico,Elétrico,padrao,,PENDENTE,Caixa de fusíveis
+235,Estado dos cabos visíveis,8. Elétrico,Elétrico,padrao,,PENDENTE,
+236,Fecho centralizado - funcionamento,8. Elétrico,Elétrico,padrao,,PENDENTE,
+237,Alarme antifurto - funcionamento,8. Elétrico,Elétrico,padrao,,PENDENTE,Se aplicável
+238,Sistema Start/Stop - funcionamento,8. Elétrico,Elétrico,padrao,,PENDENTE,Se aplicável
+239,Travão de mão elétrico - funcionamento,8. Elétrico,Elétrico,padrao,,PENDENTE,Se aplicável
+240,Sistema ISOFIX - presença,8. Elétrico,Elétrico,padrao,,PENDENTE,
+256,Android Auto / Apple CarPlay,9. Equipamentos,Multimédia,padrao,,PENDENTE,N/A se não tem
+257,Ecrã central touchscreen,9. Equipamentos,Multimédia,padrao,,PENDENTE,N/A se não tem
+258,Entrada USB - funcionamento,9. Equipamentos,Multimédia,padrao,,PENDENTE,N/A se não tem
+259,Sistema de som completo,9. Equipamentos,Multimédia,padrao,,PENDENTE,
+260,Volante multifunções,9. Equipamentos,Multimédia,padrao,,PENDENTE,N/A se não tem
+261,Comandos de voz,9. Equipamentos,Multimédia,padrao,,PENDENTE,N/A se não tem
+262,Carregamento sem fios,9. Equipamentos,Multimédia,padrao,,PENDENTE,N/A se não tem
+263,Ar condicionado automático (clima),9. Equipamentos,Conforto,padrao,,PENDENTE,N/A se não tem
+264,Vidros elétricos com um toque,9. Equipamentos,Conforto,padrao,,PENDENTE,N/A se não tem
+265,Retrovisores elétricos c/ rebatimento,9. Equipamentos,Conforto,padrao,,PENDENTE,N/A se não tem
+266,Bancos elétricos,9. Equipamentos,Conforto,padrao,,PENDENTE,N/A se não tem
+267,Bancos aquecidos / ventilados,9. Equipamentos,Conforto,padrao,,PENDENTE,N/A se não tem
+268,Sensor de chuva,9. Equipamentos,Conforto,padrao,,PENDENTE,N/A se não tem
+269,Sensor de luz automático,9. Equipamentos,Conforto,padrao,,PENDENTE,N/A se não tem
+270,Sensores estacionamento dianteiros,9. Equipamentos,ADAS,padrao,,PENDENTE,N/A se não tem
+271,Sensores estacionamento traseiros,9. Equipamentos,ADAS,padrao,,PENDENTE,N/A se não tem
+272,Câmara de ré / 360°,9. Equipamentos,ADAS,padrao,,PENDENTE,N/A se não tem
+273,Cruise control,9. Equipamentos,ADAS,padrao,,PENDENTE,N/A se não tem
+274,Cruise control adaptativo (ACC),9. Equipamentos,ADAS,padrao,,PENDENTE,N/A se não tem
+275,Assistente de faixa (Lane Assist),9. Equipamentos,ADAS,padrao,,PENDENTE,N/A se não tem
+276,Sensor de ângulo morto (BSD),9. Equipamentos,ADAS,padrao,,PENDENTE,N/A se não tem
+277,Leitor de sinais de trânsito,9. Equipamentos,ADAS,padrao,,PENDENTE,N/A se não tem
+278,Assistente de estacionamento auto,9. Equipamentos,ADAS,padrao,,PENDENTE,N/A se não tem
+279,Head-Up Display (HUD),9. Equipamentos,ADAS,padrao,,PENDENTE,N/A se não tem
+280,Airbags frontais - luz painel OK,9. Equipamentos,Segurança,padrao,,PENDENTE,Luz apaga após arranque
+281,Airbags laterais - luz painel OK,9. Equipamentos,Segurança,padrao,,PENDENTE,N/A se não tem
+282,Airbags de cortina - luz painel OK,9. Equipamentos,Segurança,padrao,,PENDENTE,N/A se não tem
+283,ABS / ESP - luz painel OK,9. Equipamentos,Segurança,padrao,,PENDENTE,
+284,Travagem auto emergência (AEB),9. Equipamentos,Segurança,padrao,,PENDENTE,N/A se não tem
+285,Monitor pressão pneus (TPMS),9. Equipamentos,Segurança,padrao,,PENDENTE,N/A se não tem
+286,Vidro do teto solar - estado,10. Teto Solar,Teto Solar,padrao,,PENDENTE,N/A se não tem
+287,Abertura e fecho do teto solar,10. Teto Solar,Teto Solar,padrao,,PENDENTE,N/A se não tem
+288,Inclinação do teto solar,10. Teto Solar,Teto Solar,padrao,,PENDENTE,N/A se não tem
+289,Sinais de infiltração de água,10. Teto Solar,Teto Solar,padrao,,PENDENTE,N/A se não tem
+290,Vedação do teto solar,10. Teto Solar,Teto Solar,padrao,,PENDENTE,N/A se não tem
+291,Cortina interna - funcionamento,10. Teto Solar,Teto Solar,padrao,,PENDENTE,N/A se não tem
+292,Estado geral da capota,11. Capota Conversível,Capota,padrao,,PENDENTE,N/A se não tem
+293,Abertura elétrica/manual,11. Capota Conversível,Capota,padrao,,PENDENTE,N/A se não tem
+294,Fecho elétrico/manual,11. Capota Conversível,Capota,padrao,,PENDENTE,N/A se não tem
+295,Rasgos/furos na lona,11. Capota Conversível,Capota,padrao,,PENDENTE,N/A se não tem
+296,Infiltrações pela capota,11. Capota Conversível,Capota,padrao,,PENDENTE,N/A se não tem
+297,Borrachas de vedação - estado,11. Capota Conversível,Capota,padrao,,PENDENTE,N/A se não tem
+298,Estrutura metálica - estado,11. Capota Conversível,Capota,padrao,,PENDENTE,N/A se não tem
+299,Travamento da capota,11. Capota Conversível,Capota,padrao,,PENDENTE,N/A se não tem
+300,Ruídos anormais na operação,11. Capota Conversível,Capota,padrao,,PENDENTE,N/A se não tem
+301,Estado geral da bateria de alta tensão,12. Motoriz. Especial (F2),Bateria BEV,padrao,,PENDENTE,Visual + alertas painel
+302,Degradação da bateria - capacidade real vs. nominal (%),12. Motoriz. Especial (F2),Bateria BEV,padrao,,PENDENTE,Scanner BEV
+303,Número de ciclos de carga,12. Motoriz. Especial (F2),Bateria BEV,padrao,,PENDENTE,Scanner BEV
+304,Estado do sistema de gestão de bateria (BMS),12. Motoriz. Especial (F2),Bateria BEV,padrao,,PENDENTE,Scanner BEV
+305,Temperatura da bateria - sistema aquecimento/arrefecimento,12. Motoriz. Especial (F2),Bateria BEV,padrao,,PENDENTE,Scanner BEV
+306,Alertas ou células danificadas na bateria,12. Motoriz. Especial (F2),Bateria BEV,padrao,,PENDENTE,Painel + scanner
+307,Porto carregamento AC (Tipo 2) - estado e funcionamento,12. Motoriz. Especial (F2),Carregamento,padrao,,PENDENTE,Teste físico
+308,Porto carregamento DC (CCS/CHAdeMO) - estado e funcionamento,12. Motoriz. Especial (F2),Carregamento,padrao,,PENDENTE,Se aplicável
+309,Cabo de carregamento - presença e estado,12. Motoriz. Especial (F2),Carregamento,padrao,,PENDENTE,
+310,Sistema de carregamento - teste real (ligar -  tomada),12. Motoriz. Especial (F2),Carregamento,padrao,,PENDENTE,
+311,Autonomia estimada atual (% bateria e kms indicados),12. Motoriz. Especial (F2),Sistema BEV,padrao,,PENDENTE,Painel
+312,Sistema de inversor - sem alertas activos,12. Motoriz. Especial (F2),Sistema BEV,padrao,,PENDENTE,Scanner BEV
+313,Modo recuperação de energia (regeneração) - funcionamento,12. Motoriz. Especial (F2),Sistema BEV,padrao,,PENDENTE,Teste em movimento
+314,Sistema som artificial para peões (AVAS) - funcionamento,12. Motoriz. Especial (F2),Sistema BEV,padrao,,PENDENTE,
+315,Cabos de alta tensão visíveis - isolamento e estado,12. Motoriz. Especial (F2),Sistema BEV,padrao,,PENDENTE,Visual - N-O tocar
+316,Aquecimento/arrefecimento cabine (sistema elétrico),12. Motoriz. Especial (F2),Sistema BEV,padrao,,PENDENTE,
+317,Estado da bateria de tração híbrida,12. Motoriz. Especial (F2),Bateria HEV,padrao,,PENDENTE,Scanner OBD + módulo
+318,Funcionamento transição motor elétrico - motor térmico,12. Motoriz. Especial (F2),Bateria HEV,padrao,,PENDENTE,Teste em movimento
+319,Modo elétrico puro - funcionamento e autonomia (PHEV),12. Motoriz. Especial (F2),Bateria HEV,padrao,,PENDENTE,PHEV apenas
+320,Porto de carregamento externo (PHEV) - estado e funcionamento,12. Motoriz. Especial (F2),Carregamento,padrao,,PENDENTE,PHEV apenas
+321,Sistema de regeneração em travagem - funcionamento,12. Motoriz. Especial (F2),Sistema HEV,padrao,,PENDENTE,Teste em movimento
+322,Arranque automático do motor térmico - correto,12. Motoriz. Especial (F2),Sistema HEV,padrao,,PENDENTE,
+323,Sistema de paragem automática (EV mode) - funcionamento,12. Motoriz. Especial (F2),Sistema HEV,padrao,,PENDENTE,
+324,Alertas do sistema híbrido no painel,12. Motoriz. Especial (F2),Sistema HEV,padrao,,PENDENTE,
+325,Estado geral da bateria 12V auxiliar,12. Motoriz. Especial (F2),Sistema HEV,padrao,,PENDENTE,
+326,Itens motor térmico aplicam-se - ver Secção 5,12. Motoriz. Especial (F2),Sistema HEV,padrao,,PENDENTE,Ver cat. 5
+327,Depósito GPL - certificação e data de validade,12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,Doc. obrigatória
+328,Válvula de segurança do depósito - funcionamento,12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,Visual
+329,Tubagens e ligações GPL - fugas (detetor de gás),12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,Detetor portátil ~50-
+330,"Kit de conversão GPL - marca, homologação e documentação",12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,Doc. obrigatória
+331,Vaporizador / redutor de pressão - estado,12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,Visual
+332,Injetores GPL - estado e funcionamento,12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,
+333,Comutador GPL/Gasolina no interior - funcionamento,12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,
+334,Sistema de arranque - arranca em gasolina primeiro,12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,Verificação funcional
+335,Certificação IPO para GPL - válida?,12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,Doc. obrigatória

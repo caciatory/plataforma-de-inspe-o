@@ -19,8 +19,9 @@
 - **RF-06** — Os dados básicos devem ser salvos antes de liberar o acesso à checklist.
 
 ### 1.3 Checklist
-- **RF-07** — A checklist deve ter os 12 grupos fixos definidos no PRD §6, na ordem especificada.
-- **RF-08** — O grupo "Teste de Condução" (grupo 9) só deve ser exibido e exigido quando `tipo_cliente = particular`. Para stand, o grupo não aparece e não entra na regra de obrigatoriedade.
+- **RF-07** — A checklist deve ter os 11 grupos fixos definidos em `docs/data/checklist-inspecta-v5.csv` (285 itens), na ordem especificada. Um 12º grupo, "Motorização Especial" (BEV/HEV/GPL, 35 itens), existe na planilha-fonte mas é Fase 2 — não faz parte do v1.0 (ver roadmap §5).
+- ~~RF-08 (grupo "Teste de Condução" só exibido para particular) removido — decisão de 2026-07-10: o grupo Teste de Condução não será aplicado, para nenhum tipo de cliente.~~
+- **RF-63** — Cada item do checklist tem um flag `aplica_stand` (booleano). Quando `tipo_cliente = particular`, todos os itens aplicáveis são exibidos. Quando `tipo_cliente = stand`, só os itens com `aplica_stand = true` são exibidos e entram na regra de finalização/obrigatoriedade (RF-23). A decisão de quais itens têm `aplica_stand = true` é feita pelos sócios na planilha-fonte, carregada uma vez no seed — mesmo mecanismo de RF-07, sem tela de admin para editar.
 - **RF-09** — Dentro de cada grupo, os itens devem ser agrupados visualmente por subcategoria, sem afetar a regra de obrigatoriedade (que é sempre por item).
 - **RF-10** — A tela principal deve listar os grupos na lateral, cada um mostrando a contagem de itens pendentes.
 - **RF-11** — Cada grupo deve exibir indicador visual: ✅ (todos os itens respondidos) ou ⚠️ com contagem de pendentes.
@@ -238,11 +239,11 @@ erDiagram
     CHECKLIST_GROUP_TEMPLATE {
         int ordem
         string nome
-        boolean somente_particular
     }
     CHECKLIST_ITEM_TEMPLATE {
         uuid id
         uuid group_id
+        boolean aplica_stand
         string subcategoria
         string nome
         enum tipo "padrao | medicao"
@@ -300,6 +301,7 @@ Notas de modelagem:
 - `VEHICLE_DATA` e `CLIENT_DATA` estão separados por serem tratados com regras de acesso diferentes: dados do veículo aparecem no relatório, dados do cliente não (RF-50).
 - `PAINT_MEASUREMENT` é uma extensão 1:1 opcional de `CHECKLIST_ITEM_RESPONSE`, só existe quando o item é do tipo `medicao`.
 - `PHOTO` é uma única tabela para fotos de item e fotos de capa do relatório, diferenciadas pelo campo `contexto` — antes eram duas tabelas quase idênticas (`PHOTO` + `REPORT_COVER_PHOTO`).
+- `aplica_stand` vive em `CHECKLIST_ITEM_TEMPLATE` (por item), não mais `somente_particular` em `CHECKLIST_GROUP_TEMPLATE` (por grupo) — decisão de 2026-07-10, depois que o grupo "Teste de Condução" (único caso que justificava o flag por grupo) saiu do escopo. Particular sempre vê todos os itens; Stand só vê os itens com `aplica_stand = true`, decidido pelos sócios na planilha-fonte.
 - `codigo_certificado` e `certificado_emitido_em` vivem direto em `INSPECTION` (antes era uma tabela `CERTIFICATE` separada) — é uma relação 1:1 que só existe após aprovação, não precisa de tabela e join próprios.
 - `AUDIT_LOG_ENTRY` é somente-inserção (RNF-11) e simples (quem/o quê/quando, sem diff de valor anterior/novo); nenhuma operação de update/delete deve existir sobre essa tabela na camada de aplicação.
 - `atrasada` em `INSPECTION` é campo derivado/calculado, pode ser calculado em tempo de leitura a partir de `data_abertura` + `status`, sem persistir.
@@ -313,7 +315,7 @@ Sequenciado a partir das prioridades do PRD §15, em fases entregáveis e testá
 | Fase | Escopo | RFs principais |
 |---|---|---|
 | **0. Fundação** | Definição de stack, setup de projeto, modelo de dados, autenticação básica (Técnico/Admin) | RF-01 |
-| **1. Inspeção — núcleo** | Dados básicos do veículo/cliente, estrutura dos 12 grupos e itens (templates), tela de checklist com navegação por grupo, indicadores ✅/⚠️ | RF-02 a RF-12, RF-23–24 |
+| **1. Inspeção — núcleo** | Dados básicos do veículo/cliente, estrutura dos 11 grupos e 285 itens (templates), filtro `aplica_stand`, tela de checklist com navegação por grupo, indicadores ✅/⚠️ | RF-02 a RF-12, RF-23–24, RF-63 |
 | **2. Preenchimento de item** | Classificação padrão, NF com confirmação, fotos (regra "ruim" exige foto), observações, item de medição de espessura com cálculo automático | RF-13 a RF-22 |
 | **3. Autosave online** | Salvamento direto no servidor a cada alteração, indicador de erro/retry, upload de foto direto | RF-25 a RF-27, RNF-22 |
 | **4. Pontuação** | Cálculo de nota por grupo/geral, classificação A/B/C (valores fixos no código) | RF-38 a RF-42, RNF-18–19 |
@@ -323,6 +325,8 @@ Sequenciado a partir das prioridades do PRD §15, em fases entregáveis e testá
 | **8. Hardening & QA** | Revisão de segurança/RGPD, testes de fluxo completo, performance da lista admin, acessibilidade do relatório | Todos os RNF |
 
 Fora do MVP (não entra no roadmap acima): portal público/Hall da Fama, catálogo de stands, templates versionáveis de checklist, múltiplos admins, relatórios analíticos, offline-first, tela de configuração de pontuação/faixas, tela de admin para editar o checklist, busca pública por código de certificado, exportação de PDF dedicada — ver `docs/superpowers/specs/2026-07-09-inspecta-prd-design.md` §4.
+
+**Fase 9 (futura, confirmada — não especulativa):** Motorização Especial — 35 itens de checklist para veículos elétricos (BEV), híbridos (HEV/PHEV) e a GPL, condicionados à aquisição de equipamento específico (scanner de bateria de alta tensão ~1.500€, detetor de fugas de gás ~50€). Conteúdo já existe em `docs/data/checklist-inspecta-v5.csv` (grupo 12), mas não é seedado no v1.0. Ativar quando o equipamento for adquirido.
 
 ---
 
@@ -335,9 +339,10 @@ Precisam de validação antes ou durante a Fase 4/6:
 - Se o resultado dos itens de medição de espessura deve futuramente entrar no cálculo de pontuação.
 
 Adicional, específico desta etapa:
-- Stack técnica (frontend/backend/DB) ainda não definida — não é bloqueante para este documento, mas é pré-requisito da Fase 0. Mecanismo offline não é mais um critério de escolha (v1.0 assume internet sempre disponível).
+- Stack técnica: PostgreSQL via Supabase, decidido em 2026-07-09 (ver `docs/database-schema-v1.md`). Mecanismo offline não é mais um critério de escolha (v1.0 assume internet sempre disponível).
 - Design do relatório final já existe (fornecido pelo usuário) — falta design do dashboard/checklist do técnico e admin.
-- Conteúdo exato dos 300+ itens do checklist (planilha/JSON) precisa estar pronto antes da Fase 1.
+- ~~Conteúdo exato dos 300+ itens do checklist~~ resolvido em 2026-07-10: `docs/data/checklist-inspecta-v5.csv`, 285 itens v1.0 + 35 itens Fase 2 (Motorização Especial).
+- **Decisão pendente dos sócios:** quais dos 285 itens têm `aplica_stand = true` (RF-63). Coluna `aplica_stand` no CSV está marcada `PENDENTE` em todas as linhas até essa decisão ser tomada — bloqueia o seed final de `checklist_item_templates`.
 - Comportamento exato de "aplicar aos demais" em itens repetidos (copia só classificação, ou também foto/observação?) — a definir na Fase 1/2.
 
 Ver também `docs/superpowers/specs/2026-07-09-inspecta-prd-design.md` — PRD de produto com problema, jornada do usuário e escopo v1.0, fonte da verdade para decisões de corte de escopo.

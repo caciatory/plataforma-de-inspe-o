@@ -203,7 +203,7 @@ git commit -m "db: core entities (users, inspections, vehicle_data, client_data)
 
 **Interfaces:**
 - Consumes: nothing from Task 1 directly (templates are inspection-independent).
-- Produces: `public.checklist_group_templates(id, ordem, nome, somente_particular)`, `public.checklist_item_templates(id, group_id, subcategoria, nome, tipo, qtd_pontos_medicao)`. Task 3's `checklist_item_responses.item_template_id` references this table's `id`.
+- Produces: `public.checklist_group_templates(id, ordem, nome)`, `public.checklist_item_templates(id, group_id, subcategoria, nome, tipo, qtd_pontos_medicao, aplica_stand)`. Task 3's `checklist_item_responses.item_template_id` references this table's `id`.
 
 - [ ] **Step 1: Write the migration**
 
@@ -214,8 +214,7 @@ create type item_template_tipo as enum ('padrao', 'medicao');
 create table public.checklist_group_templates (
   id uuid primary key default gen_random_uuid(),
   ordem int not null unique,
-  nome text not null,
-  somente_particular boolean not null default false
+  nome text not null
 );
 
 create table public.checklist_item_templates (
@@ -225,6 +224,7 @@ create table public.checklist_item_templates (
   nome text not null,
   tipo item_template_tipo not null default 'padrao',
   qtd_pontos_medicao int,
+  aplica_stand boolean not null default false,
   constraint qtd_pontos_medicao_valido check (
     tipo <> 'medicao' or qtd_pontos_medicao between 3 and 5
   )
@@ -244,11 +244,19 @@ Expected: applies with no errors.
 -- supabase/tests/00002_checklist_templates.test.sql
 begin;
 
-insert into public.checklist_group_templates (ordem, nome, somente_particular)
-  values (1, 'Exterior', false);
+insert into public.checklist_group_templates (ordem, nome)
+  values (1, 'Exterior');
 
+-- aplica_stand default false: item padrão sem passar o campo fica de fora do plano Stand por padrão
 insert into public.checklist_item_templates (group_id, nome, tipo)
   select id, 'Para-choque dianteiro', 'padrao' from public.checklist_group_templates where ordem = 1;
+do $$
+declare v_aplica_stand boolean;
+begin
+  select aplica_stand into v_aplica_stand from public.checklist_item_templates where nome = 'Para-choque dianteiro';
+  if v_aplica_stand is not false then raise exception 'FALHOU: esperava aplica_stand=false por padrão, veio %', v_aplica_stand; end if;
+  raise notice 'OK: aplica_stand default false';
+end $$;
 
 -- item tipo=medicao SEM qtd_pontos_medicao deve falhar
 do $$
@@ -262,9 +270,9 @@ begin
   end;
 end $$;
 
--- item tipo=medicao com qtd_pontos_medicao=4 (dentro de 3-5) deve passar
-insert into public.checklist_item_templates (group_id, nome, tipo, qtd_pontos_medicao)
-  select id, 'Espessura porta dianteira', 'medicao', 4 from public.checklist_group_templates where ordem = 1;
+-- item tipo=medicao com qtd_pontos_medicao=4 (dentro de 3-5) e aplica_stand=true deve passar
+insert into public.checklist_item_templates (group_id, nome, tipo, qtd_pontos_medicao, aplica_stand)
+  select id, 'Espessura porta dianteira', 'medicao', 4, true from public.checklist_group_templates where ordem = 1;
 
 rollback;
 ```
@@ -643,7 +651,7 @@ git commit -m "db: search/filter/sort indexes for the admin inspection list"
 ## Explicitly deferred (not tasks in this plan)
 
 - **Row Level Security policies** (Técnico só vê as próprias inspeções, Admin vê todas — Mapa de Permissões em `docs/especificacao-tecnica-v1.md` §3). The tables here are the prerequisite; RLS is an auth/access-control concern that belongs with Fase 0's auth setup, not with table architecture. Flagging so it doesn't get silently dropped: **someone must write these policies before any client-facing app code queries these tables directly**, or every técnico can currently read every inspection.
-- **Seeding the 300+ checklist items** into `checklist_group_templates`/`checklist_item_templates` — needs the actual spreadsheet/JSON content (open item in the PRD), not schema work.
+- **Seeding the 285 v1.0 checklist items** into `checklist_group_templates`/`checklist_item_templates` — content now exists at `docs/data/checklist-inspecta-v5.csv`, but the `aplica_stand` column is still marked `PENDENTE` on every row pending the sócios' item-by-item decision (RF-63). Seed can be generated as soon as that column is filled in.
 
 ## Self-Review
 

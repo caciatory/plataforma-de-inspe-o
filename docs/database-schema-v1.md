@@ -88,7 +88,6 @@ erDiagram
 | id | uuid | **PK** |
 | ordem | int | unique |
 | nome | text | |
-| somente_particular | boolean | ex: grupo "Teste de Condução" |
 
 ### `checklist_item_templates`
 
@@ -99,6 +98,7 @@ erDiagram
 | subcategoria, nome | text | |
 | tipo | enum | `padrao` \| `medicao` |
 | qtd_pontos_medicao | int | 3–5, obrigatório se `tipo=medicao` |
+| aplica_stand | boolean | Particular sempre vê todos os itens; Stand só vê os itens com `aplica_stand = true` |
 
 ## 03 · Respostas & mídia
 

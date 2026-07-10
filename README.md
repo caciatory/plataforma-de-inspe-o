@@ -2,9 +2,9 @@
 
 App de vistoria técnica veicular em tablet. Técnico preenche uma checklist estruturada (285 itens, 11 grupos) em campo; admin revisa, aprova e gera um relatório verificável para o cliente.
 
-## Status atual (2026-07-09)
+## Status atual (2026-07-10)
 
-PRD e arquitetura de banco de dados fechados. Stack técnica escolhida (Supabase/Postgres). Migrations com testes SQL escritas, mas **ainda não executadas** — nenhum projeto Supabase foi criado/inicializado ainda. Nenhum código de aplicação existe.
+PRD e arquitetura de banco de dados fechados. Projeto Supabase real criado ("inspecar Novo") e as 7 migrations aplicadas e testadas nele — schema completo está live. Nenhum código de aplicação existe ainda.
 
 ## Documentos
 
@@ -30,8 +30,8 @@ PRD e arquitetura de banco de dados fechados. Stack técnica escolhida (Supabase
 - **Row Level Security não escrita.** As tabelas existem, mas sem RLS qualquer técnico autenticado pode ler inspeções de outro técnico. Precisa entrar antes de qualquer app cliente consultar essas tabelas diretamente.
 - **Decisão dos sócios pendente:** quais dos 285 itens têm `aplica_stand = true` (RF-63) — bloqueia o seed final de `checklist_item_templates`. Coluna `aplica_stand` no CSV está `PENDENTE` em toda linha.
 - Design de tela do dashboard/checklist do técnico e do admin ainda não existe (só o relatório final tem design pronto).
-- Projeto Supabase real ainda não foi criado — as migrations em `docs/superpowers/plans/2026-07-09-inspecta-database-schema.md` estão prontas mas não rodaram em lugar nenhum ainda.
 - **Fase 2 confirmada (não especulativa):** Motorização Especial (BEV/HEV/GPL, 35 itens) — aguarda aquisição de equipamento (scanner de bateria, detetor de fugas de gás).
+- Regra: nunca editar uma migration já aplicada no projeto hospedado — sempre uma nova (ex: `00007_...`), nunca reescrever `0000N_...` já commitado. O ledger do Supabase rastreia por número de versão, não checksum, então edições in-place não quebram nada hoje, mas quebram a confiança do histórico.
 
 ## Grafo de conhecimento
 

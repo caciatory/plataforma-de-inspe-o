@@ -58,6 +58,16 @@ begin
 end $$;
 
 do $$
+declare v_count int;
+begin
+  select count(*) into v_count from public.client_data;
+  if v_count <> 1 then
+    raise exception 'FALHOU: tecnico deveria ver client_data da propria inspecao (viu %)', v_count;
+  end if;
+  raise notice 'OK: tecnico ve client_data da propria inspecao via owns_inspection';
+end $$;
+
+do $$
 begin
   update public.inspections set nota_geral = 8.5
     where id = '00000000-0000-0000-0000-000000000010';
@@ -149,6 +159,17 @@ begin
     raise exception 'FALHOU: tecnico2 nao deveria ver vehicle_data de outro tecnico (viu %)', v_count;
   end if;
   raise notice 'OK: tecnico2 nao enxerga vehicle_data de outro tecnico';
+end $$;
+
+do $$
+declare v_count int;
+begin
+  select count(*) into v_count from public.client_data
+    where inspection_id = '00000000-0000-0000-0000-000000000010';
+  if v_count <> 0 then
+    raise exception 'FALHOU: tecnico2 nao deveria ver client_data de outro tecnico (viu %)', v_count;
+  end if;
+  raise notice 'OK: tecnico2 nao enxerga client_data de outro tecnico';
 end $$;
 
 do $$

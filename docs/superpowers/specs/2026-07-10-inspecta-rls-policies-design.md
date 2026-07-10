@@ -77,9 +77,13 @@ Célula vazia = nenhuma policy para aquela operação = RLS nega por padrão par
 
 ## 5. Estratégia de migration e teste
 
-- Uma nova migration `00008_rls_policies.sql`, seguindo o padrão numérico sequencial já usado (00001–00007).
-- Um teste pgTAP `00008_rls_policies.test.sql`, seguindo o padrão dos testes existentes (`supabase/tests/*.test.sql`), usando `set local role` / JWT simulado para verificar por tabela: técnico vê só a própria inspeção, técnico não edita fora de rascunho/devolvida, admin vê/edita tudo, `audit_log_entries` continua insert-only mesmo para admin.
-- Aplicação segue o mesmo fluxo das Tasks 1–7 (SDD): migration + teste + aplicação em `supabase db push` + verificação no banco remoto.
+Segue o mesmo padrão das Tasks 1–7: uma migration por domínio de tabelas (não um arquivo único), cada uma com write → `supabase db push` → teste → commit, na mesma ordem sequencial já usada (00001 núcleo, 00002 templates, 00003 respostas/mídia, 00004 workflow/auditoria, 00005 acesso do cliente). RLS entra como três novas migrations, com o mesmo agrupamento:
+
+- `00008_rls_helpers_and_core.sql` — as 3 helper functions + RLS em `users`, `inspections`, `vehicle_data`, `client_data`.
+- `00009_rls_checklist_media.sql` — RLS em `checklist_group_templates`, `checklist_item_templates`, `checklist_item_responses`, `paint_measurements`, `photos`.
+- `00010_rls_workflow_audit.sql` — RLS em `review_events`, `audit_log_entries`, `client_access_logs`.
+
+Cada migration é atômica dentro do seu grupo (nenhuma tabela fica "meio protegida"); o conjunto das três é o que fecha o Mapa de Permissões por completo. Cada uma ganha um teste SQL próprio em `supabase/tests/*.test.sql` (mesmo estilo `do $$ ... raise exception ...$$` usado nos testes existentes, não pgTAP formal), usando `set local role authenticated` + `set local request.jwt.claims` para simular técnico/admin e verificar: técnico vê só a própria inspeção, técnico não edita fora de rascunho/devolvida, admin vê/edita tudo, `audit_log_entries` continua insert-only mesmo para admin.
 
 ## 6. Fora do escopo (confirmado)
 

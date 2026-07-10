@@ -410,7 +410,7 @@ create policy photos_update on public.photos
 - [ ] **Step 2: Apply the migration**
 
 Run: `supabase db push`
-Expected: applies with no errors (enables RLS + 13 policies across 5 tables).
+Expected: applies with no errors (enables RLS + 11 policies across 5 tables).
 
 - [ ] **Step 3: Write the test**
 
@@ -437,12 +437,18 @@ insert into public.checklist_group_templates (id, ordem, nome) values
   ('00000000-0000-0000-0000-000000000020', 1, 'Grupo Teste');
 
 insert into public.checklist_item_templates (id, group_id, nome, tipo) values
-  ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000020', 'Item Teste', 'padrao');
+  ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000020', 'Item Um', 'padrao'),
+  ('00000000-0000-0000-0000-000000000022', '00000000-0000-0000-0000-000000000020', 'Item Dois', 'padrao');
 
+-- unico response pre-existente: preso a inspecao 012 (T1, aguardando_aprovacao,
+-- NAO editavel) — usado para testar UPDATE bloqueado e o bypass do admin.
+-- O response da inspecao editavel (010) e criado pelo proprio tecnico no teste,
+-- para exercitar checklist_item_responses_insert de verdade (nao so o UPDATE).
 insert into public.checklist_item_responses (id, inspection_id, item_template_id) values
-  ('00000000-0000-0000-0000-000000000030', '00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000021'),
-  ('00000000-0000-0000-0000-000000000031', '00000000-0000-0000-0000-000000000011', '00000000-0000-0000-0000-000000000021'),
   ('00000000-0000-0000-0000-000000000032', '00000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-000000000021');
+
+insert into public.paint_measurements (item_response_id, valores_um, resultado_calculado) values
+  ('00000000-0000-0000-0000-000000000032', array[100.0, 105.0]::numeric(6,2)[], 'OK');
 
 -- simulate tecnico 1
 set local role authenticated;
@@ -463,7 +469,7 @@ do $$
 declare v_count int;
 begin
   select count(*) into v_count from public.checklist_item_templates;
-  if v_count <> 1 then
+  if v_count <> 2 then
     raise exception 'FALHOU: tecnico deveria ler templates de item (viu %)', v_count;
   end if;
   raise notice 'OK: tecnico le checklist_item_templates';
@@ -480,13 +486,20 @@ begin
 end $$;
 
 do $$
+begin
+  insert into public.checklist_item_responses (id, inspection_id, item_template_id)
+    values ('00000000-0000-0000-0000-000000000030', '00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000022');
+  raise notice 'OK: tecnico insere checklist_item_responses na propria inspecao editavel';
+end $$;
+
+do $$
 declare v_count int;
 begin
   select count(*) into v_count from public.checklist_item_responses;
-  if v_count <> 1 then
-    raise exception 'FALHOU: tecnico deveria ver so a resposta da propria inspecao (viu %)', v_count;
+  if v_count <> 2 then
+    raise exception 'FALHOU: tecnico deveria ver so as respostas das proprias inspecoes (viu %)', v_count;
   end if;
-  raise notice 'OK: tecnico ve apenas checklist_item_responses da propria inspecao';
+  raise notice 'OK: tecnico ve apenas checklist_item_responses das proprias inspecoes';
 end $$;
 
 do $$
@@ -514,7 +527,7 @@ end $$;
 do $$
 begin
   insert into public.paint_measurements (item_response_id, valores_um, resultado_calculado)
-    values ('00000000-0000-0000-0000-000000000030', array[100.0, 105.0]::numeric(6,2)[], 'OK');
+    values ('00000000-0000-0000-0000-000000000030', array[110.0, 112.0]::numeric(6,2)[], 'OK');
   raise notice 'OK: tecnico insere paint_measurements para resposta propria editavel';
 end $$;
 
@@ -522,10 +535,22 @@ do $$
 declare v_count int;
 begin
   select count(*) into v_count from public.paint_measurements;
-  if v_count <> 1 then
-    raise exception 'FALHOU: tecnico deveria ver so a paint_measurement da propria resposta (viu %)', v_count;
+  if v_count <> 2 then
+    raise exception 'FALHOU: tecnico deveria ver as paint_measurements das proprias inspecoes (viu %)', v_count;
   end if;
-  raise notice 'OK: tecnico ve paint_measurements via join ate a propria inspecao';
+  raise notice 'OK: tecnico ve paint_measurements via join ate as proprias inspecoes';
+end $$;
+
+do $$
+declare v_rows int;
+begin
+  update public.paint_measurements set resultado_calculado = 'anomalia'
+    where item_response_id = '00000000-0000-0000-0000-000000000032';
+  get diagnostics v_rows = row_count;
+  if v_rows <> 0 then
+    raise exception 'FALHOU: tecnico nao deveria editar paint_measurements de inspecao fora de rascunho/devolvida';
+  end if;
+  raise notice 'OK: update bloqueado em paint_measurements fora de status editavel';
 end $$;
 
 do $$
@@ -546,6 +571,28 @@ begin
   end;
 end $$;
 
+do $$
+declare v_count int;
+begin
+  select count(*) into v_count from public.photos;
+  if v_count <> 1 then
+    raise exception 'FALHOU: tecnico deveria ver a foto da propria inspecao (viu %)', v_count;
+  end if;
+  raise notice 'OK: tecnico ve photos da propria inspecao';
+end $$;
+
+do $$
+declare v_rows int;
+begin
+  update public.photos set ordem = 1
+    where inspection_id = '00000000-0000-0000-0000-000000000010' and contexto = 'item';
+  get diagnostics v_rows = row_count;
+  if v_rows <> 0 then
+    raise exception 'FALHOU: tecnico nao deveria conseguir editar foto (photos_update e admin-only)';
+  end if;
+  raise notice 'OK: update em photos bloqueado para tecnico mesmo na propria inspecao';
+end $$;
+
 -- simulate tecnico 2 (isolation check)
 set local request.jwt.claim.sub = '00000000-0000-0000-0000-000000000002';
 set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000002"}';
@@ -560,9 +607,39 @@ begin
   raise notice 'OK: tecnico2 nao enxerga paint_measurements de outro tecnico';
 end $$;
 
+do $$
+declare v_count int;
+begin
+  select count(*) into v_count from public.photos;
+  if v_count <> 0 then
+    raise exception 'FALHOU: tecnico2 nao deveria ver photos de outro tecnico (viu %)', v_count;
+  end if;
+  raise notice 'OK: tecnico2 nao enxerga photos de outro tecnico';
+end $$;
+
 -- simulate admin
 set local request.jwt.claim.sub = '00000000-0000-0000-0000-000000000003';
 set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000003"}';
+
+do $$
+declare v_count int;
+begin
+  select count(*) into v_count from public.checklist_item_responses;
+  if v_count <> 2 then
+    raise exception 'FALHOU: admin deveria ver todas as respostas (viu %)', v_count;
+  end if;
+  raise notice 'OK: admin ve todas as checklist_item_responses';
+end $$;
+
+do $$
+begin
+  update public.paint_measurements set resultado_calculado = 'anomalia'
+    where item_response_id = '00000000-0000-0000-0000-000000000032';
+  if not found then
+    raise exception 'FALHOU: admin deveria poder editar paint_measurements de qualquer inspecao';
+  end if;
+  raise notice 'OK: admin edita paint_measurements mesmo fora de rascunho/devolvida';
+end $$;
 
 do $$
 begin
@@ -572,13 +649,13 @@ begin
 end $$;
 
 do $$
-declare v_count int;
 begin
-  select count(*) into v_count from public.checklist_item_responses;
-  if v_count <> 3 then
-    raise exception 'FALHOU: admin deveria ver todas as respostas (viu %)', v_count;
+  update public.photos set ordem = 2
+    where inspection_id = '00000000-0000-0000-0000-000000000010' and contexto = 'item';
+  if not found then
+    raise exception 'FALHOU: admin deveria poder editar qualquer foto';
   end if;
-  raise notice 'OK: admin ve todas as checklist_item_responses';
+  raise notice 'OK: admin edita photos';
 end $$;
 
 reset role;
@@ -588,7 +665,7 @@ rollback;
 - [ ] **Step 4: Run the test**
 
 Run: `psql "$DATABASE_URL" -f supabase/tests/00009_rls_checklist_media.test.sql`
-Expected: thirteen `NOTICE: OK: ...` lines, no `ERROR`, no `FALHOU`.
+Expected: twenty `NOTICE: OK: ...` lines, no `ERROR`, no `FALHOU`.
 
 - [ ] **Step 5: Commit**
 
@@ -718,6 +795,17 @@ begin
 end $$;
 
 do $$
+begin
+  begin
+    insert into public.audit_log_entries (inspection_id, admin_id, descricao)
+      values ('00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000001', 'Tentativa de tecnico');
+    raise exception 'FALHOU: tecnico nao deveria inserir em audit_log_entries';
+  exception when insufficient_privilege then
+    raise notice 'OK: insert em audit_log_entries bloqueado para tecnico';
+  end;
+end $$;
+
+do $$
 declare v_count int;
 begin
   select count(*) into v_count from public.client_access_logs;
@@ -730,6 +818,13 @@ end $$;
 -- simulate admin
 set local request.jwt.claim.sub = '00000000-0000-0000-0000-000000000003';
 set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000003"}';
+
+do $$
+begin
+  insert into public.review_events (inspection_id, tipo, autor_id, motivo)
+    values ('00000000-0000-0000-0000-000000000010', 'aprovacao', '00000000-0000-0000-0000-000000000003', null);
+  raise notice 'OK: admin insere em review_events';
+end $$;
 
 do $$
 declare v_count int;
@@ -776,7 +871,7 @@ rollback;
 - [ ] **Step 4: Run the test**
 
 Run: `psql "$DATABASE_URL" -f supabase/tests/00010_rls_workflow_audit.test.sql`
-Expected: eight `NOTICE: OK: ...` lines, no `ERROR`, no `FALHOU`.
+Expected: ten `NOTICE: OK: ...` lines, no `ERROR`, no `FALHOU`.
 
 - [ ] **Step 5: Commit**
 

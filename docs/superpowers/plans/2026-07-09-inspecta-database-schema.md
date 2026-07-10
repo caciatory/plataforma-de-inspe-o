@@ -35,12 +35,14 @@ supabase/
     00004_workflow_audit.sql      -- review_events, audit_log_entries
     00005_client_access_log.sql   -- client_access_logs
     00006_admin_list_indexes.sql  -- search/filter/sort indexes for RF-58/59
+    00007_security_invoker_fix.sql -- inspections_with_flags security_invoker + drop redundant index
   tests/
     00001_core_entities.test.sql
     00002_checklist_templates.test.sql
     00003_checklist_responses_media.test.sql
     00004_workflow_audit.test.sql
     00005_client_access_log.test.sql
+    00007_security_invoker_fix.test.sql
 ```
 
 **Prerequisite (once, not a task):** `supabase init` in the project root if `supabase/` doesn't exist yet, then `supabase start` for a local dev instance (gives you `auth.users` and a local Postgres to run these migrations and tests against).
@@ -226,7 +228,7 @@ create table public.checklist_item_templates (
   qtd_pontos_medicao int,
   aplica_stand boolean not null default false,
   constraint qtd_pontos_medicao_valido check (
-    tipo <> 'medicao' or qtd_pontos_medicao between 3 and 5
+    tipo <> 'medicao' or (qtd_pontos_medicao is not null and qtd_pontos_medicao between 3 and 5)
   )
 );
 
@@ -318,9 +320,9 @@ create table public.checklist_item_responses (
   observacao text,
   status item_status generated always as (
     case
-      when classificacao is null then 'pendente'
-      when classificacao = 'NF' then 'NF'
-      else 'respondido'
+      when classificacao is null then 'pendente'::item_status
+      when classificacao = 'NF' then 'NF'::item_status
+      else 'respondido'::item_status
     end
   ) stored,
   atualizado_em timestamptz not null default now(),
@@ -467,9 +469,13 @@ create table public.review_events (
 create index on public.review_events (inspection_id);
 
 -- RF-36: log simples (quem, o quê, quando) — sem valor anterior/novo.
+-- RNF-11: inspection_id NÃO usa "on delete cascade" (diferente de review_events) —
+-- deletar uma inspeção com log de auditoria deve falhar (foreign_key_violation),
+-- não apagar o log junto. Isso é o que torna "log imutável" uma garantia real de
+-- banco, não só a revocação de UPDATE/DELETE abaixo (que não bloqueia cascade).
 create table public.audit_log_entries (
   id uuid primary key default gen_random_uuid(),
-  inspection_id uuid not null references public.inspections(id) on delete cascade,
+  inspection_id uuid not null references public.inspections(id),
   admin_id uuid not null references public.users(id),
   descricao text not null,
   timestamp timestamptz not null default now()
@@ -517,13 +523,25 @@ insert into public.review_events (inspection_id, tipo, autor_id) values
 insert into public.audit_log_entries (inspection_id, admin_id, descricao) values
   ('00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000001', 'Editou VIN do veículo');
 
+-- RNF-11: deletar uma inspeção com log de auditoria deve falhar (sem cascade) —
+-- o log não pode sumir silenciosamente junto com a inspeção.
+do $$
+begin
+  begin
+    delete from public.inspections where id = '00000000-0000-0000-0000-000000000010';
+    raise exception 'FALHOU: deveria ter bloqueado delete de inspection com audit_log_entries';
+  exception when foreign_key_violation then
+    raise notice 'OK: audit_log_entries sem cascade bloqueou delete da inspection';
+  end;
+end $$;
+
 rollback;
 ```
 
 - [ ] **Step 4: Run the test**
 
 Run: `psql "$DATABASE_URL" -f supabase/tests/00004_workflow_audit.test.sql`
-Expected: `NOTICE: OK: ...`, no `ERROR`, no `FALHOU`.
+Expected: two `NOTICE: OK: ...` lines, no `ERROR`, no `FALHOU`.
 
 - [ ] **Step 5: Commit**
 
@@ -644,6 +662,87 @@ Expected: plan mentions `Bitmap Index Scan on idx_vehicle_data_matricula_trgm` (
 ```bash
 git add supabase/migrations/00006_admin_list_indexes.sql
 git commit -m "db: search/filter/sort indexes for the admin inspection list"
+```
+
+---
+
+### Task 7: Fix inspections_with_flags security_invoker + drop redundant index
+
+**Files:**
+- Create: `supabase/migrations/00007_security_invoker_fix.sql`
+
+**Interfaces:**
+- Consumes: `public.inspections_with_flags` (Task 1), `public.checklist_item_responses` (Task 3). No new tables, no downstream dependents.
+
+**Why this is its own migration and not an edit to 00001/00003:** those are already applied to the hosted project. Editing an applied migration file in place (as happened twice earlier in this plan, for good reason at the time) works today only because the CLI's ledger tracks by version number, not content checksum — but it's a fragile habit for a team/CI environment. From here on: new fix, new migration number.
+
+- [ ] **Step 1: Write the migration**
+
+Found in the final whole-branch review: `inspections_with_flags` (Task 1) was created without `security_invoker`, so on Postgres 15+ it runs with the view owner's privileges, not the querying role's. Once Row Level Security lands on `public.inspections` (still explicitly deferred, see below), any query routed through this view would silently bypass those policies — the exact "every técnico reads every inspection" leak RLS is meant to prevent, reintroduced through the view. Fixing now, before RLS exists and before app code depends on the view, is cheaper than rediscovering it as a security finding later.
+
+Also folds in a Minor finding from the same review: `checklist_item_responses_inspection_id_idx` (from Task 3) is redundant — the `unique (inspection_id, item_template_id)` constraint already provides a leftmost-prefix index for `inspection_id`-only lookups.
+
+```sql
+-- supabase/migrations/00007_security_invoker_fix.sql
+alter view public.inspections_with_flags set (security_invoker = true);
+
+drop index if exists public.checklist_item_responses_inspection_id_idx;
+```
+
+- [ ] **Step 2: Apply the migration**
+
+Run: `supabase db push`
+Expected: applies with no errors.
+
+- [ ] **Step 3: Verify**
+
+```sql
+-- supabase/tests/00007_security_invoker_fix.test.sql
+begin;
+
+do $$
+begin
+  -- security_invoker is stored as a view option in pg_class.reloptions, not a column flag
+  if not exists (
+    select 1 from pg_class c
+    where c.relname = 'inspections_with_flags'
+      and c.relkind = 'v'
+      and 'security_invoker=true' = any(c.reloptions)
+  ) then
+    raise exception 'FALHOU: inspections_with_flags nao tem security_invoker=true';
+  end if;
+  raise notice 'OK: inspections_with_flags tem security_invoker=true';
+end $$;
+
+do $$
+begin
+  if exists (
+    select 1 from pg_indexes
+    where schemaname = 'public' and indexname = 'checklist_item_responses_inspection_id_idx'
+  ) then
+    raise exception 'FALHOU: indice redundante ainda existe';
+  end if;
+  raise notice 'OK: indice redundante removido';
+end $$;
+
+rollback;
+```
+
+Run: `psql "$DATABASE_URL" -f supabase/tests/00007_security_invoker_fix.test.sql`
+Expected: two `NOTICE: OK: ...` lines, no `ERROR`, no `FALHOU`.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add supabase/migrations/00007_security_invoker_fix.sql supabase/tests/00007_security_invoker_fix.test.sql
+git commit -m "fix: inspections_with_flags security_invoker + drop redundant index
+
+Found in final whole-branch review. Without security_invoker, this view
+runs with the owner's privileges and will silently bypass RLS policies
+on inspections once they're written — fixing before RLS exists and
+before app code depends on the view. Also drops
+checklist_item_responses_inspection_id_idx, made redundant by the
+(inspection_id, item_template_id) unique constraint from Task 3."
 ```
 
 ---

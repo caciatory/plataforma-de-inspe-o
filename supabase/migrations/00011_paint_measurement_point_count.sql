@@ -6,6 +6,7 @@
 
 create function public.check_valores_um_length() returns trigger
 language plpgsql
+security invoker set search_path = ''
 as $$
 declare
   v_expected int;

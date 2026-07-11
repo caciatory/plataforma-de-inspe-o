@@ -4,7 +4,7 @@
 
 **Goal:** Ship the inspection-creation form (RF-02 a RF-06) — técnico enters vehicle + client data, `objetivo` is locked to "venda" for stand clients (RF-03), stand contacts autocomplete from prior inspections (RF-05), and the record is durably saved before anything downstream can proceed (RF-06).
 
-**Architecture:** First frontend code in the repo — Next.js (App Router) talking to the existing Supabase schema (`supabase/migrations/00001`-`00010`) via `@supabase/ssr`. One new Postgres RPC (`create_inspection`) wraps the three-table insert (`inspections`/`vehicle_data`/`client_data`) in a single transaction so RF-06 can't leave an orphaned draft; a second RPC (`search_stand_contacts`) is the sole, narrowly-scoped exception to the house's `security invoker`-only convention, needed because RF-05 requires técnicos to see stand contacts entered by *other* técnicos, which normal RLS forbids. No checklist, no group navigation — those are separate phases.
+**Architecture:** First frontend code in the repo — Next.js (App Router) talking to the existing Supabase schema (`supabase/migrations/00001`-`00010`) via `@supabase/ssr`. One new Postgres RPC (`create_inspection`, `security invoker` — no exception to house convention) wraps the three-table insert (`inspections`/`vehicle_data`/`client_data`) in a single transaction so RF-06 can't leave an orphaned draft. RF-05's stand autocomplete is a plain filtered `select` on `client_data` — the existing RLS policy (`client_data_select`, migration `00008`) already scopes it correctly per role: técnico sees stands from their own past inspections, admin sees all. No new permission surface, no `security definer`. No checklist, no group navigation — those are separate phases.
 
 **Tech Stack:** Next.js 15 (App Router) + React 19, TypeScript, `@supabase/ssr` + `@supabase/supabase-js`, `zod` for validation, Vitest + Testing Library for tests. No ORM (matches house convention — plain SQL migrations via `supabase db push`). No new form-state library — native `<form action={...}>` + Server Actions cover it.
 
@@ -13,11 +13,11 @@
 - RF-02: collect every field from PRD §5 — vehicle: matrícula, marca, modelo, versão(trim), ano_fabrico, ano_modelo, cor, VIN, número_motor, número_portas, combustível, caixa_velocidades, tração, potência_cv, torque_nm. Client: tipo_cliente, nome_solicitante, contacto, email, responsável_presente, objetivo.
 - RF-03: `tipo_cliente = stand` ⇒ `objetivo` fixed to `"venda"`, not editable. Already enforced in the DB by the `objetivo_stand_fixo` check constraint (`supabase/migrations/00001_core_entities.sql:31-33`) — the UI must mirror it (disable the field), not replace it.
 - RF-04: `tipo_cliente = particular` ⇒ `objetivo` accepts `"compra"` or `"venda"`.
-- RF-05: for `tipo_cliente = stand`, autocomplete contacto/email by looking up stands already used in prior inspections (any técnico's, not just the current one).
+- RF-05: for `tipo_cliente = stand`, autocomplete contacto/email by looking up stands already used in prior inspections **visible to the current user under existing RLS** — i.e. técnico only sees stands from their own past inspections, admin sees all. Confirmed against `docs/especificacao-tecnica-v1.md` §3 ("Ver apenas as próprias inspeções — Técnico"; "o Técnico só enxerga/edita as suas próprias inspeções") — the spec gives no basis for cross-técnico visibility, so this phase does not introduce any. If cross-técnico stand lookup is wanted later, that's a permission-model change to §3 requiring explicit approval, not something to infer from "autocomplete" wording.
 - RF-06: vehicle/client data must be durably saved (all three tables) before the user can proceed past this screen — no partial saves.
 - **No checklist, no group navigation, no scoring, no admin screens in this phase** — out of scope per explicit instruction.
 - `aplica_stand` decision (2026-07-11): unblocked, not relevant to this phase — checklist items aren't touched here.
-- House SQL convention: `language sql|plpgsql ... security invoker set search_path = ''`, fully-qualified table names, `(select auth.uid())` not bare `auth.uid()`. `search_stand_contacts` is the one deliberate `security definer` exception — comment it as such in the migration.
+- House SQL convention: `language sql|plpgsql ... security invoker set search_path = ''`, fully-qualified table names, `(select auth.uid())` not bare `auth.uid()`. This phase introduces zero exceptions to that convention — `create_inspection` is `security invoker`, and RF-05 needs no new function at all.
 - Every migration is plain SQL applied via `supabase db push`; SQL tests are hand-rolled `do $$ ... raise exception ... $$` blocks run via `psql "$DATABASE_URL" -f <file>` (same style as `supabase/tests/00001`-`00010`), not pgTAP.
 - We are already inside the worktree `fase1a-dados-basicos` (branch `worktree-fase1a-dados-basicos`); do not create another worktree.
 
@@ -44,7 +44,7 @@ app/
         page.tsx                                                -- server wrapper, renders the form
         new-inspection-form.tsx, new-inspection-form.test.tsx    -- RF-02/03/04 fields + objetivo lock
         stand-autocomplete.tsx                                   -- RF-05 lookup UI
-        actions.ts, actions.test.ts                              -- RF-06 server action (create_inspection RPC) + RF-05 search action
+        actions.ts, actions.test.ts                              -- RF-06 server action (create_inspection RPC) + RF-05 search action (plain client_data select)
       [id]/
         page.tsx                                                 -- read-only confirmation ("acesso liberado")
 lib/
@@ -55,8 +55,8 @@ lib/
     schema.ts, schema.test.ts                                     -- zod schema + resolveObjetivo (RF-03/04 pure logic)
 middleware.ts                                                     -- session refresh, guards /inspections/*
 supabase/
-  migrations/00011_fase1a_inspection_rpcs.sql                     -- create_inspection, search_stand_contacts
-  tests/00011_fase1a_inspection_rpcs.test.sql
+  migrations/00011_fase1a_create_inspection.sql                   -- create_inspection only
+  tests/00011_fase1a_create_inspection.test.sql
 ```
 
 ---
@@ -334,21 +334,23 @@ git commit -m "feat: scaffold Next.js app with Supabase clients and auth middlew
 
 ---
 
-### Task 2: DB layer — `create_inspection` and `search_stand_contacts` RPCs
+### Task 2: DB layer — `create_inspection` RPC (RF-06)
 
 **Files:**
-- Create: `supabase/migrations/00011_fase1a_inspection_rpcs.sql`
-- Test: `supabase/tests/00011_fase1a_inspection_rpcs.test.sql`
+- Create: `supabase/migrations/00011_fase1a_create_inspection.sql`
+- Test: `supabase/tests/00011_fase1a_create_inspection.test.sql`
 
 **Interfaces:**
-- Produces: `public.create_inspection(p_tipo_cliente, p_objetivo, p_matricula, p_marca, p_modelo, p_nome_solicitante, p_versao_trim default null, p_ano_fabrico default null, p_ano_modelo default null, p_cor default null, p_vin default null, p_numero_motor default null, p_numero_portas default null, p_combustivel default null, p_caixa_velocidades default null, p_tracao default null, p_potencia_cv default null, p_torque_nm default null, p_contacto default null, p_email default null, p_responsavel_presente default null) returns uuid`. `public.search_stand_contacts(p_query text) returns table (nome_solicitante text, contacto text, email text)`. Task 6/7's Server Actions call these two by these exact names via `supabase.rpc(...)`.
+- Produces: `public.create_inspection(p_tipo_cliente, p_objetivo, p_matricula, p_marca, p_modelo, p_nome_solicitante, p_versao_trim default null, p_ano_fabrico default null, p_ano_modelo default null, p_cor default null, p_vin default null, p_numero_motor default null, p_numero_portas default null, p_combustivel default null, p_caixa_velocidades default null, p_tracao default null, p_potencia_cv default null, p_torque_nm default null, p_contacto default null, p_email default null, p_responsavel_presente default null) returns uuid`. Task 7's `createInspectionAction` calls this by this exact name via `supabase.rpc(...)`.
 - Consumes: `public.inspections`, `public.vehicle_data`, `public.client_data`, `public.tipo_cliente`, `public.objetivo_inspecao` (migration 00001).
+
+**Note on RF-05:** no RPC needed for the stand-contact lookup — Task 7's `searchStandContactsAction` reads `public.client_data` directly, and the existing `client_data_select` RLS policy (migration `00008`) already scopes results correctly per role (técnico: own inspections only; admin: all). See Global Constraints for why a cross-técnico lookup was rejected.
 
 - [ ] **Step 1: Write the migration**
 
 ```sql
--- supabase/migrations/00011_fase1a_inspection_rpcs.sql
--- Fase 1a (Dados básicos) — RPCs de apoio ao formulário de criação de inspeção.
+-- supabase/migrations/00011_fase1a_create_inspection.sql
+-- Fase 1a (Dados básicos) — RPC de apoio ao formulário de criação de inspeção.
 -- RF-02 a RF-06: docs/especificacao-tecnica-v1.md
 
 create function public.create_inspection(
@@ -402,46 +404,24 @@ begin
   return v_inspection_id;
 end;
 $$;
-
--- SECURITY DEFINER deliberado — única exceção à convenção "security invoker" da casa.
--- Motivo: técnicos precisam localizar contactos de stands já cadastrados por OUTROS
--- técnicos (RF-05), o que a RLS de client_data (owns_inspection) proíbe por design.
--- Mitigação: expõe apenas 3 colunas, apenas linhas tipo='stand', nunca client_data
--- completo; execução revogada de anon/public, concedida só a authenticated.
-create function public.search_stand_contacts(p_query text)
-returns table (nome_solicitante text, contacto text, email text)
-language sql security definer set search_path = ''
-as $$
-  select distinct on (c.nome_solicitante) c.nome_solicitante, c.contacto, c.email
-  from public.client_data c
-  where c.tipo = 'stand'
-    and c.nome_solicitante ilike '%' || p_query || '%'
-  order by c.nome_solicitante
-  limit 5
-$$;
-
-revoke all on function public.search_stand_contacts(text) from public;
-grant execute on function public.search_stand_contacts(text) to authenticated;
 ```
 
 - [ ] **Step 2: Apply the migration**
 
 Run: `supabase db push`
-Expected: applies with no errors (creates 2 functions).
+Expected: applies with no errors (creates 1 function).
 
 - [ ] **Step 3: Write the test**
 
 ```sql
--- supabase/tests/00011_fase1a_inspection_rpcs.test.sql
+-- supabase/tests/00011_fase1a_create_inspection.test.sql
 begin;
 
 insert into auth.users (id, email) values
-  ('00000000-0000-0000-0000-000000000021', 'tecnicoA@test.com'),
-  ('00000000-0000-0000-0000-000000000022', 'tecnicoB@test.com');
+  ('00000000-0000-0000-0000-000000000021', 'tecnicoA@test.com');
 
 insert into public.users (id, nome, email, role) values
-  ('00000000-0000-0000-0000-000000000021', 'Tecnico A', 'tecnicoA@test.com', 'tecnico'),
-  ('00000000-0000-0000-0000-000000000022', 'Tecnico B', 'tecnicoB@test.com', 'tecnico');
+  ('00000000-0000-0000-0000-000000000021', 'Tecnico A', 'tecnicoA@test.com', 'tecnico');
 
 -- simulate tecnico A
 set local role authenticated;
@@ -502,48 +482,18 @@ begin
   end;
 end $$;
 
--- simulate tecnico B
-set local request.jwt.claim.sub = '00000000-0000-0000-0000-000000000022';
-set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000022"}';
-
 do $$
 declare v_count int;
 begin
+  -- RF-05 (autocomplete): confirma que o técnico só enxerga, via select direto em
+  -- client_data, os stands das próprias inspeções — a RLS existente (client_data_select,
+  -- migration 00008) já é a fonte de verdade para o que Task 7's searchStandContactsAction
+  -- pode ler; nada de novo é concedido aqui.
   select count(*) into v_count from public.client_data where nome_solicitante = 'Stand Central';
-  if v_count <> 0 then
-    raise exception 'FALHOU: tecnico B nao deveria ver client_data de tecnico A via select direto (viu %)', v_count;
-  end if;
-  raise notice 'OK: RLS direta continua bloqueando tecnico B em client_data';
-end $$;
-
-do $$
-declare v_count int;
-begin
-  select count(*) into v_count from public.search_stand_contacts('Stand Central');
   if v_count <> 1 then
-    raise exception 'FALHOU: tecnico B deveria encontrar o stand via search_stand_contacts (viu %)', v_count;
+    raise exception 'FALHOU: tecnico A deveria ver o proprio client_data recem-criado (viu %)', v_count;
   end if;
-  raise notice 'OK: search_stand_contacts expoe contactos de stand entre tecnicos (RF-05)';
-end $$;
-
-do $$
-declare v_count int;
-begin
-  perform public.create_inspection(
-    p_tipo_cliente => 'particular',
-    p_objetivo => 'compra',
-    p_matricula => 'PP-22-PP',
-    p_marca => 'Renault',
-    p_modelo => 'Clio',
-    p_nome_solicitante => 'Stand Central'
-  );
-  select count(*) into v_count
-  from public.search_stand_contacts('Stand Central')
-  where contacto is null;
-  if v_count <> 0 then
-    raise exception 'FALHOU: search_stand_contacts nao deveria incluir client_data tipo=particular';
-  end if;
-  raise notice 'OK: search_stand_contacts filtra por tipo=stand';
+  raise notice 'OK: create_inspection deixa o stand visivel para autocomplete do proprio tecnico (RF-05)';
 end $$;
 
 rollback;
@@ -551,14 +501,14 @@ rollback;
 
 - [ ] **Step 4: Run the test**
 
-Run: `psql "$DATABASE_URL" -f supabase/tests/00011_fase1a_inspection_rpcs.test.sql`
-Expected: 5 `NOTICE: OK: ...` lines, no `ERROR`, ends with `ROLLBACK`.
+Run: `psql "$DATABASE_URL" -f supabase/tests/00011_fase1a_create_inspection.test.sql`
+Expected: 3 `NOTICE: OK: ...` lines, no `ERROR`, ends with `ROLLBACK`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add supabase/migrations/00011_fase1a_inspection_rpcs.sql supabase/tests/00011_fase1a_inspection_rpcs.test.sql
-git commit -m "feat: add create_inspection and search_stand_contacts RPCs (RF-02–06)"
+git add supabase/migrations/00011_fase1a_create_inspection.sql supabase/tests/00011_fase1a_create_inspection.test.sql
+git commit -m "feat: add create_inspection RPC for atomic three-table save (RF-02–06)"
 ```
 
 ---
@@ -1219,7 +1169,7 @@ git commit -m "feat: add stand contact autocomplete (RF-05)"
 
 **Interfaces:**
 - Produces: `createInspectionAction(prevState, formData)`, `type CreateInspectionState = { status: "idle" } | { status: "error"; message: string }`, `searchStandContactsAction(query: string)` — the two names Tasks 5 and 6 already import.
-- Consumes: `createClient()` from `lib/supabase/server.ts` (Task 1), `inspectionFormSchema` (Task 4), `create_inspection`/`search_stand_contacts` RPCs (Task 2), `NewInspectionForm` (Task 5/6).
+- Consumes: `createClient()` from `lib/supabase/server.ts` (Task 1), `inspectionFormSchema` (Task 4), `create_inspection` RPC (Task 2), `NewInspectionForm` (Task 5/6). `searchStandContactsAction` does **not** call an RPC — it's a plain `.from("client_data").select(...)`, relying entirely on the existing `client_data_select` RLS policy (migration `00008`) to scope results per role.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1228,8 +1178,16 @@ git commit -m "feat: add stand contact autocomplete (RF-05)"
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const rpc = vi.fn();
+const clientDataQuery = {
+  select: vi.fn(() => clientDataQuery),
+  eq: vi.fn(() => clientDataQuery),
+  ilike: vi.fn(() => clientDataQuery),
+  order: vi.fn(() => clientDataQuery),
+  limit: vi.fn(),
+};
+const from = vi.fn(() => clientDataQuery);
 vi.mock("@/lib/supabase/server", () => ({
-  createClient: async () => ({ rpc }),
+  createClient: async () => ({ rpc, from }),
 }));
 
 const redirect = vi.fn((path: string) => {
@@ -1239,6 +1197,12 @@ vi.mock("next/navigation", () => ({ redirect }));
 
 beforeEach(() => {
   rpc.mockReset();
+  from.mockClear();
+  clientDataQuery.select.mockClear();
+  clientDataQuery.eq.mockClear();
+  clientDataQuery.ilike.mockClear();
+  clientDataQuery.order.mockClear();
+  clientDataQuery.limit.mockReset();
   redirect.mockClear();
 });
 
@@ -1304,7 +1268,42 @@ describe("createInspectionAction", () => {
     });
   });
 });
+
+describe("searchStandContactsAction", () => {
+  it("returns [] for queries under 2 characters without touching the database", async () => {
+    const { searchStandContactsAction } = await import("./actions");
+    const result = await searchStandContactsAction("S");
+    expect(result).toEqual([]);
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it("queries client_data filtered by tipo=stand and the search term (RF-05)", async () => {
+    clientDataQuery.limit.mockResolvedValue({
+      data: [{ nome_solicitante: "Stand Central", contacto: "910000000", email: "s@c.pt" }],
+      error: null,
+    });
+    const { searchStandContactsAction } = await import("./actions");
+
+    const result = await searchStandContactsAction("Stand");
+
+    expect(from).toHaveBeenCalledWith("client_data");
+    expect(clientDataQuery.eq).toHaveBeenCalledWith("tipo", "stand");
+    expect(clientDataQuery.ilike).toHaveBeenCalledWith("nome_solicitante", "%Stand%");
+    expect(result).toEqual([
+      { nome_solicitante: "Stand Central", contacto: "910000000", email: "s@c.pt" },
+    ]);
+  });
+
+  it("returns [] when the query errors", async () => {
+    clientDataQuery.limit.mockResolvedValue({ data: null, error: { message: "db error" } });
+    const { searchStandContactsAction } = await import("./actions");
+    const result = await searchStandContactsAction("Stand");
+    expect(result).toEqual([]);
+  });
+});
 ```
+
+Note: relying on the plain `select` means results aren't deduped by `nome_solicitante` — a técnico with multiple past inspections for the same stand will see repeated entries. Acceptable (small, per-técnico dataset); add `distinct`-style dedup only if it becomes a real UX complaint.
 
 - [ ] **Step 2: Run test to verify it fails**
 
@@ -1371,8 +1370,19 @@ export async function createInspectionAction(
 export async function searchStandContactsAction(query: string): Promise<StandContact[]> {
   if (query.trim().length < 2) return [];
 
+  // RF-05: plain select, no RPC. The existing client_data_select RLS policy
+  // (supabase/migrations/00008_rls_helpers_and_core.sql) already scopes this to
+  // stands the current user can see (técnico: own inspections; admin: all) —
+  // see Global Constraints for why cross-técnico visibility was rejected.
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("search_stand_contacts", { p_query: query });
+  const { data, error } = await supabase
+    .from("client_data")
+    .select("nome_solicitante, contacto, email")
+    .eq("tipo", "stand")
+    .ilike("nome_solicitante", `%${query}%`)
+    .order("nome_solicitante")
+    .limit(5);
+
   if (error) return [];
 
   return data ?? [];
@@ -1382,7 +1392,7 @@ export async function searchStandContactsAction(query: string): Promise<StandCon
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `npm test -- actions.test.ts`
-Expected: PASS, 3 tests.
+Expected: PASS, 6 tests.
 
 - [ ] **Step 5: Write the route pages**
 
@@ -1443,7 +1453,7 @@ export default async function InspectionSummaryPage({
 - [ ] **Step 6: Full verification**
 
 Run: `npm test`
-Expected: PASS, all tests across every task (13 tests: 1 smoke + 2 login + 5 schema + 2 form + 2 autocomplete + 3 actions — note some suites share `describe` blocks, actual count may differ slightly; the requirement is zero failures).
+Expected: PASS, all tests across every task (18 tests: 1 smoke + 2 login + 5 schema + 2 form + 2 autocomplete + 6 actions — note some suites share `describe` blocks, actual count may differ slightly; the requirement is zero failures).
 
 Run: `NEXT_PUBLIC_SUPABASE_URL=http://localhost NEXT_PUBLIC_SUPABASE_ANON_KEY=test npm run build`
 Expected: exits 0.
@@ -1469,11 +1479,13 @@ git commit -m "feat: wire inspection creation server action and confirmation pag
 
 ## Self-Review
 
-**Spec coverage:** RF-02 (Task 5/1's fields) ✓, RF-03 (Task 4 `resolveObjetivo` + Task 5 disabled select + DB constraint) ✓, RF-04 (Task 4 schema allows both values for particular) ✓, RF-05 (Task 2 RPC + Task 6 UI) ✓, RF-06 (Task 2 single-transaction RPC + Task 7 action/redirect) ✓. Checklist/group navigation explicitly excluded per instruction — no task touches `checklist_*` tables.
+**Spec coverage:** RF-02 (Task 5/1's fields) ✓, RF-03 (Task 4 `resolveObjetivo` + Task 5 disabled select + DB constraint) ✓, RF-04 (Task 4 schema allows both values for particular) ✓, RF-05 (Task 6 UI + Task 7 `searchStandContactsAction`, scoped by existing RLS, no new permission surface) ✓, RF-06 (Task 2 single-transaction RPC + Task 7 action/redirect) ✓. Checklist/group navigation explicitly excluded per instruction — no task touches `checklist_*` tables.
 
 **Placeholder scan:** none — every step has runnable code or an exact command with a stated expected result.
 
-**Type consistency:** form field `name` attributes (Task 5/6) match `inspectionFormSchema` keys (Task 4) match the destructured `v.*` used in `actions.ts` (Task 7) match the RPC's `p_*` parameter names (Task 2). `StandContact` type is defined once in `stand-autocomplete.tsx` (Task 6) and imported by `actions.ts` (Task 7), not redefined.
+**Type consistency:** form field `name` attributes (Task 5/6) match `inspectionFormSchema` keys (Task 4) match the destructured `v.*` used in `actions.ts` (Task 7) match `create_inspection`'s `p_*` parameter names (Task 2). `StandContact` type is defined once in `stand-autocomplete.tsx` (Task 6) and imported by `actions.ts` (Task 7), not redefined.
+
+**Permission scope check (added after review):** confirmed against `docs/especificacao-tecnica-v1.md` §3 that no task in this plan grants any user visibility beyond what the existing RLS policies (migration `00008`) already allow. `create_inspection` is `security invoker`; RF-05's lookup is a plain `select` subject to `client_data_select`. Zero `security definer` functions, zero new grants, zero deviation from house SQL convention.
 
 ---
 

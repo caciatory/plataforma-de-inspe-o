@@ -19,8 +19,8 @@ insert into public.checklist_item_responses (id, inspection_id, item_template_id
 do $$
 begin
   begin
-    insert into public.paint_measurements (item_response_id, valores_um, resultado_calculado)
-      values ('00000000-0000-0000-0000-000000000030', array[100.0, 110.0]::numeric(6,2)[], 'OK');
+    insert into public.paint_measurements (item_response_id, valores_um)
+      values ('00000000-0000-0000-0000-000000000030', array[100.0, 110.0]::numeric(6,2)[]);
     raise exception 'FALHOU: deveria ter bloqueado 2 pontos quando o item exige 3';
   exception when check_violation then
     raise notice 'OK: insert bloqueado com numero errado de pontos (2 de 3)';
@@ -29,8 +29,8 @@ end $$;
 
 do $$
 begin
-  insert into public.paint_measurements (item_response_id, valores_um, resultado_calculado)
-    values ('00000000-0000-0000-0000-000000000030', array[100.0, 110.0, 120.0]::numeric(6,2)[], 'OK');
+  insert into public.paint_measurements (item_response_id, valores_um)
+    values ('00000000-0000-0000-0000-000000000030', array[100.0, 110.0, 120.0]::numeric(6,2)[]);
   raise notice 'OK: insert aceito com numero certo de pontos (3 de 3)';
 end $$;
 

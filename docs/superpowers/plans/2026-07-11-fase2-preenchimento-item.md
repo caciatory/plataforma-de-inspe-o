@@ -60,6 +60,7 @@ supabase/
 
 create function public.check_valores_um_length() returns trigger
 language plpgsql
+security invoker set search_path = ''
 as $$
 declare
   v_expected int;
@@ -194,12 +195,14 @@ reach another table, so this is a BEFORE trigger."
 
 create function public.array_max_numeric(arr numeric[]) returns numeric
 language sql immutable
+security invoker set search_path = ''
 as $$
   select max(v) from unnest(arr) as v
 $$;
 
 create function public.array_min_numeric(arr numeric[]) returns numeric
 language sql immutable
+security invoker set search_path = ''
 as $$
   select min(v) from unnest(arr) as v
 $$;
@@ -434,6 +437,7 @@ subquery e unnest()+max()/min() precisa de uma."
 
 create function public.check_ruim_requires_photo() returns trigger
 language plpgsql
+security invoker set search_path = ''
 as $$
 declare
   v_response_id uuid;

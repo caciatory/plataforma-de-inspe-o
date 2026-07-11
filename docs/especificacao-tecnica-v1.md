@@ -342,7 +342,7 @@ Adicional, específico desta etapa:
 - Stack técnica: PostgreSQL via Supabase, decidido em 2026-07-09 (ver `docs/database-schema-v1.md`). Mecanismo offline não é mais um critério de escolha (v1.0 assume internet sempre disponível).
 - Design do relatório final já existe (fornecido pelo usuário) — falta design do dashboard/checklist do técnico e admin.
 - ~~Conteúdo exato dos 300+ itens do checklist~~ resolvido em 2026-07-10: `docs/data/checklist-inspecta-v5.csv`, 285 itens v1.0 + 35 itens Fase 2 (Motorização Especial).
-- **Decisão pendente dos sócios:** quais dos 285 itens têm `aplica_stand = true` (RF-63). Coluna `aplica_stand` no CSV está marcada `PENDENTE` em todas as linhas até essa decisão ser tomada — bloqueia o seed final de `checklist_item_templates`.
+- **`aplica_stand` desbloqueado para desenvolvimento (2026-07-11):** não é mais bloqueante. Decisão: seguir com os 285 itens visíveis para ambos os tipos de cliente (particular e stand) enquanto a definição fina não chega. Antes do deploy, os sócios entregam um CSV revisado marcando `aplica_stand` por item; o seed de `checklist_item_templates` é atualizado nessa altura. RF-63 (filtro por `aplica_stand`) só entra em vigor quando esse CSV existir.
 - Comportamento exato de "aplicar aos demais" em itens repetidos (copia só classificação, ou também foto/observação?) — a definir na Fase 1/2.
 
 Ver também `docs/superpowers/specs/2026-07-09-inspecta-prd-design.md` — PRD de produto com problema, jornada do usuário e escopo v1.0, fonte da verdade para decisões de corte de escopo.

@@ -20,6 +20,7 @@
 - House SQL convention: `language sql|plpgsql ... security invoker set search_path = ''`, fully-qualified table names, `(select auth.uid())` not bare `auth.uid()`. This phase introduces zero exceptions to that convention — `create_inspection` is `security invoker`, and RF-05 needs no new function at all.
 - Every migration is plain SQL applied via `supabase db push`; SQL tests are hand-rolled `do $$ ... raise exception ... $$` blocks run via `psql "$DATABASE_URL" -f <file>` (same style as `supabase/tests/00001`-`00010`), not pgTAP.
 - We are already inside the worktree `fase1a-dados-basicos` (branch `worktree-fase1a-dados-basicos`); do not create another worktree.
+- Migration numbering (updated 2026-07-13): the live DB ledger has 00001-00014 applied — 00011-00014 were taken by Phase 2 (`paint_measurement_point_count` etc., pushed from the `fase2-preenchimento-item` worktree) after this plan was originally written against a stale "00011 is free" assumption. The `checklist-seed-300-itens` worktree's plan has since reserved 00015/00016 (not yet applied). Task 2's migration/test pair is renumbered 00011 → **00017** below to avoid both collisions.
 
 **Prerequisites (once, not a task):**
 1. Confirm `DATABASE_URL` is set and points at the linked Supabase project — `echo "$DATABASE_URL"` should print `postgres://...`.
@@ -55,8 +56,8 @@ lib/
     schema.ts, schema.test.ts                                     -- zod schema + resolveObjetivo (RF-03/04 pure logic)
 middleware.ts                                                     -- session refresh, guards /inspections/*
 supabase/
-  migrations/00011_fase1a_create_inspection.sql                   -- create_inspection only
-  tests/00011_fase1a_create_inspection.test.sql
+  migrations/00017_fase1a_create_inspection.sql                   -- create_inspection only
+  tests/00017_fase1a_create_inspection.test.sql
 ```
 
 ---
@@ -337,8 +338,8 @@ git commit -m "feat: scaffold Next.js app with Supabase clients and auth middlew
 ### Task 2: DB layer — `create_inspection` RPC (RF-06)
 
 **Files:**
-- Create: `supabase/migrations/00011_fase1a_create_inspection.sql`
-- Test: `supabase/tests/00011_fase1a_create_inspection.test.sql`
+- Create: `supabase/migrations/00017_fase1a_create_inspection.sql`
+- Test: `supabase/tests/00017_fase1a_create_inspection.test.sql`
 
 **Interfaces:**
 - Produces: `public.create_inspection(p_tipo_cliente, p_objetivo, p_matricula, p_marca, p_modelo, p_nome_solicitante, p_versao_trim default null, p_ano_fabrico default null, p_ano_modelo default null, p_cor default null, p_vin default null, p_numero_motor default null, p_numero_portas default null, p_combustivel default null, p_caixa_velocidades default null, p_tracao default null, p_potencia_cv default null, p_torque_nm default null, p_contacto default null, p_email default null, p_responsavel_presente default null) returns uuid`. Task 7's `createInspectionAction` calls this by this exact name via `supabase.rpc(...)`.
@@ -349,7 +350,7 @@ git commit -m "feat: scaffold Next.js app with Supabase clients and auth middlew
 - [ ] **Step 1: Write the migration**
 
 ```sql
--- supabase/migrations/00011_fase1a_create_inspection.sql
+-- supabase/migrations/00017_fase1a_create_inspection.sql
 -- Fase 1a (Dados básicos) — RPC de apoio ao formulário de criação de inspeção.
 -- RF-02 a RF-06: docs/especificacao-tecnica-v1.md
 
@@ -414,7 +415,7 @@ Expected: applies with no errors (creates 1 function).
 - [ ] **Step 3: Write the test**
 
 ```sql
--- supabase/tests/00011_fase1a_create_inspection.test.sql
+-- supabase/tests/00017_fase1a_create_inspection.test.sql
 begin;
 
 insert into auth.users (id, email) values
@@ -501,13 +502,13 @@ rollback;
 
 - [ ] **Step 4: Run the test**
 
-Run: `psql "$DATABASE_URL" -f supabase/tests/00011_fase1a_create_inspection.test.sql`
+Run: `psql "$DATABASE_URL" -f supabase/tests/00017_fase1a_create_inspection.test.sql`
 Expected: 3 `NOTICE: OK: ...` lines, no `ERROR`, ends with `ROLLBACK`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add supabase/migrations/00011_fase1a_create_inspection.sql supabase/tests/00011_fase1a_create_inspection.test.sql
+git add supabase/migrations/00017_fase1a_create_inspection.sql supabase/tests/00017_fase1a_create_inspection.test.sql
 git commit -m "feat: add create_inspection RPC for atomic three-table save (RF-02–06)"
 ```
 

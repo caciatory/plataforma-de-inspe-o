@@ -3,3 +3,5 @@
 graphify-out/
 .impeccable/
 .env*
+node_modules
+.next

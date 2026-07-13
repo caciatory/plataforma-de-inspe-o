@@ -9,17 +9,27 @@ import {
   type Objetivo,
 } from "@/lib/inspection/schema";
 import { createInspectionAction, type CreateInspectionState } from "./actions";
+import { StandAutocomplete, type StandContact } from "./stand-autocomplete";
 
 const initialState: CreateInspectionState = { status: "idle" };
 
 export function NewInspectionForm() {
   const [tipoCliente, setTipoCliente] = useState<TipoCliente>("particular");
   const [objetivo, setObjetivo] = useState<Objetivo>("compra");
+  const [nomeSolicitante, setNomeSolicitante] = useState("");
+  const [contacto, setContacto] = useState("");
+  const [email, setEmail] = useState("");
   const [state, formAction] = useActionState(createInspectionAction, initialState);
 
   function handleTipoClienteChange(value: TipoCliente) {
     setTipoCliente(value);
     setObjetivo(resolveObjetivo(value, objetivo));
+  }
+
+  function handleStandSelect(contact: StandContact) {
+    setNomeSolicitante(contact.nome_solicitante);
+    setContacto(contact.contacto ?? "");
+    setEmail(contact.email ?? "");
   }
 
   return (
@@ -57,13 +67,27 @@ export function NewInspectionForm() {
         </select>
 
         <label htmlFor="nomeSolicitante">Nome do solicitante</label>
-        <input id="nomeSolicitante" name="nomeSolicitante" required />
+        <input
+          id="nomeSolicitante"
+          name="nomeSolicitante"
+          required
+          value={nomeSolicitante}
+          onChange={(e) => setNomeSolicitante(e.target.value)}
+        />
+
+        {tipoCliente === "stand" && <StandAutocomplete onSelect={handleStandSelect} />}
 
         <label htmlFor="contacto">Contacto</label>
-        <input id="contacto" name="contacto" />
+        <input id="contacto" name="contacto" value={contacto} onChange={(e) => setContacto(e.target.value)} />
 
         <label htmlFor="email">Email</label>
-        <input id="email" name="email" type="email" />
+        <input
+          id="email"
+          name="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
         <label htmlFor="responsavelPresente">Responsável presente</label>
         <input id="responsavelPresente" name="responsavelPresente" />

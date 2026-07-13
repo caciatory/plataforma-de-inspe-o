@@ -4,7 +4,7 @@
 
 **Goal:** Populate `checklist_group_templates` (12 rows) and `checklist_item_templates` (320 rows) from the already-validated source CSV (`docs/data/checklist-inspecta-v5.csv`), per RF-07 (11 fixed groups, 285 items) and RF-63 (`aplica_stand` per item). Items show equally to `particular` and `stand` for now (2026-07-11 decision); the group covering Fase 9 (Motorização Especial) is imported but flagged inactive.
 
-**Architecture:** Two migrations. `00011` adds the two schema columns this seed needs that don't exist yet (`checklist_group_templates.ativo`, `checklist_item_templates.observacoes`). `00012` is generated, not hand-written — a stdlib-only Python script (`scripts/generate_checklist_seed.py`) parses the CSV and writes a deterministic SQL file with literal `insert` statements, which gets committed to the repo like any other migration. This keeps the house convention intact ("every migration is plain SQL applied via `supabase db push`, no ORM, no separate migration framework") while avoiding 320 hand-typed rows — the script is the source of truth, the generated SQL is the artifact.
+**Architecture:** Two migrations. `00015` adds the two schema columns this seed needs that don't exist yet (`checklist_group_templates.ativo`, `checklist_item_templates.observacoes`). `00016` is generated, not hand-written — a stdlib-only Python script (`scripts/generate_checklist_seed.py`) parses the CSV and writes a deterministic SQL file with literal `insert` statements, which gets committed to the repo like any other migration. This keeps the house convention intact ("every migration is plain SQL applied via `supabase db push`, no ORM, no separate migration framework") while avoiding 320 hand-typed rows — the script is the source of truth, the generated SQL is the artifact.
 
 **Tech Stack:** Python 3 stdlib only (`csv`, `re`, `pathlib`) for the generator — no new dependency, no `requirements.txt`. Plain SQL migrations, hand-rolled `do $$ ... raise exception ... $$` tests via `psql`, same as `supabase/tests/00001`-`00010`.
 
@@ -16,7 +16,7 @@
 - `checklist_item_templates.observacoes text` (nullable) is a new column, confirmed with the user 2026-07-11, to preserve the 151/320 CSV rows carrying real técnico guidance (thresholds, what to check) that had no home in the schema.
 - Source file confirmed with the user: `docs/data/checklist-inspecta-v5.csv`, 320 rows, columns `num,item,categoria,subcategoria,tipo,qtd_pontos_medicao,aplica_stand,observacoes`. Already verified with `csv.DictReader` — no unescaped quotes, no malformed rows, every `categoria` matches `^(\d+)\.\s*(.+)$`, all 13 `tipo=medicao` rows already have `qtd_pontos_medicao` between 3 and 5.
 - House SQL convention: fully-qualified table names, `security invoker` where functions are involved (none needed here — this task is pure DML/DDL, no functions).
-- **Migration numbering note:** this branch (`worktree-checklist-seed-300-itens`) branched from `main` before the unmerged `worktree-fase1a-dados-basicos` branch claimed `00011` for something else. Both branches independently use `00011`/`00012` for different things. Whichever branch merges second will need its migrations renumbered at merge time — not a problem to solve now, just don't be surprised by it.
+- **Migration numbering — verified against the live database, not just local files:** all worktrees for this project push to the *same* remote Supabase Postgres instance regardless of git branch/merge status (`supabase db push` writes directly to the linked project). Checked `select version from supabase_migrations.schema_migrations order by version;` on 2026-07-13: versions `00001`-`00014` are already applied live — `00011`-`00014` came from the unmerged `worktree-fase2-preenchimento-item` branch, pushed straight to the shared DB despite never being merged. Local `supabase/migrations/` in *this* worktree only goes up to `00010` (this branch predates that push), which would have made `00011`/`00012` look free — they are not. This plan uses `00015`/`00016`, the actual next free versions on the live ledger. Before any future migration in this project, check the live ledger, not local `ls supabase/migrations/`.
 - No checklist UI, no filtering logic in the app layer — this plan only populates the database. The `aplica_stand`/`ativo` columns exist for future phases to read; nothing queries them yet.
 
 **Prerequisite (once, not a task):** confirm `DATABASE_URL` is set and points at the linked Supabase project — `echo "$DATABASE_URL"` should print `postgres://...`.
@@ -28,13 +28,13 @@
 ```
 supabase/
   migrations/
-    00011_checklist_extra_columns.sql          -- checklist_group_templates.ativo, checklist_item_templates.observacoes
-    00012_seed_checklist_groups_and_items.sql  -- generated: 12 groups + 320 items
+    00015_checklist_extra_columns.sql          -- checklist_group_templates.ativo, checklist_item_templates.observacoes
+    00016_seed_checklist_groups_and_items.sql  -- generated: 12 groups + 320 items
   tests/
-    00011_checklist_extra_columns.test.sql
-    00012_seed_checklist_groups_and_items.test.sql
+    00015_checklist_extra_columns.test.sql
+    00016_seed_checklist_groups_and_items.test.sql
 scripts/
-  generate_checklist_seed.py                   -- one-time generator, reads the CSV, writes 00012
+  generate_checklist_seed.py                   -- one-time generator, reads the CSV, writes 00016
 ```
 
 ---
@@ -42,8 +42,8 @@ scripts/
 ### Task 1: Schema — `checklist_group_templates.ativo` and `checklist_item_templates.observacoes`
 
 **Files:**
-- Create: `supabase/migrations/00011_checklist_extra_columns.sql`
-- Test: `supabase/tests/00011_checklist_extra_columns.test.sql`
+- Create: `supabase/migrations/00015_checklist_extra_columns.sql`
+- Test: `supabase/tests/00015_checklist_extra_columns.test.sql`
 
 **Interfaces:**
 - Produces: `checklist_group_templates.ativo boolean not null default true`, `checklist_item_templates.observacoes text` (nullable). Task 2's generated migration writes to both columns by these exact names.
@@ -52,7 +52,7 @@ scripts/
 - [ ] **Step 1: Write the migration**
 
 ```sql
--- supabase/migrations/00011_checklist_extra_columns.sql
+-- supabase/migrations/00015_checklist_extra_columns.sql
 -- Prep para o seed dos 320 itens reais do checklist (RF-07, RF-63).
 -- ativo: permite importar o grupo 12 (Motoriz. Especial, Fase 9) sem expô-lo no v1.0.
 -- observacoes: preserva as dicas do CSV-fonte que não tinham coluna (thresholds, o que verificar).
@@ -72,7 +72,7 @@ Expected: applies with no errors (2 columns added).
 - [ ] **Step 3: Write the test**
 
 ```sql
--- supabase/tests/00011_checklist_extra_columns.test.sql
+-- supabase/tests/00015_checklist_extra_columns.test.sql
 begin;
 
 do $$
@@ -117,13 +117,13 @@ rollback;
 
 - [ ] **Step 4: Run the test**
 
-Run: `psql "$DATABASE_URL" -f supabase/tests/00011_checklist_extra_columns.test.sql`
+Run: `psql "$DATABASE_URL" -f supabase/tests/00015_checklist_extra_columns.test.sql`
 Expected: 2 `NOTICE: OK: ...` lines, no `ERROR`, ends with `ROLLBACK`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add supabase/migrations/00011_checklist_extra_columns.sql supabase/tests/00011_checklist_extra_columns.test.sql
+git add supabase/migrations/00015_checklist_extra_columns.sql supabase/tests/00015_checklist_extra_columns.test.sql
 git commit -m "feat: add checklist_group_templates.ativo and checklist_item_templates.observacoes"
 ```
 
@@ -133,8 +133,8 @@ git commit -m "feat: add checklist_group_templates.ativo and checklist_item_temp
 
 **Files:**
 - Create: `scripts/generate_checklist_seed.py`
-- Create (generated by the script, then committed): `supabase/migrations/00012_seed_checklist_groups_and_items.sql`
-- Test: `supabase/tests/00012_seed_checklist_groups_and_items.test.sql`
+- Create (generated by the script, then committed): `supabase/migrations/00016_seed_checklist_groups_and_items.sql`
+- Test: `supabase/tests/00016_seed_checklist_groups_and_items.test.sql`
 
 **Interfaces:**
 - Consumes: `docs/data/checklist-inspecta-v5.csv` (source), `checklist_group_templates(ordem, nome, ativo)` and `checklist_item_templates(group_id, subcategoria, nome, tipo, qtd_pontos_medicao, aplica_stand, observacoes)` (Task 1).
@@ -144,7 +144,7 @@ git commit -m "feat: add checklist_group_templates.ativo and checklist_item_temp
 
 ```python
 #!/usr/bin/env python3
-"""Gera supabase/migrations/00012_seed_checklist_groups_and_items.sql
+"""Gera supabase/migrations/00016_seed_checklist_groups_and_items.sql
 a partir de docs/data/checklist-inspecta-v5.csv. Reexecute se o CSV mudar
 — nao edite o SQL gerado a mao."""
 import csv
@@ -153,7 +153,7 @@ import sys
 from pathlib import Path
 
 CSV_PATH = Path("docs/data/checklist-inspecta-v5.csv")
-OUT_PATH = Path("supabase/migrations/00012_seed_checklist_groups_and_items.sql")
+OUT_PATH = Path("supabase/migrations/00016_seed_checklist_groups_and_items.sql")
 CATEGORIA_RE = re.compile(r"^(\d+)\.\s*(.+)$")
 GRUPOS_INATIVOS = {12}  # Motoriz. Especial (F2) — Fase 9, fora do v1.0 (roadmap §5)
 
@@ -190,7 +190,7 @@ def main() -> None:
     assert len(rows) == 320, f"esperava 320 itens, achei {len(rows)}"
 
     lines = [
-        "-- supabase/migrations/00012_seed_checklist_groups_and_items.sql",
+        "-- supabase/migrations/00016_seed_checklist_groups_and_items.sql",
         "-- Gerado por scripts/generate_checklist_seed.py a partir de",
         "-- docs/data/checklist-inspecta-v5.csv. Nao editar a mao:",
         "-- reexecute o script se o CSV mudar.",
@@ -236,14 +236,14 @@ if __name__ == "__main__":
 - [ ] **Step 2: Run the generator**
 
 Run: `python3 scripts/generate_checklist_seed.py`
-Expected: `OK: 12 grupos, 320 itens -> supabase/migrations/00012_seed_checklist_groups_and_items.sql`
+Expected: `OK: 12 grupos, 320 itens -> supabase/migrations/00016_seed_checklist_groups_and_items.sql`
 
 - [ ] **Step 3: Sanity-check the generated file before applying it**
 
-Run: `grep -c "select id from public.checklist_group_templates" supabase/migrations/00012_seed_checklist_groups_and_items.sql`
+Run: `grep -c "select id from public.checklist_group_templates" supabase/migrations/00016_seed_checklist_groups_and_items.sql`
 Expected: `320` (one subquery per item row).
 
-Run: `grep -c "^  ([0-9]*, '" supabase/migrations/00012_seed_checklist_groups_and_items.sql`
+Run: `grep -c "^  ([0-9]*, '" supabase/migrations/00016_seed_checklist_groups_and_items.sql`
 Expected: `12` (one literal group row).
 
 - [ ] **Step 4: Apply the migration**
@@ -254,7 +254,7 @@ Expected: applies with no errors (12 + 320 rows inserted).
 - [ ] **Step 5: Write the test**
 
 ```sql
--- supabase/tests/00012_seed_checklist_groups_and_items.test.sql
+-- supabase/tests/00016_seed_checklist_groups_and_items.test.sql
 -- Verifica dados ja commitados pelo seed (00012) — sem begin/rollback,
 -- porque nao ha fixture de teste pra desfazer, so leitura.
 
@@ -345,13 +345,13 @@ end $$;
 
 - [ ] **Step 6: Run the test**
 
-Run: `psql "$DATABASE_URL" -f supabase/tests/00012_seed_checklist_groups_and_items.test.sql`
+Run: `psql "$DATABASE_URL" -f supabase/tests/00016_seed_checklist_groups_and_items.test.sql`
 Expected: 8 `NOTICE: OK: ...` lines, no `ERROR`.
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add scripts/generate_checklist_seed.py supabase/migrations/00012_seed_checklist_groups_and_items.sql supabase/tests/00012_seed_checklist_groups_and_items.test.sql
+git add scripts/generate_checklist_seed.py supabase/migrations/00016_seed_checklist_groups_and_items.sql supabase/tests/00016_seed_checklist_groups_and_items.test.sql
 git commit -m "feat: seed 12 checklist groups and 320 items from checklist-inspecta-v5.csv"
 ```
 

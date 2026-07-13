@@ -43,4 +43,20 @@ describe("inspectionFormSchema", () => {
     const result = inspectionFormSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });
+
+  it("treats a blank optional numeric field as undefined, not 0", () => {
+    const result = inspectionFormSchema.safeParse({ ...base, anoFabrico: "" });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.anoFabrico).toBeUndefined();
+    }
+  });
+
+  it("still coerces a real numeric string on the happy path", () => {
+    const result = inspectionFormSchema.safeParse({ ...base, anoFabrico: "2020" });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.anoFabrico).toBe(2020);
+    }
+  });
 });

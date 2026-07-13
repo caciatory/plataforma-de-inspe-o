@@ -31,4 +31,25 @@ describe("NewInspectionForm", () => {
 
     expect(objetivo.disabled).toBe(false);
   });
+
+  it("submits objetivo=venda via a hidden input when the select is disabled for stand (regression)", async () => {
+    const { createInspectionAction } = await import("./actions");
+    const mockAction = createInspectionAction as unknown as ReturnType<typeof vi.fn>;
+    mockAction.mockClear();
+
+    const { container } = render(<NewInspectionForm />);
+    const tipoCliente = screen.getByLabelText("Tipo de cliente") as HTMLSelectElement;
+    const nomeSolicitante = screen.getByLabelText("Nome do solicitante") as HTMLInputElement;
+
+    fireEvent.change(tipoCliente, { target: { value: "stand" } });
+    fireEvent.change(nomeSolicitante, { target: { value: "Cliente Teste" } });
+
+    const form = container.querySelector("form") as HTMLFormElement;
+    fireEvent.submit(form);
+
+    await vi.waitFor(() => expect(mockAction).toHaveBeenCalled());
+
+    const formData = mockAction.mock.calls[0][1] as FormData;
+    expect(formData.get("objetivo")).toBe("venda");
+  });
 });

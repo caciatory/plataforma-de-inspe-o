@@ -10,6 +10,12 @@ export function resolveObjetivo(tipoCliente: TipoCliente, objetivo: Objetivo): O
   return tipoCliente === "stand" ? "venda" : objetivo;
 }
 
+// ponytail: blank <input type="number"> submits FormData value "", which
+// z.coerce.number() reads as Number("") === 0 — .optional() only skips
+// undefined, not "". Preprocess "" -> undefined so blanks stay null downstream.
+const optionalInt = z.preprocess((v) => (v === "" ? undefined : v), z.coerce.number().int().optional());
+const optionalNumber = z.preprocess((v) => (v === "" ? undefined : v), z.coerce.number().optional());
+
 export const inspectionFormSchema = z
   .object({
     tipoCliente: z.enum(tipoClienteValues),
@@ -22,17 +28,17 @@ export const inspectionFormSchema = z
     marca: z.string().min(1, "Marca é obrigatória"),
     modelo: z.string().min(1, "Modelo é obrigatório"),
     versaoTrim: z.string().optional(),
-    anoFabrico: z.coerce.number().int().optional(),
-    anoModelo: z.coerce.number().int().optional(),
+    anoFabrico: optionalInt,
+    anoModelo: optionalInt,
     cor: z.string().optional(),
     vin: z.string().optional(),
     numeroMotor: z.string().optional(),
-    numeroPortas: z.coerce.number().int().optional(),
+    numeroPortas: optionalInt,
     combustivel: z.string().optional(),
     caixaVelocidades: z.string().optional(),
     tracao: z.string().optional(),
-    potenciaCv: z.coerce.number().int().optional(),
-    torqueNm: z.coerce.number().optional(),
+    potenciaCv: optionalInt,
+    torqueNm: optionalNumber,
   })
   .refine((data) => data.tipoCliente !== "stand" || data.objetivo === "venda", {
     message: "Objetivo deve ser 'venda' quando o tipo de cliente é stand",

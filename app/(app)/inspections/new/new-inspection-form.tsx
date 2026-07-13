@@ -65,6 +65,7 @@ export function NewInspectionForm() {
             </option>
           ))}
         </select>
+        {tipoCliente === "stand" && <input type="hidden" name="objetivo" value={objetivo} />}
 
         <label htmlFor="nomeSolicitante">Nome do solicitante</label>
         <input

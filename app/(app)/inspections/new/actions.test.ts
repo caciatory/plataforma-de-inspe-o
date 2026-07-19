@@ -35,7 +35,24 @@ describe("createInspectionAction", () => {
     const formData = new FormData();
     formData.set("tipoCliente", "particular");
     formData.set("objetivo", "compra");
-    // matricula/marca/modelo/nomeSolicitante missing
+    // matricula/marca/modelo/nomeSolicitante/quilometragem missing
+
+    const result = await createInspectionAction({ status: "idle" }, formData);
+
+    expect(result.status).toBe("error");
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it("returns a validation error when quilometragem is missing", async () => {
+    const { createInspectionAction } = await import("./actions");
+    const formData = new FormData();
+    formData.set("tipoCliente", "particular");
+    formData.set("objetivo", "compra");
+    formData.set("nomeSolicitante", "Cliente Teste");
+    formData.set("matricula", "AA-00-BB");
+    formData.set("marca", "Toyota");
+    formData.set("modelo", "Corolla");
+    // quilometragem missing
 
     const result = await createInspectionAction({ status: "idle" }, formData);
 
@@ -54,6 +71,7 @@ describe("createInspectionAction", () => {
     formData.set("matricula", "AA-00-BB");
     formData.set("marca", "Toyota");
     formData.set("modelo", "Corolla");
+    formData.set("quilometragem", "45000");
 
     await expect(createInspectionAction({ status: "idle" }, formData)).rejects.toThrow(
       "REDIRECT:/inspections/11111111-1111-1111-1111-111111111111"
@@ -68,6 +86,7 @@ describe("createInspectionAction", () => {
         p_marca: "Toyota",
         p_modelo: "Corolla",
         p_nome_solicitante: "Cliente Teste",
+        p_quilometragem: 45000,
       })
     );
   });
@@ -83,6 +102,7 @@ describe("createInspectionAction", () => {
     formData.set("matricula", "AA-00-BB");
     formData.set("marca", "Toyota");
     formData.set("modelo", "Corolla");
+    formData.set("quilometragem", "45000");
 
     const result = await createInspectionAction({ status: "idle" }, formData);
     expect(result).toEqual({

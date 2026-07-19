@@ -106,6 +106,9 @@ export function NewInspectionForm() {
         <label htmlFor="modelo">Modelo</label>
         <input id="modelo" name="modelo" required />
 
+        <label htmlFor="quilometragem">Quilometragem</label>
+        <input id="quilometragem" name="quilometragem" type="number" required min={0} />
+
         <label htmlFor="versaoTrim">Versão</label>
         <input id="versaoTrim" name="versaoTrim" />
 

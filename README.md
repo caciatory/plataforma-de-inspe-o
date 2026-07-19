@@ -2,9 +2,9 @@
 
 App de vistoria técnica veicular em tablet. Técnico preenche uma checklist estruturada (285 itens, 11 grupos) em campo; admin revisa, aprova e gera um relatório verificável para o cliente.
 
-## Status atual (2026-07-10)
+## Status atual (2026-07-19)
 
-PRD e arquitetura de banco de dados fechados. Projeto Supabase real criado ("inspecar Novo") e as 7 migrations aplicadas e testadas nele — schema completo está live. Nenhum código de aplicação existe ainda.
+18 migrations aplicadas e testadas no Supabase real — schema completo, RLS ativa nas 12 tabelas, checklist semeado (320 itens, 12 grupos, grupo 12 inativo até a Fase 9). Fase 1a do app (login + formulário de dados básicos, RF-01–06) mesclada em `main` — primeiro código de aplicação do projeto. Checklist nav, preenchimento de item e todas as fases seguintes ainda não têm UI. Roadmap detalhado com prompts prontos em [`docs/ROADMAP.md`](docs/ROADMAP.md); processo de desenvolvimento em [`docs/PROCESSO.md`](docs/PROCESSO.md).
 
 ## Documentos
 
@@ -12,9 +12,15 @@ PRD e arquitetura de banco de dados fechados. Projeto Supabase real criado ("ins
 |---|---|
 | [`docs/superpowers/specs/2026-07-09-inspecta-prd-design.md`](docs/superpowers/specs/2026-07-09-inspecta-prd-design.md) | PRD: problema, persona, jornada do usuário, escopo v1.0 (o que entra/fica de fora e por quê) |
 | [`docs/especificacao-tecnica-v1.md`](docs/especificacao-tecnica-v1.md) | Especificação técnica: RF-01–63, RNF-01–23, mapa de permissões, modelo de dados (ER), roadmap de 9 fases |
-| [`docs/database-schema-v1.md`](docs/database-schema-v1.md) | Referência do schema Postgres: 11 tabelas em 5 domínios, diagrama ER, coluna por coluna |
+| [`docs/database-schema-v1.md`](docs/database-schema-v1.md) | Referência do schema Postgres: 12 tabelas em 5 domínios, diagrama ER, coluna por coluna |
 | [`docs/superpowers/plans/2026-07-09-inspecta-database-schema.md`](docs/superpowers/plans/2026-07-09-inspecta-database-schema.md) | Plano de implementação: migrations SQL completas + testes, task por task |
+| [`docs/superpowers/plans/2026-07-10-inspecta-rls-policies.md`](docs/superpowers/plans/2026-07-10-inspecta-rls-policies.md) | Plano de RLS: modelo de dois papéis, funções helper, policy por tabela |
+| [`docs/superpowers/plans/2026-07-11-fase1a-dados-basicos.md`](docs/superpowers/plans/2026-07-11-fase1a-dados-basicos.md) | Plano da Fase 1a: login + formulário de dados básicos (RF-01–06), já mesclado |
+| [`docs/superpowers/plans/2026-07-11-fase2-preenchimento-item.md`](docs/superpowers/plans/2026-07-11-fase2-preenchimento-item.md) | Plano da camada de banco da Fase 2 (RF-13–22) — UI ainda não construída |
+| [`docs/superpowers/plans/2026-07-11-checklist-seed-300-itens.md`](docs/superpowers/plans/2026-07-11-checklist-seed-300-itens.md) | Plano do seed de 320 itens/12 grupos do checklist a partir do CSV |
 | [`docs/data/checklist-inspecta-v5.csv`](docs/data/checklist-inspecta-v5.csv) | Conteúdo real do checklist: 285 itens v1.0 (11 grupos) + 35 itens Fase 2 (Motorização Especial) |
+| [`docs/PROCESSO.md`](docs/PROCESSO.md) | Processo de desenvolvimento (brainstorming → writing-plans → subagent-driven-development) e por que spec-kit não é usado |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Sequência de fases restantes até v1.0, com prompt pronto e progresso de cada uma |
 
 ## Decisões-chave
 
@@ -27,12 +33,12 @@ PRD e arquitetura de banco de dados fechados. Projeto Supabase real criado ("ins
 
 ## Pendências conhecidas
 
-- **Row Level Security não escrita.** As tabelas existem, mas sem RLS qualquer técnico autenticado pode ler inspeções de outro técnico. Precisa entrar antes de qualquer app cliente consultar essas tabelas diretamente.
-- **Decisão dos sócios pendente:** quais dos 285 itens têm `aplica_stand = true` (RF-63) — bloqueia o seed final de `checklist_item_templates`. Coluna `aplica_stand` no CSV está `PENDENTE` em toda linha.
-- Design de tela do dashboard/checklist do técnico e do admin ainda não existe (só o relatório final tem design pronto).
-- **Fase 2 confirmada (não especulativa):** Motorização Especial (BEV/HEV/GPL, 35 itens) — aguarda aquisição de equipamento (scanner de bateria, detetor de fugas de gás).
-- Regra: nunca editar uma migration já aplicada no projeto hospedado — sempre uma nova (ex: `00007_...`), nunca reescrever `0000N_...` já commitado. O ledger do Supabase rastreia por número de versão, não checksum, então edições in-place não quebram nada hoje, mas quebram a confiança do histórico.
+- **Decisão dos sócios pendente:** quais dos 285 itens do v1.0 têm `aplica_stand = true` (RF-63) — hoje `false` em todas as 320 linhas seedadas (285 v1.0 + 35 da Fase 9). Bloqueia RF-63 entrar em vigor de fato.
+- Design de tela do checklist (navegação e preenchimento de item) e do admin ainda não existe — só dados básicos (Fase 1a) e o relatório final têm design pronto.
+- **Fase 9 confirmada (não especulativa):** Motorização Especial (BEV/HEV/GPL, 35 itens) — aguarda aquisição de equipamento (scanner de bateria, detetor de fugas de gás). Conteúdo já seedado no banco com `ativo=false`.
+- Regra: nunca editar uma migration já aplicada no projeto hospedado — sempre uma nova (ex: `00019_...`), nunca reescrever `0000N_...` já commitado. O ledger do Supabase rastreia por número de versão, não checksum, então edições in-place não quebram nada hoje, mas quebram a confiança do histórico.
+- Ver [`docs/ROADMAP.md`](docs/ROADMAP.md) — Passo 0.4 registra um problema de ambiente conhecido (arquivos `._*` do macOS quebrando a descoberta de testes do Vitest) ainda não corrigido.
 
 ## Grafo de conhecimento
 
-O projeto está indexado via `graphify` em `graphify-out/` (não versionado), cruzando PRD, spec técnica e schema de banco. Desatualizado após os ajustes de 2026-07-10 (Teste de Condução removido, `aplica_stand`) — rodar `/graphify --update` antes de consultar. Rode `/graphify query "<pergunta>"` pra consultar.
+O projeto foi indexado via `graphify` em `graphify-out/` (não versionado) em 2026-07-11 — anterior a RLS, ao seed do checklist e a todo o código de aplicação. Desatualizado; rodar `/graphify --update` antes de consultar. Rode `/graphify query "<pergunta>"` pra consultar.

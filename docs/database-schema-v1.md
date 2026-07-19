@@ -1,6 +1,6 @@
 # Inspecta — Esquema de Banco de Dados v1.0
 
-> PostgreSQL (Supabase). 11 tabelas em 5 domínios. Migrations completas com testes SQL em `docs/superpowers/plans/2026-07-09-inspecta-database-schema.md`. Derivado do modelo lógico em `docs/especificacao-tecnica-v1.md` §4.
+> PostgreSQL (Supabase). 12 tabelas em 5 domínios. Migrations completas com testes SQL em `docs/superpowers/plans/2026-07-09-inspecta-database-schema.md`. Derivado do modelo lógico em `docs/especificacao-tecnica-v1.md` §4. Duas colunas (`checklist_group_templates.ativo`, `checklist_item_templates.observacoes`) e as invariantes de `paint_measurements`/`checklist_item_responses` abaixo vieram depois, nas migrations `00011`–`00016`.
 
 ## Cortes ponytail aplicados
 
@@ -88,6 +88,7 @@ erDiagram
 | id | uuid | **PK** |
 | ordem | int | unique |
 | nome | text | |
+| ativo | boolean | default `true`; grupo 12 (Motorização Especial, Fase 9) é `false` — importado mas não exposto no v1.0 |
 
 ### `checklist_item_templates`
 
@@ -98,7 +99,8 @@ erDiagram
 | subcategoria, nome | text | |
 | tipo | enum | `padrao` \| `medicao` |
 | qtd_pontos_medicao | int | 3–5, obrigatório se `tipo=medicao` |
-| aplica_stand | boolean | Particular sempre vê todos os itens; Stand só vê os itens com `aplica_stand = true` |
+| aplica_stand | boolean | Particular sempre vê todos os itens; Stand só vê os itens com `aplica_stand = true` — hoje `false` em todas as linhas, pendente decisão dos sócios (RF-63) |
+| observacoes | text, nullable | dicas do CSV-fonte sem coluna própria (thresholds, o que verificar) |
 
 ## 03 · Respostas & mídia
 
@@ -114,14 +116,15 @@ erDiagram
 | status | enum, **gerado** | `pendente` \| `respondido` \| `NF` — derivado de `classificacao` |
 | atualizado_em | timestamptz | |
 | — | — | unique(`inspection_id`, `item_template_id`) |
+| — | — | constraint trigger deferrable: `classificacao='ruim'` exige ≥1 `photos` associada, checado no fim da transação |
 
 ### `paint_measurements`
 
 | coluna | tipo | notas |
 |---|---|---|
 | item_response_id | uuid | **PK** + **FK** → `checklist_item_responses.id` |
-| valores_um | numeric(6,2)[] | array nativo, sem tabela filha |
-| resultado_calculado | enum | `OK` \| `anomalia` \| `reparacao_colisao` |
+| valores_um | numeric(6,2)[] | array nativo, sem tabela filha; trigger valida que o tamanho bate com `qtd_pontos_medicao` do item |
+| resultado_calculado | enum, **gerado** | `OK` \| `anomalia` \| `reparacao_colisao` — coluna `GENERATED ALWAYS`, calculada pelo Postgres a partir de `valores_um` (faixas fixas no código); não gravável pelo app |
 
 ### `photos`
 
@@ -171,4 +174,6 @@ erDiagram
 
 ---
 
-**Pendente:** nenhuma policy de Row Level Security ainda — sem elas, qualquer técnico autenticado pode ler as inspeções de outro técnico. Precisa entrar antes de qualquer app cliente consultar essas tabelas diretamente.
+**Row Level Security:** implementada nas 12 tabelas (migrations `00007`–`00010`; plano em [`docs/superpowers/plans/2026-07-10-inspecta-rls-policies.md`](superpowers/plans/2026-07-10-inspecta-rls-policies.md)). Técnico só lê/edita as próprias inspeções; admin lê tudo. Limitação aceita e documentada: um técnico ainda pode forjar o campo `status` de uma resposta dentro do que a própria RLS permite gravar (ver plano de RLS para o detalhe).
+
+**Pendente:** decisão dos sócios sobre `aplica_stand` por item (RF-63) — hoje `false` em todas as 320 linhas seedadas.

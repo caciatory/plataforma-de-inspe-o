@@ -14,7 +14,7 @@ num,item,categoria,subcategoria,tipo,qtd_pontos_medicao,aplica_stand,observacoes
 13,Tipo de tração,1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
 14,Potência do motor (cv/kW),1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
 15,Torque do motor (Nm),1. Identificação e Documentação,Identificação,padrao,,PENDENTE,
-16,Documento -nico Automóvel (DUA),1. Identificação e Documentação,Documentação,padrao,,PENDENTE,Verificar titularidade
+16,Documento Único Automóvel (DUA),1. Identificação e Documentação,Documentação,padrao,,PENDENTE,Verificar titularidade
 17,IPO - válido?,1. Identificação e Documentação,Documentação,padrao,,PENDENTE,Data de validade
 18,Seguro automóvel - válido?,1. Identificação e Documentação,Documentação,padrao,,PENDENTE,Data de validade
 19,Livro de revisões/manutenção,1. Identificação e Documentação,Documentação,padrao,,PENDENTE,Se disponível
@@ -139,7 +139,7 @@ num,item,categoria,subcategoria,tipo,qtd_pontos_medicao,aplica_stand,observacoes
 138,Cinto de segurança traseiro direito,3. Interior,Bancos,padrao,,PENDENTE,
 139,Tablier - estado geral,3. Interior,Painel,padrao,,PENDENTE,"Fissuras, degradação"
 140,Indicadores do painel - funcionamento,3. Interior,Painel,padrao,,PENDENTE,
-141,Luzes de aviso do painel - verificação,3. Interior,Painel,padrao,,PENDENTE,"Check engine, ABS, airbag-"
+141,Luzes de aviso do painel - verificação,3. Interior,Painel,padrao,,PENDENTE,"Check engine, ABS, airbag"
 142,Botões e interruptores - funcionamento geral,3. Interior,Painel,padrao,,PENDENTE,
 143,Buzina - funcionamento,3. Interior,Painel,padrao,,PENDENTE,
 144,Computador de bordo - funcionamento,3. Interior,Painel,padrao,,PENDENTE,"Trip computer, info carro"
@@ -293,12 +293,12 @@ num,item,categoria,subcategoria,tipo,qtd_pontos_medicao,aplica_stand,observacoes
 307,Porto carregamento AC (Tipo 2) - estado e funcionamento,12. Motoriz. Especial (F2),Carregamento,padrao,,PENDENTE,Teste físico
 308,Porto carregamento DC (CCS/CHAdeMO) - estado e funcionamento,12. Motoriz. Especial (F2),Carregamento,padrao,,PENDENTE,Se aplicável
 309,Cabo de carregamento - presença e estado,12. Motoriz. Especial (F2),Carregamento,padrao,,PENDENTE,
-310,Sistema de carregamento - teste real (ligar -  tomada),12. Motoriz. Especial (F2),Carregamento,padrao,,PENDENTE,
+310,Sistema de carregamento - teste real (ligar à tomada),12. Motoriz. Especial (F2),Carregamento,padrao,,PENDENTE,
 311,Autonomia estimada atual (% bateria e kms indicados),12. Motoriz. Especial (F2),Sistema BEV,padrao,,PENDENTE,Painel
 312,Sistema de inversor - sem alertas activos,12. Motoriz. Especial (F2),Sistema BEV,padrao,,PENDENTE,Scanner BEV
 313,Modo recuperação de energia (regeneração) - funcionamento,12. Motoriz. Especial (F2),Sistema BEV,padrao,,PENDENTE,Teste em movimento
 314,Sistema som artificial para peões (AVAS) - funcionamento,12. Motoriz. Especial (F2),Sistema BEV,padrao,,PENDENTE,
-315,Cabos de alta tensão visíveis - isolamento e estado,12. Motoriz. Especial (F2),Sistema BEV,padrao,,PENDENTE,Visual - N-O tocar
+315,Cabos de alta tensão visíveis - isolamento e estado,12. Motoriz. Especial (F2),Sistema BEV,padrao,,PENDENTE,Visual - NÃO tocar
 316,Aquecimento/arrefecimento cabine (sistema elétrico),12. Motoriz. Especial (F2),Sistema BEV,padrao,,PENDENTE,
 317,Estado da bateria de tração híbrida,12. Motoriz. Especial (F2),Bateria HEV,padrao,,PENDENTE,Scanner OBD + módulo
 318,Funcionamento transição motor elétrico - motor térmico,12. Motoriz. Especial (F2),Bateria HEV,padrao,,PENDENTE,Teste em movimento
@@ -312,7 +312,7 @@ num,item,categoria,subcategoria,tipo,qtd_pontos_medicao,aplica_stand,observacoes
 326,Itens motor térmico aplicam-se - ver Secção 5,12. Motoriz. Especial (F2),Sistema HEV,padrao,,PENDENTE,Ver cat. 5
 327,Depósito GPL - certificação e data de validade,12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,Doc. obrigatória
 328,Válvula de segurança do depósito - funcionamento,12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,Visual
-329,Tubagens e ligações GPL - fugas (detetor de gás),12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,Detetor portátil ~50-
+329,Tubagens e ligações GPL - fugas (detetor de gás),12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,Detetor portátil ~50€
 330,"Kit de conversão GPL - marca, homologação e documentação",12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,Doc. obrigatória
 331,Vaporizador / redutor de pressão - estado,12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,Visual
 332,Injetores GPL - estado e funcionamento,12. Motoriz. Especial (F2),GPL,padrao,,PENDENTE,

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function InspectionSummaryPage({
@@ -29,7 +30,7 @@ export default async function InspectionSummaryPage({
       <p>Objetivo: {inspection.objetivo}</p>
       <p>Estado: {inspection.status}</p>
       <p>
-        <em>A checklist será implementada numa fase seguinte.</em>
+        <Link href={`/inspections/${id}/checklist`}>Ir para a checklist</Link>
       </p>
     </main>
   );

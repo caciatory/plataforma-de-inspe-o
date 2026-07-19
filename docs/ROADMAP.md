@@ -120,8 +120,13 @@ Backlog, condicionada à compra de hardware (BEV/HEV/GPL). Conteúdo já está s
 
 Ao final de cada fase, depois que `subagent-driven-development` terminar todas as tasks:
 
-1. `superpowers:requesting-code-review` no branch inteiro.
-2. `superpowers:verification-before-completion` antes de qualquer alegação de "pronto".
-3. `superpowers:finishing-a-development-branch` pra decidir merge/PR.
+1. `superpowers:requesting-code-review` no branch inteiro — sempre.
+2. `ponytail:ponytail-review` — só se a fase adicionou código/abstração nova (pula em passos de housekeeping/docs).
+3. `security-review` — só se a fase tocar auth, RLS ou controle de acesso (ex.: Fase 5 admin, Fase 7 acesso do cliente).
+4. `verify` — só se a fase tiver UI (dirige a feature de ponta a ponta no navegador, não só testes/typecheck).
+5. `superpowers:verification-before-completion` antes de qualquer alegação de "pronto" — sempre.
+6. `superpowers:finishing-a-development-branch` pra decidir merge/PR — sempre.
 
 Só depois disso cole o prompt da próxima fase da lista.
+
+**Decisão registrada (2026-07-19):** avaliamos incluir `graphify` e `claude-mem` no gate e descartamos — `claude-mem` já observa passivamente via hooks, não precisa virar passo explícito; `graphify-out/` está parado desde 11/07 e revivê-lo como manutenção obrigatória seria YAGNI. `ponytail-audit`/`ponytail-debt` também ficaram de fora do gate por fase — cadência certa pra eles é periódica (ex.: uma vez antes da Fase 8/hardening), não repetida a cada fase.

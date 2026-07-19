@@ -21,6 +21,7 @@ describe("inspectionFormSchema", () => {
     matricula: "AA-00-BB",
     marca: "Toyota",
     modelo: "Corolla",
+    quilometragem: "45000",
   };
 
   it("accepts a minimal valid particular submission", () => {
@@ -58,5 +59,29 @@ describe("inspectionFormSchema", () => {
     if (result.success) {
       expect(result.data.anoFabrico).toBe(2020);
     }
+  });
+
+  it("coerces quilometragem from a FormData string to a number", () => {
+    const result = inspectionFormSchema.safeParse(base);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.quilometragem).toBe(45000);
+    }
+  });
+
+  it("rejects a missing quilometragem", () => {
+    const { quilometragem, ...rest } = base;
+    const result = inspectionFormSchema.safeParse(rest);
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects a blank quilometragem string", () => {
+    const result = inspectionFormSchema.safeParse({ ...base, quilometragem: "" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects a negative quilometragem", () => {
+    const result = inspectionFormSchema.safeParse({ ...base, quilometragem: "-1" });
+    expect(result.success).toBe(false);
   });
 });

@@ -16,6 +16,16 @@ export function resolveObjetivo(tipoCliente: TipoCliente, objetivo: Objetivo): O
 const optionalInt = z.preprocess((v) => (v === "" ? undefined : v), z.coerce.number().int().optional());
 const optionalNumber = z.preprocess((v) => (v === "" ? undefined : v), z.coerce.number().optional());
 
+// Same footgun as above, but for a required field: blank must fail with
+// "obrigatória", not silently become 0. Preprocess "" -> undefined so the
+// required_error fires; non-numeric strings pass through untouched so the
+// default invalid_type_error fires instead.
+const requiredNonNegativeInt = z.preprocess((v) => {
+  if (v === "" || v === undefined) return undefined;
+  const n = Number(v);
+  return Number.isNaN(n) ? v : n;
+}, z.number({ required_error: "Quilometragem é obrigatória" }).int().min(0, "Quilometragem não pode ser negativa"));
+
 export const inspectionFormSchema = z
   .object({
     tipoCliente: z.enum(tipoClienteValues),
@@ -27,6 +37,7 @@ export const inspectionFormSchema = z
     matricula: z.string().min(1, "Matrícula é obrigatória"),
     marca: z.string().min(1, "Marca é obrigatória"),
     modelo: z.string().min(1, "Modelo é obrigatório"),
+    quilometragem: requiredNonNegativeInt,
     versaoTrim: z.string().optional(),
     anoFabrico: optionalInt,
     anoModelo: optionalInt,

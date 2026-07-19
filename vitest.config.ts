@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
@@ -12,5 +12,10 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
+    // ponytail: this volume (external, exFAT) generates AppleDouble `._*`
+    // sidecar files for every file, including test files; Vitest tries to
+    // parse them as tests and fails. Exclude instead of adding a real fix
+    // since this is a macOS/volume quirk, not a project convention.
+    exclude: [...configDefaults.exclude, "**/._*"],
   },
 });

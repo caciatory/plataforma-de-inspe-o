@@ -45,6 +45,7 @@ export async function createInspectionAction(
   });
 
   if (error) {
+    console.error("create_inspection failed", error);
     return { status: "error", message: "Não foi possível guardar a inspeção. Tente novamente." };
   }
 
@@ -67,7 +68,10 @@ export async function searchStandContactsAction(query: string): Promise<StandCon
     .order("nome_solicitante")
     .limit(5);
 
-  if (error) return [];
+  if (error) {
+    console.error("searchStandContactsAction failed", error);
+    return [];
+  }
 
   return data ?? [];
 }

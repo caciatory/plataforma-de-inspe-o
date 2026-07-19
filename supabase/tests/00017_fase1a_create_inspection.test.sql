@@ -26,6 +26,7 @@ begin
     p_marca => 'Toyota',
     p_modelo => 'Corolla',
     p_nome_solicitante => 'Stand Central',
+    p_quilometragem => 45000,
     p_contacto => '910000000',
     p_email => 'stand@central.pt'
   );
@@ -57,7 +58,8 @@ begin
       p_matricula => 'XX-00-XX',
       p_marca => 'Honda',
       p_modelo => 'Civic',
-      p_nome_solicitante => 'Stand Invalido'
+      p_nome_solicitante => 'Stand Invalido',
+      p_quilometragem => 10000
     );
     raise exception 'FALHOU: objetivo=compra com tipo_cliente=stand deveria violar objetivo_stand_fixo';
   exception

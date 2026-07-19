@@ -9,6 +9,7 @@ Cada passo abaixo é uma unidade fechada: você cola o prompt sugerido, o proces
 ## Progresso
 
 - **Passo 0.1 — concluído (2026-07-19).** `worktree-fase1a-dados-basicos` (RF-01 login, RF-02–06 dados básicos) revisado via `requesting-code-review` (sem issues Critical; 1 Important — erros de RPC/query descartados sem log — corrigido antes do merge), mesclado em `main` via `finishing-a-development-branch`, worktree removido, branch local apagado. `main` agora tem código de app pela primeira vez. **Descoberta durante a task:** arquivos `._*` (AppleDouble, gerados pelo Finder/macOS neste volume externo KINGSTON) são pegos pelo glob de teste do Vitest e quebram a suíte com erros de parse falsos — não é regressão do merge, é um problema de ambiente que vai se repetir em toda fase futura que rodar `npm test`. Ver Passo 0.4 (novo, sugerido) abaixo.
+- **Passo 0.2 — concluído (2026-07-19).** `worktree-fase2-preenchimento-item` **não era redundante como o roadmap supunha** — suas migrations (00011–00014) já estavam em `main`, mas os 4 arquivos de teste SQL e o doc do plano (`docs/superpowers/plans/2026-07-11-fase2-preenchimento-item.md`) nunca tinham sido trazidos. Copiados para `main`. **Descoberta durante a task:** os 4 testes falhavam contra a DB real (`duplicate key value violates unique constraint checklist_group_templates_ordem_key`) — os fixtures usavam `ordem = 1` pra um grupo sintético, e esse valor colidiu com o grupo real "Identificação" semeado pela migration `00016`. Corrigido bumpando `ordem` pra 901–904, seguindo a convenção que o teste da migration `00015` já usa (`ordem >= 900` pra fixtures). Todos os 23 asserts passam contra a DB real após a correção. Branch e worktree encerrados.
 
 ## Estado atual (por que os passos 0.x vêm primeiro)
 
@@ -21,14 +22,14 @@ Sem mesclar o passo 0.1, nenhuma fase de UI seguinte tem onde pendurar código �
 
 ---
 
-## Passo 0.1 — Integrar o único branch com app code
+## Passo 0.1 — Integrar o único branch com app code ✅ concluído
 
 **Prompt:**
 > Pronto pra integrar o branch `worktree-fase1a-dados-basicos` (RF-01 login, RF-02–06 dados básicos) no main. Se ainda não foi revisado, use `superpowers:requesting-code-review` primeiro; depois `superpowers:finishing-a-development-branch` pra decidir o caminho de merge.
 
 **Pronto quando:** branch integrado (merge ou PR mesclado) e `main` passa a ter código de app.
 
-## Passo 0.2 — Encerrar branch obsoleto
+## Passo 0.2 — Encerrar branch obsoleto ✅ concluído
 
 **Prompt:**
 > As migrations 00011–00014 do branch `worktree-fase2-preenchimento-item` já estão em `main`. Verifique se esse branch tem algo além disso (testes, doc do plano) que ainda não foi trazido; se não tiver, feche/apague o branch.

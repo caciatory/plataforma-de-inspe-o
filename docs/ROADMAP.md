@@ -10,15 +10,12 @@ Cada passo abaixo é uma unidade fechada: você cola o prompt sugerido, o proces
 
 - **Passo 0.1 — concluído (2026-07-19).** `worktree-fase1a-dados-basicos` (RF-01 login, RF-02–06 dados básicos) revisado via `requesting-code-review` (sem issues Critical; 1 Important — erros de RPC/query descartados sem log — corrigido antes do merge), mesclado em `main` via `finishing-a-development-branch`, worktree removido, branch local apagado. `main` agora tem código de app pela primeira vez. **Descoberta durante a task:** arquivos `._*` (AppleDouble, gerados pelo Finder/macOS neste volume externo KINGSTON) são pegos pelo glob de teste do Vitest e quebram a suíte com erros de parse falsos — não é regressão do merge, é um problema de ambiente que vai se repetir em toda fase futura que rodar `npm test`. Ver Passo 0.4 (novo, sugerido) abaixo.
 - **Passo 0.2 — concluído (2026-07-19).** `worktree-fase2-preenchimento-item` **não era redundante como o roadmap supunha** — suas migrations (00011–00014) já estavam em `main`, mas os 4 arquivos de teste SQL e o doc do plano (`docs/superpowers/plans/2026-07-11-fase2-preenchimento-item.md`) nunca tinham sido trazidos. Copiados para `main`. **Descoberta durante a task:** os 4 testes falhavam contra a DB real (`duplicate key value violates unique constraint checklist_group_templates_ordem_key`) — os fixtures usavam `ordem = 1` pra um grupo sintético, e esse valor colidiu com o grupo real "Identificação" semeado pela migration `00016`. Corrigido bumpando `ordem` pra 901–904, seguindo a convenção que o teste da migration `00015` já usa (`ordem >= 900` pra fixtures). Todos os 23 asserts passam contra a DB real após a correção. Branch e worktree encerrados.
+- **Passo 0.3 — concluído (2026-07-19).** `README.md` e `docs/database-schema-v1.md` sincronizados com o estado real: código de app existe (Fase 1a), RLS está implementada nas 12 tabelas (não 11), colunas `ativo`/`observacoes` e as invariantes de `paint_measurements`/`checklist_item_responses` das migrations 00011–00016 documentadas, planos que existiam mas não estavam listados (RLS, fase1a, fase2, checklist-seed) adicionados à tabela de docs do README.
+- **Passo 0.4 — concluído (2026-07-19).** `**/._*` adicionado ao `exclude` do `vitest.config.ts`. `npm test` volta a rodar limpo: 6 arquivos, 22 testes, zero suítes fantasma.
 
-## Estado atual (por que os passos 0.x vêm primeiro)
+## Estado atual
 
-- `main` não tem código de app nenhum — só migrations (`00001`–`00018`) e docs. As RLS e a DB layer de RF-13–22 (migrations `00011`–`00014`) já estão em `main`.
-- `worktree-fase1a-dados-basicos` é o **único** branch com app Next.js real (RF-01 login, RF-02–06 dados básicos) — não mesclado.
-- `worktree-fase2-preenchimento-item` só tem DB (já duplicada em `main`) — branch está obsoleto.
-- `docs/README.md` e `docs/database-schema-v1.md` estão desatualizados (dizem "sem código de app" / "sem RLS", ambos falsos hoje).
-
-Sem mesclar o passo 0.1, nenhuma fase de UI seguinte tem onde pendurar código — por isso ele vem antes de tudo.
+Todo o bloco 0 (housekeeping) está concluído — ver seção Progresso acima. `main` tem: 18 migrations, RLS nas 12 tabelas, checklist seedado (320 itens/12 grupos), código de app da Fase 1a (login + dados básicos), `npm test` limpo (22/22, sem suítes fantasma), e `README.md`/`docs/database-schema-v1.md` sincronizados. Nenhum worktree aberto. Próxima unidade de trabalho real é a Fase 1 (restante).
 
 ---
 
@@ -36,14 +33,14 @@ Sem mesclar o passo 0.1, nenhuma fase de UI seguinte tem onde pendurar código �
 
 **Pronto quando:** branch fechado ou confirmado como redundante.
 
-## Passo 0.3 — Sincronizar docs desatualizados (rápido, opcional mas recomendado)
+## Passo 0.3 — Sincronizar docs desatualizados (rápido, opcional mas recomendado) ✅ concluído
 
 **Prompt:**
 > `docs/README.md` e `docs/database-schema-v1.md` estão desatualizados — dizem que não há código de app nem RLS, e ambos já existem. Atualize os dois pra refletir o estado real.
 
 **Pronto quando:** os dois arquivos batem com a realidade do código.
 
-## Passo 0.4 (novo, sugerido) — Excluir arquivos `._*` da descoberta de testes do Vitest
+## Passo 0.4 — Excluir arquivos `._*` da descoberta de testes do Vitest ✅ concluído
 
 Descoberto ao rodar os testes pós-merge do Passo 0.1: este volume (KINGSTON, externo) gera sidecar files `._*` (AppleDouble) pra todo arquivo, inclusive `.test.ts`/`.test.tsx`. O Vitest tenta parsear `._algumacoisa.test.tsx` como teste e falha com erro de parse — 6 suítes fantasma na última rodada, nenhuma delas real. Vai continuar acontecendo em toda fase futura até isso ser excluído no `vitest.config.ts`.
 

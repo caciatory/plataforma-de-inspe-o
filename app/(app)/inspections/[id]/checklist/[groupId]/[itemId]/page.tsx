@@ -67,6 +67,7 @@ export default async function ChecklistItemPage({
           nextUrl={nextUrl}
           qtdPontos={item.qtd_pontos_medicao as number}
           initialValores={valoresUm}
+          initialObservacao={response?.observacao ?? null}
           initialPhotos={photos}
         />
       ) : (

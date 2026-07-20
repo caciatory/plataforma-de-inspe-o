@@ -162,6 +162,7 @@ describe("saveMeasurementAction", () => {
     formData.append("valor", "100");
     formData.append("valor", "110");
     formData.append("valor", "120");
+    formData.set("observacao", "Desgaste leve");
 
     await expect(saveMeasurementAction({ status: "idle" }, formData)).rejects.toThrow(
       "REDIRECT:/inspections/insp-1/checklist/group-1/item-2"
@@ -171,6 +172,7 @@ describe("saveMeasurementAction", () => {
       p_inspection_id: "insp-1",
       p_item_template_id: "item-1",
       p_valores_um: [100, 110, 120],
+      p_observacao: "Desgaste leve",
     });
   });
 

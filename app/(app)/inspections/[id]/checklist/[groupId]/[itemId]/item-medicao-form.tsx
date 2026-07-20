@@ -13,6 +13,7 @@ export function ItemMedicaoForm({
   nextUrl,
   qtdPontos,
   initialValores,
+  initialObservacao,
   initialPhotos,
 }: {
   inspectionId: string;
@@ -20,6 +21,7 @@ export function ItemMedicaoForm({
   nextUrl: string;
   qtdPontos: number;
   initialValores: number[];
+  initialObservacao: string | null;
   initialPhotos: Photo[];
 }) {
   const [state, formAction] = useActionState(saveMeasurementAction, initialState);
@@ -47,6 +49,9 @@ export function ItemMedicaoForm({
           </div>
         ))}
       </fieldset>
+
+      <label htmlFor="observacao">Observação</label>
+      <textarea id="observacao" name="observacao" defaultValue={initialObservacao ?? ""} />
 
       <PhotoManager inspectionId={inspectionId} itemTemplateId={itemTemplateId} initialPhotos={initialPhotos} />
 

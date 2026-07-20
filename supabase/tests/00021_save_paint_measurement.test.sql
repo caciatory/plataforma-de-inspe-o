@@ -30,7 +30,8 @@ begin
     from public.save_paint_measurement(
       '00000000-0000-0000-0000-000000000010',
       '00000000-0000-0000-0000-000000000021',
-      array[100, 110, 120]::numeric[]
+      array[100, 110, 120]::numeric[],
+      'Sem avarias visiveis'
     );
 
   if v_resultado <> 'OK' or v_classificacao <> 'otimo' then
@@ -44,7 +45,15 @@ begin
     raise exception 'FALHOU: status deveria ser respondido apos salvar medicao';
   end if;
 
+  if not exists (
+    select 1 from public.checklist_item_responses
+    where id = v_response_id and observacao = 'Sem avarias visiveis'
+  ) then
+    raise exception 'FALHOU: observacao deveria ter sido gravada na resposta';
+  end if;
+
   raise notice 'OK: valores na faixa normal geram OK/otimo e status respondido';
+  raise notice 'OK: observacao passada para save_paint_measurement e gravada na resposta';
 end $$;
 
 -- Cenario B: chamar de novo com valores diferentes faz upsert (nao duplica) e
@@ -58,7 +67,8 @@ begin
     from public.save_paint_measurement(
       '00000000-0000-0000-0000-000000000010',
       '00000000-0000-0000-0000-000000000021',
-      array[50, 60, 65]::numeric[]
+      array[50, 60, 65]::numeric[],
+      null
     );
 
   select count(*) into v_count from public.checklist_item_responses
@@ -87,7 +97,8 @@ begin
     perform public.save_paint_measurement(
       '00000000-0000-0000-0000-000000000010',
       '00000000-0000-0000-0000-000000000021',
-      array[100, 200, 300]::numeric[]
+      array[100, 200, 300]::numeric[],
+      null
     );
     raise exception 'FALHOU: reparacao_colisao sem foto deveria ter bloqueado (RF-16)';
   exception when check_violation then

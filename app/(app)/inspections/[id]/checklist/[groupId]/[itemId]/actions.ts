@@ -104,6 +104,7 @@ export async function saveMeasurementAction(
   const itemTemplateId = formData.get("itemTemplateId") as string;
   const nextUrl = formData.get("nextUrl") as string;
   const valores = formData.getAll("valor").map(Number);
+  const observacao = (formData.get("observacao") as string) || null;
 
   if (valores.length === 0 || valores.some((v) => Number.isNaN(v))) {
     return { status: "error", message: "Preencha todos os valores de medição com números válidos." };
@@ -114,6 +115,7 @@ export async function saveMeasurementAction(
     p_inspection_id: inspectionId,
     p_item_template_id: itemTemplateId,
     p_valores_um: valores,
+    p_observacao: observacao,
   });
 
   if (error) {

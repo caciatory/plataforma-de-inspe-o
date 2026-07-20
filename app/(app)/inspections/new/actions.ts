@@ -27,6 +27,7 @@ export async function createInspectionAction(
     p_marca: v.marca,
     p_modelo: v.modelo,
     p_nome_solicitante: v.nomeSolicitante,
+    p_quilometragem: v.quilometragem,
     p_versao_trim: v.versaoTrim || null,
     p_ano_fabrico: v.anoFabrico ?? null,
     p_ano_modelo: v.anoModelo ?? null,

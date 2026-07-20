@@ -69,6 +69,7 @@ erDiagram
 | numero_portas, potencia_cv | int | |
 | combustivel, caixa_velocidades, tracao | text | |
 | torque_nm | numeric(6,2) | |
+| quilometragem | int | **not null**, `>= 0` |
 
 ### `client_data`
 

@@ -1,6 +1,6 @@
 # Roadmap — Inspecta v1.0
 
-Atualizado: 2026-07-19. Baseado em `docs/especificacao-tecnica-v1.md` §5 (9 fases) e no estado real do código (branches, migrations) nesta data.
+Atualizado: 2026-07-20. Baseado em `docs/especificacao-tecnica-v1.md` §5 (9 fases) e no estado real do código (branches, migrations) nesta data.
 
 Cada passo abaixo é uma unidade fechada: você cola o prompt sugerido, o processo documentado em `docs/PROCESSO.md` (`brainstorming` → `writing-plans` → `subagent-driven-development`) roda até o fim, e o passo só é considerado pronto quando passar pelas 3 skills de fechamento (seção final deste doc). Só então vá para o próximo prompt da lista.
 
@@ -12,10 +12,12 @@ Cada passo abaixo é uma unidade fechada: você cola o prompt sugerido, o proces
 - **Passo 0.2 — concluído (2026-07-19).** `worktree-fase2-preenchimento-item` **não era redundante como o roadmap supunha** — suas migrations (00011–00014) já estavam em `main`, mas os 4 arquivos de teste SQL e o doc do plano (`docs/superpowers/plans/2026-07-11-fase2-preenchimento-item.md`) nunca tinham sido trazidos. Copiados para `main`. **Descoberta durante a task:** os 4 testes falhavam contra a DB real (`duplicate key value violates unique constraint checklist_group_templates_ordem_key`) — os fixtures usavam `ordem = 1` pra um grupo sintético, e esse valor colidiu com o grupo real "Identificação" semeado pela migration `00016`. Corrigido bumpando `ordem` pra 901–904, seguindo a convenção que o teste da migration `00015` já usa (`ordem >= 900` pra fixtures). Todos os 23 asserts passam contra a DB real após a correção. Branch e worktree encerrados.
 - **Passo 0.3 — concluído (2026-07-19).** `README.md` e `docs/database-schema-v1.md` sincronizados com o estado real: código de app existe (Fase 1a), RLS está implementada nas 12 tabelas (não 11), colunas `ativo`/`observacoes` e as invariantes de `paint_measurements`/`checklist_item_responses` das migrations 00011–00016 documentadas, planos que existiam mas não estavam listados (RLS, fase1a, fase2, checklist-seed) adicionados à tabela de docs do README.
 - **Passo 0.4 — concluído (2026-07-19).** `**/._*` adicionado ao `exclude` do `vitest.config.ts`. `npm test` volta a rodar limpo: 6 arquivos, 22 testes, zero suítes fantasma.
+- **Fase 1 (restante) — implementada, pendente de integração (2026-07-19).** RF-09 a RF-12 (navegação do checklist: painel de grupo, indicadores de progresso, redirect pro primeiro grupo ativo, link do resumo da inspeção) implementados em `worktree-checklist-navegacao`. Verificado ponta a ponta no navegador com conta de teste (`teste@checkauto.pt`). **Ainda não passou por `requesting-code-review` nem `finishing-a-development-branch`** — branch existe só localmente, não mesclada em `main`. É o próximo passo antes de qualquer outra fase.
+- **Validade da inspeção — implementada, PR aberta (2026-07-20).** Feature ad-hoc (não é uma das 9 fases originais; é trabalho preparatório pra Fase 5 — RF-57–61, lista de inspeções do admin) desenhada via `brainstorming` → `writing-plans` → `subagent-driven-development` em `worktree-validade-inspecao`: coluna `vehicle_data.quilometragem`, função pura `computeInspectionValidity` (validade de 6 meses + limite de 100km), campo obrigatório no formulário, selo de validade na página de detalhe. Revisada via `requesting-code-review` — achou e corrigiu 1 bug Important (overflow de `setMonth` em fim de mês, ex. 31/ago virava 03/mar em vez de 28/fev) e 1 Minor (doc de schema desatualizada). 33/33 testes passando, typecheck limpo, build ok. `main` local (33 commits pendentes) e a branch da feature foram enviados pro `origin`; **PR #2 aberta**, aguardando merge. Doc: `docs/superpowers/specs/2026-07-19-validade-inspecao-design.md`, plano `docs/superpowers/plans/2026-07-19-validade-inspecao.md`.
 
 ## Estado atual
 
-Todo o bloco 0 (housekeeping) está concluído — ver seção Progresso acima. `main` tem: 18 migrations, RLS nas 12 tabelas, checklist seedado (320 itens/12 grupos), código de app da Fase 1a (login + dados básicos), `npm test` limpo (22/22, sem suítes fantasma), e `README.md`/`docs/database-schema-v1.md` sincronizados. Nenhum worktree aberto. Próxima unidade de trabalho real é a Fase 1 (restante).
+Todo o bloco 0 (housekeeping) está concluído — ver seção Progresso acima. `main` (agora sincronizado com `origin/main`) tem: 19 migrations (inclui `quilometragem`), RLS nas 12 tabelas, checklist seedado (320 itens/12 grupos), código de app da Fase 1a (login + dados básicos), `npm test` limpo, e docs sincronizados. Dois worktrees abertos: `worktree-checklist-navegacao` (Fase 1 restante, implementada mas sem review/merge) e `worktree-validade-inspecao` (PR #2 aberta, aguardando merge). **Próxima unidade de trabalho real: fechar a Fase 1 (restante)** — rodar `requesting-code-review` e depois `finishing-a-development-branch` no branch `worktree-checklist-navegacao` — antes de iniciar a Fase 2.
 
 ---
 
@@ -51,12 +53,14 @@ Descoberto ao rodar os testes pós-merge do Passo 0.1: este volume (KINGSTON, ex
 
 ---
 
-## Fase 1 (restante) — Navegação do checklist
+## Fase 1 (restante) — Navegação do checklist ⏳ implementada, pendente de review/merge
 
 RF-09 a RF-12: lista de grupos, indicadores de progresso.
 
+Implementado e verificado no navegador em `worktree-checklist-navegacao`. Falta rodar o gate de fechamento (ver "Regra de transição" abaixo) e integrar em `main`.
+
 **Prompt:**
-> Vamos desenhar a navegação do checklist (RF-09 a RF-12 — lista de grupos, indicadores de progresso), sobre o app já integrado no passo 0.1. Use `superpowers:brainstorming`.
+> Pronto pra fechar a Fase 1 (restante). Rode `superpowers:requesting-code-review` no branch `worktree-checklist-navegacao` inteiro, corrija o que aparecer, depois `superpowers:finishing-a-development-branch` pra decidir merge/PR.
 
 ## Fase 2 (UI) — Preenchimento de item
 

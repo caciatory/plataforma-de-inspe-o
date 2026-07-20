@@ -16,6 +16,10 @@ export default defineConfig({
     // sidecar files for every file, including test files; Vitest tries to
     // parse them as tests and fails. Exclude instead of adding a real fix
     // since this is a macOS/volume quirk, not a project convention.
-    exclude: [...configDefaults.exclude, "**/._*"],
+    // Worktrees live under `.claude/worktrees/**` inside the repo (see
+    // superpowers:using-git-worktrees) — each has its own node_modules and
+    // full source checkout, so without this exclude `npm test` from repo
+    // root double-runs every test file and pulls in a second React copy.
+    exclude: [...configDefaults.exclude, "**/._*", "**/.claude/worktrees/**"],
   },
 });

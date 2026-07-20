@@ -3,6 +3,7 @@ import {
   isItemPending,
   computeGroupProgress,
   groupItemsBySubcategoria,
+  findNextItemId,
   type GroupTemplate,
   type ItemTemplate,
   type ItemResponseRow,
@@ -104,5 +105,32 @@ describe("groupItemsBySubcategoria", () => {
   it("uses the response's status when one exists", () => {
     const result = groupItemsBySubcategoria([items[0]], [{ item_template_id: "i1", status: "NF" }]);
     expect(result[0].items[0].status).toBe("NF");
+  });
+});
+
+describe("findNextItemId", () => {
+  const subcategorias = groupItemsBySubcategoria(
+    [
+      { id: "item-1", subcategoria: "A", nome: "Primeiro" },
+      { id: "item-2", subcategoria: "A", nome: "Segundo" },
+      { id: "item-3", subcategoria: "B", nome: "Terceiro" },
+    ],
+    []
+  );
+
+  it("returns the next item's id within the flattened order", () => {
+    expect(findNextItemId(subcategorias, "item-1")).toBe("item-2");
+  });
+
+  it("crosses subcategoria boundaries", () => {
+    expect(findNextItemId(subcategorias, "item-2")).toBe("item-3");
+  });
+
+  it("returns null for the last item", () => {
+    expect(findNextItemId(subcategorias, "item-3")).toBeNull();
+  });
+
+  it("returns null when the current item id isn't found", () => {
+    expect(findNextItemId(subcategorias, "does-not-exist")).toBeNull();
   });
 });

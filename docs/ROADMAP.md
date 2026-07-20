@@ -19,7 +19,7 @@ Cada passo abaixo é uma unidade fechada: você cola o prompt sugerido, o proces
 
 ## Estado atual
 
-Todo o bloco 0 (housekeeping) está concluído — ver seção Progresso acima. `main` tem: 19 migrations (inclui `quilometragem`), RLS nas 12 tabelas, checklist seedado (320 itens/12 grupos), código de app da Fase 1a (login + dados básicos), Fase 1 (navegação do checklist, PR #3 mesclada) e validade da inspeção (PR #2 mesclada). `npm test` limpo (inclui exclusão de `.claude/worktrees/**` da descoberta de testes), docs sincronizados. Um worktree aberto: `worktree-preenchimento-item` (Fase 2, migrations 00020-00023, PR #4 aberta, aguardando merge). Diretório de trabalho é `~/Desktop/bild app` (KINGSTON mantido só como backup). **Próxima unidade de trabalho real: mesclar a PR #4**, depois decidir entre Fase 2.5 ("aplicar aos demais" em itens repetidos) ou Fase 3 (autosave online).
+Todo o bloco 0 (housekeeping) está concluído — ver seção Progresso acima. `main` tem: 23 migrations (inclui `quilometragem`, o bucket de fotos e `save_paint_measurement`), RLS nas 12 tabelas + policy de Storage, checklist seedado (320 itens/12 grupos), código de app da Fase 1a (login + dados básicos), Fase 1 (navegação do checklist, PR #3 mesclada), validade da inspeção (PR #2 mesclada) e Fase 2 (preenchimento de item, PR #4 mesclada). `npm test` limpo, docs sincronizados. Nenhum worktree aberto. Diretório de trabalho é `~/Desktop/bild app` (KINGSTON mantido só como backup, spec-kit e o snapshot avulso `ARCHITECTURE_OVERVIEW.md` removidos das duas cópias). **Próxima unidade de trabalho real: escolher entre Fase 2.5** ("aplicar aos demais" em itens repetidos — pneus, vidros, bancos etc.) **ou Fase 3** (autosave online, RF-25–27).
 
 ---
 

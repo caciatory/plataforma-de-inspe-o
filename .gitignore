@@ -5,3 +5,4 @@ graphify-out/
 .env*
 node_modules
 .next
+.claude/worktrees/

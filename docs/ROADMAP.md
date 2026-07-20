@@ -12,12 +12,14 @@ Cada passo abaixo é uma unidade fechada: você cola o prompt sugerido, o proces
 - **Passo 0.2 — concluído (2026-07-19).** `worktree-fase2-preenchimento-item` **não era redundante como o roadmap supunha** — suas migrations (00011–00014) já estavam em `main`, mas os 4 arquivos de teste SQL e o doc do plano (`docs/superpowers/plans/2026-07-11-fase2-preenchimento-item.md`) nunca tinham sido trazidos. Copiados para `main`. **Descoberta durante a task:** os 4 testes falhavam contra a DB real (`duplicate key value violates unique constraint checklist_group_templates_ordem_key`) — os fixtures usavam `ordem = 1` pra um grupo sintético, e esse valor colidiu com o grupo real "Identificação" semeado pela migration `00016`. Corrigido bumpando `ordem` pra 901–904, seguindo a convenção que o teste da migration `00015` já usa (`ordem >= 900` pra fixtures). Todos os 23 asserts passam contra a DB real após a correção. Branch e worktree encerrados.
 - **Passo 0.3 — concluído (2026-07-19).** `README.md` e `docs/database-schema-v1.md` sincronizados com o estado real: código de app existe (Fase 1a), RLS está implementada nas 12 tabelas (não 11), colunas `ativo`/`observacoes` e as invariantes de `paint_measurements`/`checklist_item_responses` das migrations 00011–00016 documentadas, planos que existiam mas não estavam listados (RLS, fase1a, fase2, checklist-seed) adicionados à tabela de docs do README.
 - **Passo 0.4 — concluído (2026-07-19).** `**/._*` adicionado ao `exclude` do `vitest.config.ts`. `npm test` volta a rodar limpo: 6 arquivos, 22 testes, zero suítes fantasma.
-- **Fase 1 (restante) — implementada, PR aberta (2026-07-20).** RF-09 a RF-12 (navegação do checklist: painel de grupo, indicadores de progresso, redirect pro primeiro grupo ativo, link do resumo da inspeção) implementados em `worktree-checklist-navegacao`. Verificado ponta a ponta no navegador com conta de teste (`teste@checkauto.pt`). Revisada via `requesting-code-review` (0 Critical, 0 Important) e `ponytail-review` (nenhum achado — "Lean already"). 37/37 testes passando, typecheck limpo, build ok. **PR #3 aberta**, aguardando merge.
-- **Validade da inspeção — implementada, PR aberta (2026-07-20).** Feature ad-hoc (não é uma das 9 fases originais; é trabalho preparatório pra Fase 5 — RF-57–61, lista de inspeções do admin) desenhada via `brainstorming` → `writing-plans` → `subagent-driven-development` em `worktree-validade-inspecao`: coluna `vehicle_data.quilometragem`, função pura `computeInspectionValidity` (validade de 6 meses + limite de 100km), campo obrigatório no formulário, selo de validade na página de detalhe. Revisada via `requesting-code-review` — achou e corrigiu 1 bug Important (overflow de `setMonth` em fim de mês, ex. 31/ago virava 03/mar em vez de 28/fev) e 1 Minor (doc de schema desatualizada). 33/33 testes passando, typecheck limpo, build ok. `main` local (33 commits pendentes) e a branch da feature foram enviados pro `origin`; **PR #2 aberta** (https://github.com/caciatory/plataforma-de-inspe-o/pull/2), aguardando merge. Doc: `docs/superpowers/specs/2026-07-19-validade-inspecao-design.md`, plano `docs/superpowers/plans/2026-07-19-validade-inspecao.md`.
+- **Fase 1 (restante) — concluída e mesclada (2026-07-20).** RF-09 a RF-12 (navegação do checklist: painel de grupo, indicadores de progresso, redirect pro primeiro grupo ativo, link do resumo da inspeção). Verificado ponta a ponta no navegador com conta de teste (`teste@checkauto.pt`). Revisada via `requesting-code-review` (0 Critical, 0 Important) e `ponytail-review` (nenhum achado — "Lean already"). 37/37 testes passando. Mesclada via PR #3.
+- **Validade da inspeção — concluída e mesclada (2026-07-20).** Feature ad-hoc (não é uma das 9 fases originais; é trabalho preparatório pra Fase 5 — RF-57–61, lista de inspeções do admin) desenhada via `brainstorming` → `writing-plans` → `subagent-driven-development`: coluna `vehicle_data.quilometragem`, função pura `computeInspectionValidity` (validade de 6 meses + limite de 100km), campo obrigatório no formulário, selo de validade na página de detalhe. Revisada via `requesting-code-review` — achou e corrigiu 1 bug Important (overflow de `setMonth` em fim de mês, ex. 31/ago virava 03/mar em vez de 28/fev) e 1 Minor (doc de schema desatualizada). 33/33 testes passando. Mesclada via PR #2. Doc: `docs/superpowers/specs/2026-07-19-validade-inspecao-design.md`.
+- **Ambiente — projeto movido pro Desktop (2026-07-20).** Disco externo KINGSTON caiu/remontou repetidamente durante a sessão (uma vez no meio de um `git worktree remove`, corrompendo um worktree). Cópia de trabalho movida pra `~/Desktop/bild app` (SSD interno); KINGSTON mantido como backup, não é mais o diretório ativo.
+- **Fase 2 (UI) — design aprovado (2026-07-20).** RF-13 a RF-22, design em `docs/superpowers/specs/2026-07-20-preenchimento-item-design.md`. Gap descoberto e resolvido no design: não existia bucket de Storage pra fotos em nenhuma migration. "Aplicar aos demais" em itens repetidos foi deliberadamente separado como Fase 2.5, pra não bloquear o preenchimento básico. Próximo passo: `writing-plans`.
 
 ## Estado atual
 
-Todo o bloco 0 (housekeeping) está concluído — ver seção Progresso acima. `main` (agora sincronizado com `origin/main`) tem: 19 migrations (inclui `quilometragem`), RLS nas 12 tabelas, checklist seedado (320 itens/12 grupos), código de app da Fase 1a (login + dados básicos), `npm test` limpo, e docs sincronizados. Dois worktrees abertos, ambos revisados e com PR aberta aguardando merge: `worktree-checklist-navegacao` (Fase 1 restante, PR #3) e `worktree-validade-inspecao` (validade da inspeção, PR #2). **Próxima unidade de trabalho real: mesclar as PRs #2 e #3**, depois iniciar a Fase 2 (UI de preenchimento de item, RF-13 a RF-22).
+Todo o bloco 0 (housekeeping) está concluído — ver seção Progresso acima. `main` tem: 19 migrations (inclui `quilometragem`), RLS nas 12 tabelas, checklist seedado (320 itens/12 grupos), código de app da Fase 1a (login + dados básicos) e Fase 1 (navegação do checklist, PR #3 mesclada), validade da inspeção (PR #2 mesclada), `npm test` limpo (inclui exclusão de `.claude/worktrees/**` da descoberta de testes), docs sincronizados. Nenhum worktree aberto. Diretório de trabalho agora é `~/Desktop/bild app` (KINGSTON mantido só como backup). **Próxima unidade de trabalho real: Fase 2 (UI de preenchimento de item)** — design aprovado em `docs/superpowers/specs/2026-07-20-preenchimento-item-design.md`, falta `writing-plans`.
 
 ---
 
@@ -53,21 +55,25 @@ Descoberto ao rodar os testes pós-merge do Passo 0.1: este volume (KINGSTON, ex
 
 ---
 
-## Fase 1 (restante) — Navegação do checklist ⏳ PR #3 aberta, aguardando merge
+## Fase 1 (restante) — Navegação do checklist ✅ concluída (2026-07-20)
 
 RF-09 a RF-12: lista de grupos, indicadores de progresso.
 
-Implementado, verificado no navegador, revisado (code review + ponytail-review) em `worktree-checklist-navegacao`. PR: https://github.com/caciatory/plataforma-de-inspe-o/pull/3
+Implementado, verificado no navegador, revisado (code review + ponytail-review), mesclado em `main` via PR #3.
+
+## Fase 2 (UI) — Preenchimento de item ⏳ design aprovado, plano de implementação a seguir
+
+RF-13 a RF-22. DB layer já pronta em `main`: contagem de pontos, `resultado_calculado` gerado, trigger que exige foto quando resultado é "ruim", policy de DELETE de foto. Design: `docs/superpowers/specs/2026-07-20-preenchimento-item-design.md`. Inclui gap novo descoberto e resolvido no design: bucket de Storage pra fotos não existia em nenhuma migration.
 
 **Prompt:**
-> Mescla a PR #3 (checklist navigation) assim que aprovada, depois vamos pra Fase 2.
+> Segue `superpowers:writing-plans` a partir de `docs/superpowers/specs/2026-07-20-preenchimento-item-design.md`.
 
-## Fase 2 (UI) — Preenchimento de item
+## Fase 2.5 — "Aplicar aos demais" em itens repetidos
 
-RF-13 a RF-22. DB layer já pronta em `main`: contagem de pontos, `resultado_calculado` gerado, trigger que exige foto quando resultado é "ruim", policy de DELETE de foto.
+Resolve a pendência de `docs/especificacao-tecnica-v1.md` §6 ("comportamento exato de 'aplicar aos demais' — a definir na Fase 1/2"), deliberadamente adiada da Fase 2 pra não bloquear o preenchimento básico de item. Mecanismo já definido no design da Fase 2 (§6): copia classificação + observação, não copia foto, técnico edita individualmente depois. Falta: coluna `grupo_replicacao` (ou nome similar) em `checklist_item_templates`, curadoria manual dos ~285 itens (amostra de clusters já levantada: pneus, jantes, vidros, faróis, espelhos, portas, para-choques, bancos, cintos — ver sessão de 2026-07-20), e a UI de aplicar-a-todos-com-override.
 
 **Prompt:**
-> Vamos construir a UI de preenchimento de item (RF-13 a RF-22) sobre a DB layer que já está em `main` (migrations 00011–00014). Use `superpowers:brainstorming`.
+> Vamos desenhar o "aplicar aos demais" em itens repetidos (pneus, vidros, bancos, etc.), sobre o preenchimento de item que já está em `main`. Use `superpowers:brainstorming` — o mecanismo já foi definido no design da Fase 2 (§6), falta só a curadoria da coluna de agrupamento e a UI.
 
 ## Fase 3 — Autosave online
 

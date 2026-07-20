@@ -14,7 +14,11 @@ describe("computeInspectionValidity", () => {
   // the implementation uses keeps these tests timezone-agnostic.
   function sixMonthsLater(iso: string): Date {
     const d = new Date(iso);
+    const originalDate = d.getDate();
     d.setMonth(d.getMonth() + 6);
+    if (d.getDate() !== originalDate) {
+      d.setDate(0);
+    }
     return d;
   }
 
@@ -38,6 +42,15 @@ describe("computeInspectionValidity", () => {
     const now = new Date(sixMonthsLater(emitido).getTime() + 1);
     const result = computeInspectionValidity(emitido, 50000, now);
     expect(result.status).toBe("expirada");
+  });
+
+  it("clamps to the last day of the target month when the day overflows (Aug 31 -> Feb 28)", () => {
+    const emitido = "2026-08-31T10:00:00.000Z";
+    const result = computeInspectionValidity(emitido, 50000, new Date(emitido));
+    expect(result.validoAte).toEqual(sixMonthsLater(emitido));
+    expect(result.validoAte?.getFullYear()).toBe(2027);
+    expect(result.validoAte?.getMonth()).toBe(1); // February
+    expect(result.validoAte?.getDate()).toBe(28);
   });
 
   it("computes kmLimite as quilometragem + 100", () => {

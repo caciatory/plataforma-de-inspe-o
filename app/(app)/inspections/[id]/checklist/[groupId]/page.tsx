@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { groupItemsBySubcategoria } from "@/lib/checklist/progress";
 
@@ -39,7 +40,8 @@ export default async function ChecklistGroupPage({
           <ul style={{ listStyle: "none", padding: 0 }}>
             {bucket.items.map((item) => (
               <li key={item.id}>
-                {item.status === "pendente" ? "⚠️" : item.status === "NF" ? "➖" : "✅"} {item.nome}
+                {item.status === "pendente" ? "⚠️" : item.status === "NF" ? "➖" : "✅"}{" "}
+                <Link href={`/inspections/${id}/checklist/${groupId}/${item.id}`}>{item.nome}</Link>
               </li>
             ))}
           </ul>

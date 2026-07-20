@@ -20,3 +20,6 @@ create policy fotos_inspecao_insert on storage.objects
 -- apaga a linha em public.photos (Task 4), o objeto fica orfao no bucket
 -- (publico, custo irrelevante). Adicionar policy de DELETE + limpeza se isso
 -- virar problema real.
+--
+-- NOTE: initial insert policy lacked admin bypass (RF-35 requires admins to edit
+-- any inspection including approved/finalized). Fixed in migration 00022.

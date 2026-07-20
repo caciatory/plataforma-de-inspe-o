@@ -2,10 +2,12 @@ begin;
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-000000000001', 'tecnico1@test.com'),
-  ('00000000-0000-0000-0000-000000000002', 'tecnico2@test.com');
+  ('00000000-0000-0000-0000-000000000002', 'tecnico2@test.com'),
+  ('00000000-0000-0000-0000-000000000099', 'admin@test.com');
 insert into public.users (id, nome, email, role) values
   ('00000000-0000-0000-0000-000000000001', 'Tecnico Um', 'tecnico1@test.com', 'tecnico'),
-  ('00000000-0000-0000-0000-000000000002', 'Tecnico Dois', 'tecnico2@test.com', 'tecnico');
+  ('00000000-0000-0000-0000-000000000002', 'Tecnico Dois', 'tecnico2@test.com', 'tecnico'),
+  ('00000000-0000-0000-0000-000000000099', 'Admin User', 'admin@test.com', 'admin');
 insert into public.inspections (id, tecnico_id, status, tipo_cliente, objetivo) values
   ('00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000001', 'rascunho', 'particular', 'compra'),
   ('00000000-0000-0000-0000-000000000011', '00000000-0000-0000-0000-000000000001', 'aprovada', 'particular', 'compra');
@@ -44,6 +46,16 @@ begin
   exception when insufficient_privilege then
     raise notice 'OK: upload bloqueado pra tecnico que nao e dono';
   end;
+end $$;
+
+set local request.jwt.claim.sub = '00000000-0000-0000-0000-000000000099';
+set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000099"}';
+
+do $$
+begin
+  insert into storage.objects (bucket_id, name)
+    values ('fotos-inspecao', '00000000-0000-0000-0000-000000000011/item-x/foto.jpg');
+  raise notice 'OK: admin consegue subir foto em inspecao que nao e editavel (RF-35)';
 end $$;
 
 rollback;

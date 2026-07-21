@@ -2,6 +2,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { groupItemsBySubcategoria, findNextItemId } from "@/lib/checklist/progress";
+import { deriveSiblingRows } from "@/lib/checklist/siblings";
 import { ItemClassificacaoForm } from "./item-classificacao-form";
 import { ItemMedicaoForm } from "./item-medicao-form";
 
@@ -15,22 +16,27 @@ export default async function ChecklistItemPage({
 
   const { data: item } = await supabase
     .from("checklist_item_templates")
-    .select("id, nome, tipo, qtd_pontos_medicao, observacoes")
+    .select("id, nome, tipo, qtd_pontos_medicao, observacoes, grupo_replicacao")
     .eq("id", itemId)
     .eq("group_id", groupId)
     .single();
 
   if (!item) notFound();
 
-  const [{ data: response }, { data: groupItems, error: groupItemsError }] = await Promise.all([
-    supabase
-      .from("checklist_item_responses")
-      .select("id, classificacao, observacao")
-      .eq("inspection_id", id)
-      .eq("item_template_id", itemId)
-      .maybeSingle(),
-    supabase.from("checklist_item_templates").select("id, subcategoria, nome").eq("group_id", groupId),
-  ]);
+  const [{ data: response }, { data: groupItems, error: groupItemsError }, { data: groupResponses }] =
+    await Promise.all([
+      supabase
+        .from("checklist_item_responses")
+        .select("id, classificacao, observacao")
+        .eq("inspection_id", id)
+        .eq("item_template_id", itemId)
+        .maybeSingle(),
+      supabase
+        .from("checklist_item_templates")
+        .select("id, subcategoria, nome, grupo_replicacao")
+        .eq("group_id", groupId),
+      supabase.from("checklist_item_responses").select("item_template_id, status").eq("inspection_id", id),
+    ]);
 
   if (groupItemsError) {
     console.error("checklist item page group fetch failed", groupItemsError);
@@ -52,9 +58,10 @@ export default async function ChecklistItemPage({
 
   const subcategorias = groupItemsBySubcategoria(groupItems ?? [], []);
   const nextItemId = findNextItemId(subcategorias, itemId);
-  const nextUrl = nextItemId
-    ? `/inspections/${id}/checklist/${groupId}/${nextItemId}`
-    : `/inspections/${id}/checklist/${groupId}`;
+  const groupListUrl = `/inspections/${id}/checklist/${groupId}`;
+  const nextUrl = nextItemId ? `/inspections/${id}/checklist/${groupId}/${nextItemId}` : groupListUrl;
+
+  const siblings = deriveSiblingRows(itemId, groupItems ?? [], groupResponses ?? []);
 
   return (
     <div>
@@ -74,10 +81,13 @@ export default async function ChecklistItemPage({
         <ItemClassificacaoForm
           inspectionId={id}
           itemTemplateId={itemId}
+          nome={item.nome}
           nextUrl={nextUrl}
+          groupListUrl={groupListUrl}
           initialClassificacao={response?.classificacao ?? null}
           initialObservacao={response?.observacao ?? null}
           initialPhotos={photos}
+          siblings={siblings}
         />
       )}
     </div>

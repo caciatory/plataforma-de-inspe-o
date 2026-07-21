@@ -128,3 +128,36 @@ export async function saveMeasurementAction(
 
   redirect(nextUrl);
 }
+
+export type BatchItem = { itemTemplateId: string; classificacao: string; observacao: string | null };
+
+export async function applyClassificacaoBatchAction(
+  inspectionId: string,
+  items: BatchItem[]
+): Promise<{ error?: string }> {
+  if (items.some((i) => !ITEM_CLASSIFICACOES.includes(i.classificacao as ItemClassificacao))) {
+    return { error: "Classificação inválida em um dos itens do lote." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("apply_classificacao_batch", {
+    p_inspection_id: inspectionId,
+    p_items: items.map((i) => ({
+      item_template_id: i.itemTemplateId,
+      classificacao: i.classificacao,
+      observacao: i.observacao,
+    })),
+  });
+
+  if (error) {
+    console.error("applyClassificacaoBatchAction failed", error);
+    return {
+      error: friendlyDbError(
+        error,
+        "Um dos itens marcados como 'ruim' precisa de pelo menos 1 foto anexada. Anexe a foto e confirme de novo."
+      ),
+    };
+  }
+
+  return {};
+}

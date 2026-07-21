@@ -195,3 +195,47 @@ describe("saveMeasurementAction", () => {
     }
   });
 });
+
+describe("applyClassificacaoBatchAction", () => {
+  it("returns an error without calling the RPC when an item has an invalid classificacao", async () => {
+    const { applyClassificacaoBatchAction } = await import("./actions");
+
+    const result = await applyClassificacaoBatchAction("insp-1", [
+      { itemTemplateId: "item-1", classificacao: "otimo", observacao: null },
+      { itemTemplateId: "item-2", classificacao: "nao-e-valido", observacao: null },
+    ]);
+
+    expect(result.error).toBeTruthy();
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it("calls the RPC with the mapped batch payload on success", async () => {
+    rpc.mockResolvedValue({ data: null, error: null });
+    const { applyClassificacaoBatchAction } = await import("./actions");
+
+    const result = await applyClassificacaoBatchAction("insp-1", [
+      { itemTemplateId: "item-1", classificacao: "otimo", observacao: "Sem avarias" },
+      { itemTemplateId: "item-2", classificacao: "medio", observacao: null },
+    ]);
+
+    expect(result).toEqual({});
+    expect(rpc).toHaveBeenCalledWith("apply_classificacao_batch", {
+      p_inspection_id: "insp-1",
+      p_items: [
+        { item_template_id: "item-1", classificacao: "otimo", observacao: "Sem avarias" },
+        { item_template_id: "item-2", classificacao: "medio", observacao: null },
+      ],
+    });
+  });
+
+  it("returns a friendly message when the DB rejects a 'ruim' item without a photo", async () => {
+    rpc.mockResolvedValue({ data: null, error: { code: "23514", message: "RF-16" } });
+    const { applyClassificacaoBatchAction } = await import("./actions");
+
+    const result = await applyClassificacaoBatchAction("insp-1", [
+      { itemTemplateId: "item-1", classificacao: "ruim", observacao: null },
+    ]);
+
+    expect(result.error).toMatch(/foto/i);
+  });
+});

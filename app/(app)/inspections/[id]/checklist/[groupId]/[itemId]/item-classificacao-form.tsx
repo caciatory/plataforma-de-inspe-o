@@ -5,14 +5,7 @@ import { useActionState, useState, type FormEvent } from "react";
 import { saveClassificacaoAction, type SaveClassificacaoState } from "./actions";
 import { PhotoManager, type Photo } from "./photo-manager";
 import { BatchApplyPanel, type BatchRow } from "./batch-apply-panel";
-import { buildBatchRows, type SiblingRow } from "@/lib/checklist/siblings";
-
-const CLASSIFICACOES = [
-  { value: "otimo", label: "Ótimo" },
-  { value: "medio", label: "Médio" },
-  { value: "ruim", label: "Ruim" },
-  { value: "NF", label: "Não se aplica (NF)" },
-] as const;
+import { buildBatchRows, CLASSIFICACOES, type SiblingRow } from "@/lib/checklist/siblings";
 
 const initialState: SaveClassificacaoState = { status: "idle" };
 
@@ -66,9 +59,7 @@ export function ItemClassificacaoForm({
     const initialRows: BatchRow[] = buildBatchRows(
       { itemTemplateId, nome, classificacao, observacao, photos },
       siblings,
-      selectedSiblings,
-      classificacao,
-      observacao
+      selectedSiblings
     );
 
     return (

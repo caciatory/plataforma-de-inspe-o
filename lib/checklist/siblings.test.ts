@@ -67,7 +67,7 @@ describe("buildBatchRows", () => {
 
   it("never copies the current item's photos onto sibling rows, regardless of how many it has", () => {
     const selected = new Set(["item-2", "item-3"]);
-    const result = buildBatchRows(current, siblings, selected, "ruim", "Desgaste irregular");
+    const result = buildBatchRows(current, siblings, selected);
 
     const siblingRows = result.filter((r) => r.itemTemplateId !== "item-1");
     expect(siblingRows).toHaveLength(2);
@@ -78,24 +78,24 @@ describe("buildBatchRows", () => {
 
   it("excludes unselected siblings", () => {
     const selected = new Set(["item-2"]);
-    const result = buildBatchRows(current, siblings, selected, "ruim", "Desgaste irregular");
+    const result = buildBatchRows(current, siblings, selected);
 
     expect(result.map((r) => r.itemTemplateId)).toEqual(["item-1", "item-2"]);
   });
 
   it("keeps the current item's own row unchanged, including its real photos", () => {
-    const result = buildBatchRows(current, siblings, new Set(["item-2"]), "ruim", "Desgaste irregular");
+    const result = buildBatchRows(current, siblings, new Set(["item-2"]));
 
     expect(result[0]).toEqual(current);
   });
 
-  it("applies the chosen classificacao and observacao to every selected sibling", () => {
-    const result = buildBatchRows(current, siblings, new Set(["item-2", "item-3"]), "medio", "Nova observação");
+  it("applies the current item's classificacao and observacao to every selected sibling", () => {
+    const result = buildBatchRows(current, siblings, new Set(["item-2", "item-3"]));
 
     const siblingRows = result.filter((r) => r.itemTemplateId !== "item-1");
     for (const row of siblingRows) {
-      expect(row.classificacao).toBe("medio");
-      expect(row.observacao).toBe("Nova observação");
+      expect(row.classificacao).toBe(current.classificacao);
+      expect(row.observacao).toBe(current.observacao);
     }
   });
 });

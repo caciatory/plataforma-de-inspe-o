@@ -1,5 +1,12 @@
 import type { ItemResponseStatus } from "./progress";
 
+export const CLASSIFICACOES = [
+  { value: "otimo", label: "Ótimo" },
+  { value: "medio", label: "Médio" },
+  { value: "ruim", label: "Ruim" },
+  { value: "NF", label: "Não se aplica (NF)" },
+] as const;
+
 export type SiblingSourceItem = { id: string; nome: string; grupo_replicacao: string | null };
 export type SiblingResponseRow = { item_template_id: string; status: ItemResponseStatus; classificacao: string | null };
 export type SiblingRow = {
@@ -46,14 +53,18 @@ export type BatchRowInput = {
 export function buildBatchRows(
   current: BatchRowInput,
   siblings: SiblingRow[],
-  selectedSiblingIds: Set<string>,
-  classificacao: string,
-  observacao: string
+  selectedSiblingIds: Set<string>
 ): BatchRowInput[] {
   return [
     current,
     ...siblings
       .filter((s) => selectedSiblingIds.has(s.id))
-      .map((s) => ({ itemTemplateId: s.id, nome: s.nome, classificacao, observacao, photos: [] })),
+      .map((s) => ({
+        itemTemplateId: s.id,
+        nome: s.nome,
+        classificacao: current.classificacao,
+        observacao: current.observacao,
+        photos: [],
+      })),
   ];
 }

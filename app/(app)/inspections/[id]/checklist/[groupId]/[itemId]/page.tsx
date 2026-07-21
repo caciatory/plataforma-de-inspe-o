@@ -16,7 +16,7 @@ export default async function ChecklistItemPage({
 
   const { data: item } = await supabase
     .from("checklist_item_templates")
-    .select("id, nome, tipo, qtd_pontos_medicao, observacoes, grupo_replicacao")
+    .select("id, nome, tipo, qtd_pontos_medicao, observacoes")
     .eq("id", itemId)
     .eq("group_id", groupId)
     .single();

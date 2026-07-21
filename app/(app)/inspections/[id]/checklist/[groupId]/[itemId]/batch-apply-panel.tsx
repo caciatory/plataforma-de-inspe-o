@@ -4,13 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { applyClassificacaoBatchAction } from "./actions";
 import { PhotoManager, type Photo } from "./photo-manager";
-
-const CLASSIFICACOES = [
-  { value: "otimo", label: "Ótimo" },
-  { value: "medio", label: "Médio" },
-  { value: "ruim", label: "Ruim" },
-  { value: "NF", label: "Não se aplica (NF)" },
-] as const;
+import { CLASSIFICACOES } from "@/lib/checklist/siblings";
 
 export type BatchRow = {
   itemTemplateId: string;

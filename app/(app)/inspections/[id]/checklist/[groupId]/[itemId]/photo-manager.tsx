@@ -15,14 +15,17 @@ export function PhotoManager({
   inspectionId,
   itemTemplateId,
   initialPhotos,
+  onPhotosChange,
 }: {
   inspectionId: string;
   itemTemplateId: string;
   initialPhotos: Photo[];
+  onPhotosChange?: (photos: Photo[]) => void;
 }) {
   const [photos, setPhotos] = useState<Photo[]>(initialPhotos);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const inputId = `photoInput-${itemTemplateId}`;
 
   function handleUpload(file: File) {
     setError(null);
@@ -43,7 +46,11 @@ export function PhotoManager({
         return;
       }
 
-      setPhotos((prev) => [...prev, { id: result.photoId as string, url: data.publicUrl }]);
+      setPhotos((prev) => {
+        const next = [...prev, { id: result.photoId as string, url: data.publicUrl }];
+        onPhotosChange?.(next);
+        return next;
+      });
     });
   }
 
@@ -55,15 +62,19 @@ export function PhotoManager({
         setError(result.error);
         return;
       }
-      setPhotos((prev) => prev.filter((p) => p.id !== photoId));
+      setPhotos((prev) => {
+        const next = prev.filter((p) => p.id !== photoId);
+        onPhotosChange?.(next);
+        return next;
+      });
     });
   }
 
   return (
     <div>
-      <label htmlFor="photoInput">Foto</label>
+      <label htmlFor={inputId}>Foto</label>
       <input
-        id="photoInput"
+        id={inputId}
         type="file"
         accept="image/*"
         disabled={isPending}

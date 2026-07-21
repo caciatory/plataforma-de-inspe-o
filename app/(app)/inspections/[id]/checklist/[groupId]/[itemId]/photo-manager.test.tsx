@@ -70,4 +70,59 @@ describe("PhotoManager", () => {
     await waitFor(() => expect(screen.queryAllByRole("button", { name: "Excluir" })).toHaveLength(0));
     expect(deletePhotoAction).toHaveBeenCalledWith("photo-1");
   });
+
+  it("gives each instance a unique input id so multiple PhotoManagers can render on one page", () => {
+    render(
+      <>
+        <PhotoManager inspectionId="insp-1" itemTemplateId="item-1" initialPhotos={[]} />
+        <PhotoManager inspectionId="insp-1" itemTemplateId="item-2" initialPhotos={[]} />
+      </>
+    );
+
+    const inputs = screen.getAllByLabelText("Foto") as HTMLInputElement[];
+    expect(inputs).toHaveLength(2);
+    expect(inputs[0].id).not.toBe(inputs[1].id);
+  });
+
+  it("calls onPhotosChange with the updated list after a successful upload", async () => {
+    upload.mockResolvedValue({ error: null });
+    getPublicUrl.mockReturnValue({ data: { publicUrl: "https://example.com/novo.jpg" } });
+    attachPhotoAction.mockResolvedValue({ photoId: "photo-2" });
+    const onPhotosChange = vi.fn();
+
+    render(
+      <PhotoManager
+        inspectionId="insp-1"
+        itemTemplateId="item-1"
+        initialPhotos={[]}
+        onPhotosChange={onPhotosChange}
+      />
+    );
+
+    const file = new File(["conteudo"], "foto.jpg", { type: "image/jpeg" });
+    const input = screen.getByLabelText("Foto") as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [file] } });
+
+    await waitFor(() =>
+      expect(onPhotosChange).toHaveBeenCalledWith([{ id: "photo-2", url: "https://example.com/novo.jpg" }])
+    );
+  });
+
+  it("calls onPhotosChange with the updated list after a successful delete", async () => {
+    deletePhotoAction.mockResolvedValue({});
+    const onPhotosChange = vi.fn();
+
+    render(
+      <PhotoManager
+        inspectionId="insp-1"
+        itemTemplateId="item-1"
+        initialPhotos={[{ id: "photo-1", url: "https://example.com/a.jpg" }]}
+        onPhotosChange={onPhotosChange}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Excluir" }));
+
+    await waitFor(() => expect(onPhotosChange).toHaveBeenCalledWith([]));
+  });
 });

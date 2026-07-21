@@ -51,10 +51,18 @@ O botão "Salvar e próximo" de sempre continua funcionando normal pra quem não
 
 Justificativa de não reaproveitar `saveClassificacaoAction` em loop no client: N chamadas independentes não garantem atomicidade (uma falha no meio deixaria o lote parcialmente salvo) — o RPC único resolve isso no banco, mesmo padrão já validado em `save_paint_measurement`.
 
+## 4.1 Comportamento de erro — nada se perde, aponta a linha
+
+O painel de lote é só estado local no navegador até o clique em "Confirmar aplicação" — cada linha (classificação, observação, fotos já anexadas) permanece exatamente como o técnico deixou, mesmo se a gravação falhar ou nem for tentada.
+
+**Validação no client antes de chamar o RPC:** como cada linha já sabe quantas fotos tem anexadas (mesmo estado que o `PhotoManager` daquela linha já mantém), "Confirmar aplicação" primeiro checa localmente se toda linha marcada `ruim` tem pelo menos 1 foto. Se não tiver, bloqueia o envio e aponta exatamente qual(is) linha(s) estão faltando foto — sem round-trip ao servidor. Cobre o caso comum (esqueceu de anexar).
+
+**Erro do banco (caso raro — race condition, outra violação):** a trigger RF-16 continua sendo quem garante de verdade (o client-side é só conveniência, mesmo princípio da Fase 2). Se o RPC ainda assim rejeitar, o erro aparece como mensagem genérica no topo do painel — não tenta apontar a linha exata (o erro do Postgres carrega o `item_response_id` interno, não o `item_template_id` que a UI usa; mapear um pro outro só pra esse caso raro não vale a complexidade). Nenhuma linha é limpa; o técnico revisa, corrige, confirma de novo.
+
 ## 5. Testes
 
 - RPC: teste SQL cobrindo lote com sucesso (múltiplos itens gravados numa chamada), lote que falha por RF-16 (nenhum item do lote persiste), upsert idempotente (chamar duas vezes não duplica).
 - Função pura pra derivar a lista de irmãos + estado de checkbox padrão (marcado só se pendente): testada isolada.
 - Server Action que chama o RPC: testada com client mockado, mesmo padrão das demais.
-- Painel de lote (client component): testado com Testing Library — linhas renderizam pré-preenchidas, edição por linha funciona, submit chama a Server Action com o payload certo.
+- Painel de lote (client component): testado com Testing Library — linhas renderizam pré-preenchidas, edição por linha funciona, submit chama a Server Action com o payload certo; caso de validação client-side (linha `ruim` sem foto bloqueia o envio e aponta a linha, sem chamar a Server Action) coberto explicitamente.
 - Página do item continua sem teste próprio (mesma exceção documentada em Fase 2) — a seção de irmãos é lógica nova o suficiente pra justificar extrair a query/montagem da lista como função pura testável, em vez de inline no componente de página.

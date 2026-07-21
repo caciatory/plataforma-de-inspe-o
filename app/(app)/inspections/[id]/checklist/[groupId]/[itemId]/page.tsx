@@ -35,7 +35,10 @@ export default async function ChecklistItemPage({
         .from("checklist_item_templates")
         .select("id, subcategoria, nome, grupo_replicacao")
         .eq("group_id", groupId),
-      supabase.from("checklist_item_responses").select("item_template_id, status").eq("inspection_id", id),
+      supabase
+        .from("checklist_item_responses")
+        .select("item_template_id, status, classificacao")
+        .eq("inspection_id", id),
     ]);
 
   if (groupItemsError) {

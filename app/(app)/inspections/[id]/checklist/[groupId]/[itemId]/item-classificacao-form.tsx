@@ -5,7 +5,7 @@ import { useActionState, useState, type FormEvent } from "react";
 import { saveClassificacaoAction, type SaveClassificacaoState } from "./actions";
 import { PhotoManager, type Photo } from "./photo-manager";
 import { BatchApplyPanel, type BatchRow } from "./batch-apply-panel";
-import type { SiblingRow } from "@/lib/checklist/siblings";
+import { buildBatchRows, type SiblingRow } from "@/lib/checklist/siblings";
 
 const CLASSIFICACOES = [
   { value: "otimo", label: "Ótimo" },
@@ -63,12 +63,13 @@ export function ItemClassificacaoForm({
   }
 
   if (showBatchPanel) {
-    const initialRows: BatchRow[] = [
+    const initialRows: BatchRow[] = buildBatchRows(
       { itemTemplateId, nome, classificacao, observacao, photos },
-      ...siblings
-        .filter((s) => selectedSiblings.has(s.id))
-        .map((s) => ({ itemTemplateId: s.id, nome: s.nome, classificacao, observacao, photos: [] as Photo[] })),
-    ];
+      siblings,
+      selectedSiblings,
+      classificacao,
+      observacao
+    );
 
     return (
       <BatchApplyPanel
@@ -128,7 +129,7 @@ export function ItemClassificacaoForm({
             <label key={s.id}>
               <input type="checkbox" checked={selectedSiblings.has(s.id)} onChange={() => toggleSibling(s.id)} />
               {s.nome}
-              {s.status !== "pendente" && ` (já respondido: ${s.status})`}
+              {s.status !== "pendente" && ` (já respondido: ${s.classificacao ?? s.status})`}
             </label>
           ))}
           <button

@@ -1,4 +1,4 @@
-# Inspecta
+# Check Auto
 
 App de vistoria técnica veicular em tablet. Técnico preenche uma checklist estruturada (285 itens, 11 grupos) em campo; admin revisa, aprova e gera um relatório verificável para o cliente.
 

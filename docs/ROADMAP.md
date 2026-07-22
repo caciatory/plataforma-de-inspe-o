@@ -1,4 +1,4 @@
-# Roadmap — Inspecta v1.0
+# Roadmap — Check Auto v1.0
 
 Atualizado: 2026-07-21. Baseado em `docs/especificacao-tecnica-v1.md` §5 (9 fases) e no estado real do código (branches, migrations) nesta data.
 

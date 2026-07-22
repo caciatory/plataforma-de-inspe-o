@@ -1,4 +1,4 @@
-# Inspecta — Esquema de Banco de Dados v1.0
+# Check Auto — Esquema de Banco de Dados v1.0
 
 > PostgreSQL (Supabase). 12 tabelas em 5 domínios. Migrations completas com testes SQL em `docs/superpowers/plans/2026-07-09-inspecta-database-schema.md`. Derivado do modelo lógico em `docs/especificacao-tecnica-v1.md` §4. Duas colunas (`checklist_group_templates.ativo`, `checklist_item_templates.observacoes`) e as invariantes de `paint_measurements`/`checklist_item_responses` abaixo vieram depois, nas migrations `00011`–`00016`.
 

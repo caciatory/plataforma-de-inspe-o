@@ -31,7 +31,7 @@ export default function LoginPage() {
 
   return (
     <main>
-      <h1>Inspecta — Login</h1>
+      <h1>Check Auto — Login</h1>
       <form onSubmit={handleSubmit}>
         <label htmlFor="email">Email</label>
         <input

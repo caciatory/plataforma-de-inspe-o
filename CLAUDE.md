@@ -1,4 +1,4 @@
-# bild app (Inspecta)
+# bild app (Check Auto)
 
 ## Processo de desenvolvimento
 

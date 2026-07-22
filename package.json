@@ -1,5 +1,5 @@
 {
-  "name": "inspecta-app",
+  "name": "check-auto-app",
   "private": true,
   "scripts": {
     "dev": "next dev",

@@ -35,20 +35,29 @@ export default async function ChecklistLayout({
   const progress = computeGroupProgress(groups ?? [], items ?? [], responses ?? []);
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
-      <nav style={{ width: 260, borderRight: "1px solid #ccc", padding: "1rem" }}>
-        <h2>Checklist</h2>
-        <ul style={{ listStyle: "none", padding: 0 }}>
+    <div className="checklist-shell">
+      <nav className="checklist-nav identity-bar" aria-label="Grupos da checklist">
+        <h2 className="checklist-nav__title">Checklist</h2>
+        <ul className="checklist-nav__list">
           {progress.map((group) => (
             <li key={group.id}>
-              <Link href={`/inspections/${id}/checklist/${group.id}`}>
-                {group.pendentes === 0 ? "✅" : `⚠️ (${group.pendentes})`} {group.nome}
+              <Link href={`/inspections/${id}/checklist/${group.id}`} className="checklist-nav__link">
+                <span
+                  className={`checklist-nav__status ${group.pendentes === 0 ? "checklist-nav__status--done" : "checklist-nav__status--pending"}`}
+                  aria-hidden="true"
+                >
+                  {group.pendentes === 0 ? "✓" : group.pendentes}
+                </span>
+                <span className="sr-only">
+                  {group.pendentes === 0 ? "Concluído: " : `${group.pendentes} pendentes: `}
+                </span>
+                {group.nome}
               </Link>
             </li>
           ))}
         </ul>
       </nav>
-      <main style={{ flex: 1, padding: "1rem" }}>{children}</main>
+      <main className="checklist-main">{children}</main>
     </div>
   );
 }

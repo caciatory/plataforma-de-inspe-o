@@ -24,31 +24,52 @@ export default async function InspectionSummaryPage({
   );
 
   return (
-    <main>
+    <main className="page">
       <h1>Inspeção criada</h1>
-      <p>Matrícula: {inspection.vehicle_data?.matricula}</p>
-      <p>
-        Veículo: {inspection.vehicle_data?.marca} {inspection.vehicle_data?.modelo}
-      </p>
-      <p>
-        Cliente: {inspection.client_data?.nome_solicitante} ({inspection.tipo_cliente})
-      </p>
-      <p>Objetivo: {inspection.objetivo}</p>
-      <p>Estado: {inspection.status}</p>
-      {validity.status === "valida" && (
-        <p>
-          ✅ Válida até {validity.validoAte!.toLocaleDateString("pt-PT")} (até {validity.kmLimite} km)
-        </p>
-      )}
-      {validity.status === "expirada" && (
-        <p>
-          ⚠️ Expirada em {validity.validoAte!.toLocaleDateString("pt-PT")} (válida para até 100km rodados desde a
-          inspeção)
-        </p>
-      )}
-      <p>
-        <Link href={`/inspections/${id}/checklist`}>Ir para a checklist</Link>
-      </p>
+      <div className="panel stack">
+        <dl className="summary-grid">
+          <div className="summary-grid__row">
+            <dt className="label">Matrícula</dt>
+            <dd>{inspection.vehicle_data?.matricula}</dd>
+          </div>
+          <div className="summary-grid__row">
+            <dt className="label">Veículo</dt>
+            <dd>
+              {inspection.vehicle_data?.marca} {inspection.vehicle_data?.modelo}
+            </dd>
+          </div>
+          <div className="summary-grid__row">
+            <dt className="label">Cliente</dt>
+            <dd>
+              {inspection.client_data?.nome_solicitante} ({inspection.tipo_cliente})
+            </dd>
+          </div>
+          <div className="summary-grid__row">
+            <dt className="label">Objetivo</dt>
+            <dd>{inspection.objetivo}</dd>
+          </div>
+          <div className="summary-grid__row">
+            <dt className="label">Estado</dt>
+            <dd>{inspection.status}</dd>
+          </div>
+        </dl>
+
+        {validity.status === "valida" && (
+          <p className="validity-note validity-note--valid">
+            Válida até {validity.validoAte!.toLocaleDateString("pt-PT")} (até {validity.kmLimite} km)
+          </p>
+        )}
+        {validity.status === "expirada" && (
+          <p className="validity-note validity-note--expired">
+            Expirada em {validity.validoAte!.toLocaleDateString("pt-PT")} (válida para até 100km rodados desde a
+            inspeção)
+          </p>
+        )}
+      </div>
+
+      <Link href={`/inspections/${id}/checklist`} className="btn btn-primary summary-cta">
+        Ir para a checklist
+      </Link>
     </main>
   );
 }

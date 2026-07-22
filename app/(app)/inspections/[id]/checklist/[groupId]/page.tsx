@@ -31,17 +31,30 @@ export default async function ChecklistGroupPage({
 
   const subcategorias = groupItemsBySubcategoria(items ?? [], responses ?? []);
 
+  const statusLabel: Record<string, string> = {
+    pendente: "Pendente",
+    NF: "Não se aplica",
+  };
+
   return (
-    <div>
+    <div className="stack">
       <h1>{group.nome}</h1>
       {subcategorias.map((bucket) => (
         <section key={bucket.subcategoria ?? "sem-subcategoria"}>
           {bucket.subcategoria && <h2>{bucket.subcategoria}</h2>}
-          <ul style={{ listStyle: "none", padding: 0 }}>
+          <ul className="item-list">
             {bucket.items.map((item) => (
               <li key={item.id}>
-                {item.status === "pendente" ? "⚠️" : item.status === "NF" ? "➖" : "✅"}{" "}
-                <Link href={`/inspections/${id}/checklist/${groupId}/${item.id}`}>{item.nome}</Link>
+                <Link href={`/inspections/${id}/checklist/${groupId}/${item.id}`} className="item-list__row">
+                  <span
+                    className={`item-list__status item-list__status--${item.status === "pendente" ? "pendente" : item.status === "NF" ? "nf" : "feito"}`}
+                    aria-hidden="true"
+                  />
+                  <span className="sr-only">
+                    {statusLabel[item.status] ?? "Preenchido"}:{" "}
+                  </span>
+                  {item.nome}
+                </Link>
               </li>
             ))}
           </ul>

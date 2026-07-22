@@ -71,27 +71,41 @@ export function PhotoManager({
   }
 
   return (
-    <div>
-      <label htmlFor={inputId}>Foto</label>
-      <input
-        id={inputId}
-        type="file"
-        accept="image/*"
-        disabled={isPending}
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) handleUpload(file);
-          e.target.value = "";
-        }}
-      />
-      {isPending && <span>A processar...</span>}
-      {error && <p role="alert">{error}</p>}
-      <ul style={{ listStyle: "none", padding: 0, display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+    <div className="photo-manager">
+      <div className="field">
+        <label htmlFor={inputId} className="label">
+          Foto
+        </label>
+        <input
+          id={inputId}
+          className="photo-manager__input"
+          type="file"
+          accept="image/*"
+          disabled={isPending}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleUpload(file);
+            e.target.value = "";
+          }}
+        />
+      </div>
+      {isPending && <span className="hint">A processar...</span>}
+      {error && (
+        <p role="alert" className="error-text">
+          {error}
+        </p>
+      )}
+      <ul className="photo-grid">
         {photos.map((photo) => (
-          <li key={photo.id}>
+          <li key={photo.id} className="photo-grid__item">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photo.url} alt="" width={120} height={90} style={{ objectFit: "cover" }} />
-            <button type="button" onClick={() => handleDelete(photo.id)} disabled={isPending}>
+            <img src={photo.url} alt="Foto anexada ao item" width={120} height={90} className="photo-grid__thumb" />
+            <button
+              type="button"
+              className="btn btn-danger photo-grid__delete"
+              onClick={() => handleDelete(photo.id)}
+              disabled={isPending}
+            >
               Excluir
             </button>
           </li>

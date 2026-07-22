@@ -33,121 +33,227 @@ export function NewInspectionForm() {
   }
 
   return (
-    <form action={formAction}>
-      <fieldset>
-        <legend>Cliente</legend>
+    <form action={formAction} className="page stack">
+      <fieldset className="panel form-fieldset">
+        <legend className="form-fieldset__legend">Cliente</legend>
+        <div className="form-grid">
+          <div className="field">
+            <label htmlFor="tipoCliente" className="label">
+              Tipo de cliente
+            </label>
+            <select
+              id="tipoCliente"
+              name="tipoCliente"
+              className="input"
+              value={tipoCliente}
+              onChange={(e) => handleTipoClienteChange(e.target.value as TipoCliente)}
+            >
+              {tipoClienteValues.map((v) => (
+                <option key={v} value={v}>
+                  {v === "particular" ? "Particular" : "Stand"}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <label htmlFor="tipoCliente">Tipo de cliente</label>
-        <select
-          id="tipoCliente"
-          name="tipoCliente"
-          value={tipoCliente}
-          onChange={(e) => handleTipoClienteChange(e.target.value as TipoCliente)}
-        >
-          {tipoClienteValues.map((v) => (
-            <option key={v} value={v}>
-              {v === "particular" ? "Particular" : "Stand"}
-            </option>
-          ))}
-        </select>
+          <div className="field">
+            <label htmlFor="objetivo" className="label">
+              Objetivo
+            </label>
+            <select
+              id="objetivo"
+              name="objetivo"
+              className="input"
+              value={objetivo}
+              disabled={tipoCliente === "stand"}
+              onChange={(e) => setObjetivo(e.target.value as Objetivo)}
+            >
+              {objetivoValues.map((v) => (
+                <option key={v} value={v}>
+                  {v === "compra" ? "Compra" : "Venda"}
+                </option>
+              ))}
+            </select>
+            {tipoCliente === "stand" && <input type="hidden" name="objetivo" value={objetivo} />}
+          </div>
 
-        <label htmlFor="objetivo">Objetivo</label>
-        <select
-          id="objetivo"
-          name="objetivo"
-          value={objetivo}
-          disabled={tipoCliente === "stand"}
-          onChange={(e) => setObjetivo(e.target.value as Objetivo)}
-        >
-          {objetivoValues.map((v) => (
-            <option key={v} value={v}>
-              {v === "compra" ? "Compra" : "Venda"}
-            </option>
-          ))}
-        </select>
-        {tipoCliente === "stand" && <input type="hidden" name="objetivo" value={objetivo} />}
+          <div className="field">
+            <label htmlFor="nomeSolicitante" className="label">
+              Nome do solicitante
+            </label>
+            <input
+              id="nomeSolicitante"
+              name="nomeSolicitante"
+              className="input"
+              required
+              value={nomeSolicitante}
+              onChange={(e) => setNomeSolicitante(e.target.value)}
+            />
+          </div>
 
-        <label htmlFor="nomeSolicitante">Nome do solicitante</label>
-        <input
-          id="nomeSolicitante"
-          name="nomeSolicitante"
-          required
-          value={nomeSolicitante}
-          onChange={(e) => setNomeSolicitante(e.target.value)}
-        />
+          {tipoCliente === "stand" && <StandAutocomplete onSelect={handleStandSelect} />}
 
-        {tipoCliente === "stand" && <StandAutocomplete onSelect={handleStandSelect} />}
+          <div className="field">
+            <label htmlFor="contacto" className="label">
+              Contacto
+            </label>
+            <input
+              id="contacto"
+              name="contacto"
+              className="input"
+              value={contacto}
+              onChange={(e) => setContacto(e.target.value)}
+            />
+          </div>
 
-        <label htmlFor="contacto">Contacto</label>
-        <input id="contacto" name="contacto" value={contacto} onChange={(e) => setContacto(e.target.value)} />
+          <div className="field">
+            <label htmlFor="email" className="label">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              className="input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
 
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <label htmlFor="responsavelPresente">Responsável presente</label>
-        <input id="responsavelPresente" name="responsavelPresente" />
+          <div className="field">
+            <label htmlFor="responsavelPresente" className="label">
+              Responsável presente
+            </label>
+            <input id="responsavelPresente" name="responsavelPresente" className="input" />
+          </div>
+        </div>
       </fieldset>
 
-      <fieldset>
-        <legend>Veículo</legend>
+      <fieldset className="panel form-fieldset">
+        <legend className="form-fieldset__legend">Veículo</legend>
+        <div className="form-grid">
+          <div className="field">
+            <label htmlFor="matricula" className="label">
+              Matrícula
+            </label>
+            <input id="matricula" name="matricula" className="input" required />
+          </div>
 
-        <label htmlFor="matricula">Matrícula</label>
-        <input id="matricula" name="matricula" required />
+          <div className="field">
+            <label htmlFor="marca" className="label">
+              Marca
+            </label>
+            <input id="marca" name="marca" className="input" required />
+          </div>
 
-        <label htmlFor="marca">Marca</label>
-        <input id="marca" name="marca" required />
+          <div className="field">
+            <label htmlFor="modelo" className="label">
+              Modelo
+            </label>
+            <input id="modelo" name="modelo" className="input" required />
+          </div>
 
-        <label htmlFor="modelo">Modelo</label>
-        <input id="modelo" name="modelo" required />
+          <div className="field">
+            <label htmlFor="quilometragem" className="label">
+              Quilometragem
+            </label>
+            <input id="quilometragem" name="quilometragem" type="number" className="input" required min={0} />
+          </div>
 
-        <label htmlFor="quilometragem">Quilometragem</label>
-        <input id="quilometragem" name="quilometragem" type="number" required min={0} />
+          <div className="field">
+            <label htmlFor="versaoTrim" className="label">
+              Versão
+            </label>
+            <input id="versaoTrim" name="versaoTrim" className="input" />
+          </div>
 
-        <label htmlFor="versaoTrim">Versão</label>
-        <input id="versaoTrim" name="versaoTrim" />
+          <div className="field">
+            <label htmlFor="anoFabrico" className="label">
+              Ano de fabrico
+            </label>
+            <input id="anoFabrico" name="anoFabrico" type="number" className="input" />
+          </div>
 
-        <label htmlFor="anoFabrico">Ano de fabrico</label>
-        <input id="anoFabrico" name="anoFabrico" type="number" />
+          <div className="field">
+            <label htmlFor="anoModelo" className="label">
+              Ano do modelo
+            </label>
+            <input id="anoModelo" name="anoModelo" type="number" className="input" />
+          </div>
 
-        <label htmlFor="anoModelo">Ano do modelo</label>
-        <input id="anoModelo" name="anoModelo" type="number" />
+          <div className="field">
+            <label htmlFor="cor" className="label">
+              Cor
+            </label>
+            <input id="cor" name="cor" className="input" />
+          </div>
 
-        <label htmlFor="cor">Cor</label>
-        <input id="cor" name="cor" />
+          <div className="field">
+            <label htmlFor="vin" className="label">
+              VIN
+            </label>
+            <input id="vin" name="vin" className="input" />
+          </div>
 
-        <label htmlFor="vin">VIN</label>
-        <input id="vin" name="vin" />
+          <div className="field">
+            <label htmlFor="numeroMotor" className="label">
+              Número do motor
+            </label>
+            <input id="numeroMotor" name="numeroMotor" className="input" />
+          </div>
 
-        <label htmlFor="numeroMotor">Número do motor</label>
-        <input id="numeroMotor" name="numeroMotor" />
+          <div className="field">
+            <label htmlFor="numeroPortas" className="label">
+              Número de portas
+            </label>
+            <input id="numeroPortas" name="numeroPortas" type="number" className="input" />
+          </div>
 
-        <label htmlFor="numeroPortas">Número de portas</label>
-        <input id="numeroPortas" name="numeroPortas" type="number" />
+          <div className="field">
+            <label htmlFor="combustivel" className="label">
+              Combustível
+            </label>
+            <input id="combustivel" name="combustivel" className="input" />
+          </div>
 
-        <label htmlFor="combustivel">Combustível</label>
-        <input id="combustivel" name="combustivel" />
+          <div className="field">
+            <label htmlFor="caixaVelocidades" className="label">
+              Caixa de velocidades
+            </label>
+            <input id="caixaVelocidades" name="caixaVelocidades" className="input" />
+          </div>
 
-        <label htmlFor="caixaVelocidades">Caixa de velocidades</label>
-        <input id="caixaVelocidades" name="caixaVelocidades" />
+          <div className="field">
+            <label htmlFor="tracao" className="label">
+              Tração
+            </label>
+            <input id="tracao" name="tracao" className="input" />
+          </div>
 
-        <label htmlFor="tracao">Tração</label>
-        <input id="tracao" name="tracao" />
+          <div className="field">
+            <label htmlFor="potenciaCv" className="label">
+              Potência (cv)
+            </label>
+            <input id="potenciaCv" name="potenciaCv" type="number" className="input" />
+          </div>
 
-        <label htmlFor="potenciaCv">Potência (cv)</label>
-        <input id="potenciaCv" name="potenciaCv" type="number" />
-
-        <label htmlFor="torqueNm">Torque (Nm)</label>
-        <input id="torqueNm" name="torqueNm" type="number" step="0.01" />
+          <div className="field">
+            <label htmlFor="torqueNm" className="label">
+              Torque (Nm)
+            </label>
+            <input id="torqueNm" name="torqueNm" type="number" step="0.01" className="input" />
+          </div>
+        </div>
       </fieldset>
 
-      {state.status === "error" && <p role="alert">{state.message}</p>}
-      <button type="submit">Guardar</button>
+      {state.status === "error" && (
+        <p role="alert" className="error-text">
+          {state.message}
+        </p>
+      )}
+      <button type="submit" className="btn btn-primary">
+        Guardar
+      </button>
     </form>
   );
 }

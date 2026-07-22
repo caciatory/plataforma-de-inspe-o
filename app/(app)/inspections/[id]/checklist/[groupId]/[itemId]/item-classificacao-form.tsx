@@ -73,34 +73,45 @@ export function ItemClassificacaoForm({
   }
 
   return (
-    <form action={formAction} onSubmit={handleSubmit}>
+    <form action={formAction} onSubmit={handleSubmit} className="stack">
       <input type="hidden" name="inspectionId" value={inspectionId} />
       <input type="hidden" name="itemTemplateId" value={itemTemplateId} />
       <input type="hidden" name="nextUrl" value={nextUrl} />
 
-      <fieldset>
-        <legend>Classificação</legend>
-        {CLASSIFICACOES.map((c) => (
-          <label key={c.value}>
-            <input
-              type="radio"
-              name="classificacao"
-              value={c.value}
-              checked={classificacao === c.value}
-              onChange={() => setClassificacao(c.value)}
-            />
-            {c.label}
-          </label>
-        ))}
+      <fieldset className="panel form-fieldset">
+        <legend className="form-fieldset__legend">Classificação</legend>
+        <div className="classificacao-options">
+          {CLASSIFICACOES.map((c) => (
+            <label
+              key={c.value}
+              className={`classificacao-option classificacao-option--${c.value.toLowerCase()}`}
+            >
+              <input
+                type="radio"
+                name="classificacao"
+                value={c.value}
+                checked={classificacao === c.value}
+                onChange={() => setClassificacao(c.value)}
+              />
+              {c.label}
+            </label>
+          ))}
+        </div>
       </fieldset>
 
-      <label htmlFor="observacao">Observação</label>
-      <textarea
-        id="observacao"
-        name="observacao"
-        value={observacao}
-        onChange={(e) => setObservacao(e.target.value)}
-      />
+      <div className="field">
+        <label htmlFor="observacao" className="label">
+          Observação
+        </label>
+        <textarea
+          id="observacao"
+          name="observacao"
+          className="input"
+          rows={3}
+          value={observacao}
+          onChange={(e) => setObservacao(e.target.value)}
+        />
+      </div>
 
       <PhotoManager
         inspectionId={inspectionId}
@@ -109,22 +120,35 @@ export function ItemClassificacaoForm({
         onPhotosChange={setPhotos}
       />
 
-      {state.status === "error" && <p role="alert">{state.message}</p>}
+      {state.status === "error" && (
+        <p role="alert" className="error-text">
+          {state.message}
+        </p>
+      )}
 
-      <button type="submit">Salvar e próximo</button>
+      <button type="submit" className="btn btn-primary">
+        Salvar e próximo
+      </button>
 
       {siblings.length > 0 && (
-        <fieldset>
-          <legend>Este item se repete em</legend>
-          {siblings.map((s) => (
-            <label key={s.id}>
-              <input type="checkbox" checked={selectedSiblings.has(s.id)} onChange={() => toggleSibling(s.id)} />
-              {s.nome}
-              {s.status !== "pendente" && ` (já respondido: ${s.classificacao ?? s.status})`}
-            </label>
-          ))}
+        <fieldset className="panel form-fieldset">
+          <legend className="form-fieldset__legend">Este item se repete em</legend>
+          <div className="stack sibling-list">
+            {siblings.map((s) => (
+              <label key={s.id} className="sibling-list__row">
+                <input type="checkbox" checked={selectedSiblings.has(s.id)} onChange={() => toggleSibling(s.id)} />
+                <span>
+                  {s.nome}
+                  {s.status !== "pendente" && (
+                    <span className="hint"> (já respondido: {s.classificacao ?? s.status})</span>
+                  )}
+                </span>
+              </label>
+            ))}
+          </div>
           <button
             type="button"
+            className="btn btn-secondary"
             disabled={!classificacao || selectedSiblings.size === 0}
             onClick={() => setShowBatchPanel(true)}
           >

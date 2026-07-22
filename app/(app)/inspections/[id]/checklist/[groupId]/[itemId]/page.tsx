@@ -67,9 +67,9 @@ export default async function ChecklistItemPage({
   const siblings = deriveSiblingRows(itemId, groupItems ?? [], groupResponses ?? []);
 
   return (
-    <div>
+    <div className="stack">
       <h1>{item.nome}</h1>
-      {item.observacoes && <p>{item.observacoes}</p>}
+      {item.observacoes && <p className="hint">{item.observacoes}</p>}
       {item.tipo === "medicao" ? (
         <ItemMedicaoForm
           inspectionId={id}

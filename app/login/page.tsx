@@ -30,27 +30,41 @@ export default function LoginPage() {
   }
 
   return (
-    <main>
-      <h1>Check Auto — Login</h1>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <label htmlFor="password">Palavra-passe</label>
-        <input
-          id="password"
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {error && <p role="alert">{error}</p>}
-        <button type="submit" disabled={loading}>
+    <main className="login-screen">
+      <form onSubmit={handleSubmit} className="panel login-card">
+        <h1>Check Auto</h1>
+        <div className="field">
+          <label htmlFor="email" className="label">
+            Email
+          </label>
+          <input
+            id="email"
+            className="input"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="password" className="label">
+            Palavra-passe
+          </label>
+          <input
+            id="password"
+            className="input"
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        {error && (
+          <p role="alert" className="error-text">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="btn btn-primary login-card__submit" disabled={loading}>
           {loading ? "A entrar..." : "Entrar"}
         </button>
       </form>

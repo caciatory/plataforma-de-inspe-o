@@ -71,31 +71,42 @@ export function BatchApplyPanel({
   }
 
   return (
-    <div>
+    <div className="stack">
       <h2>Aplicar aos selecionados</h2>
       {rows.map((row) => (
-        <fieldset key={row.itemTemplateId}>
-          <legend>{row.nome}</legend>
+        <fieldset key={row.itemTemplateId} className="panel form-fieldset">
+          <legend className="form-fieldset__legend">{row.nome}</legend>
 
-          {CLASSIFICACOES.map((c) => (
-            <label key={c.value}>
-              <input
-                type="radio"
-                name={`classificacao-${row.itemTemplateId}`}
-                value={c.value}
-                checked={row.classificacao === c.value}
-                onChange={() => updateRow(row.itemTemplateId, { classificacao: c.value })}
-              />
-              {c.label}
+          <div className="classificacao-options">
+            {CLASSIFICACOES.map((c) => (
+              <label
+                key={c.value}
+                className={`classificacao-option classificacao-option--${c.value.toLowerCase()}`}
+              >
+                <input
+                  type="radio"
+                  name={`classificacao-${row.itemTemplateId}`}
+                  value={c.value}
+                  checked={row.classificacao === c.value}
+                  onChange={() => updateRow(row.itemTemplateId, { classificacao: c.value })}
+                />
+                {c.label}
+              </label>
+            ))}
+          </div>
+
+          <div className="field">
+            <label htmlFor={`observacao-${row.itemTemplateId}`} className="label">
+              Observação
             </label>
-          ))}
-
-          <label htmlFor={`observacao-${row.itemTemplateId}`}>Observação</label>
-          <textarea
-            id={`observacao-${row.itemTemplateId}`}
-            value={row.observacao}
-            onChange={(e) => updateRow(row.itemTemplateId, { observacao: e.target.value })}
-          />
+            <textarea
+              id={`observacao-${row.itemTemplateId}`}
+              className="input"
+              rows={3}
+              value={row.observacao}
+              onChange={(e) => updateRow(row.itemTemplateId, { observacao: e.target.value })}
+            />
+          </div>
 
           <PhotoManager
             inspectionId={inspectionId}
@@ -106,14 +117,20 @@ export function BatchApplyPanel({
         </fieldset>
       ))}
 
-      {error && <p role="alert">{error}</p>}
+      {error && (
+        <p role="alert" className="error-text">
+          {error}
+        </p>
+      )}
 
-      <button type="button" onClick={handleConfirm} disabled={isPending}>
-        Confirmar aplicação
-      </button>
-      <button type="button" onClick={onCancel} disabled={isPending}>
-        Cancelar
-      </button>
+      <div className="batch-actions">
+        <button type="button" className="btn btn-primary" onClick={handleConfirm} disabled={isPending}>
+          Confirmar aplicação
+        </button>
+        <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={isPending}>
+          Cancelar
+        </button>
+      </div>
     </div>
   );
 }

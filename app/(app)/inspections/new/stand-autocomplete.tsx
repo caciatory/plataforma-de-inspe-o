@@ -23,15 +23,22 @@ export function StandAutocomplete({ onSelect }: { onSelect: (contact: StandConta
   }
 
   return (
-    <div>
-      <label htmlFor="standSearch">Procurar stand existente</label>
-      <input id="standSearch" value={query} onChange={(e) => handleChange(e.target.value)} />
-      {isPending && <span>A procurar...</span>}
+    <div className="field stand-autocomplete">
+      <label htmlFor="standSearch" className="label">
+        Procurar stand existente
+      </label>
+      <input
+        id="standSearch"
+        className="input"
+        value={query}
+        onChange={(e) => handleChange(e.target.value)}
+      />
+      {isPending && <span className="hint">A procurar...</span>}
       {results.length > 0 && (
-        <ul>
+        <ul className="stand-autocomplete__results">
           {results.map((c) => (
             <li key={c.nome_solicitante}>
-              <button type="button" onClick={() => onSelect(c)}>
+              <button type="button" className="stand-autocomplete__result" onClick={() => onSelect(c)}>
                 {c.nome_solicitante} — {c.contacto ?? "sem contacto"}
               </button>
             </li>

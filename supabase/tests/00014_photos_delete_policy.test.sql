@@ -17,7 +17,7 @@ insert into public.inspections (id, tecnico_id, status, tipo_cliente, objetivo) 
 insert into public.checklist_group_templates (id, ordem, nome) values
   ('00000000-0000-0000-0000-000000000020', 904, 'Grupo Teste');
 insert into public.checklist_item_templates (id, group_id, nome, tipo) values
-  ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000020', 'Item A', 'padrao');
+  ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000020', 'Item A', 'escolha');
 
 insert into public.checklist_item_responses (id, inspection_id, item_template_id) values
   ('00000000-0000-0000-0000-000000000060', '00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000021'),

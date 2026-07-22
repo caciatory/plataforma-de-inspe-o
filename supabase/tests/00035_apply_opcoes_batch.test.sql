@@ -63,4 +63,41 @@ begin
   end;
 end $$;
 
+do $$
+declare
+  v_otimo_id uuid;
+  v_ruim_id uuid;
+  v_opcao_id_depois uuid;
+begin
+  select o.id into v_otimo_id from public.opcoes o
+    join public.conjuntos_opcao co on co.id = o.conjunto_id
+    where co.nome = 'estado_4' and o.label = 'Ótimo';
+  select o.id into v_ruim_id from public.opcoes o
+    join public.conjuntos_opcao co on co.id = o.conjunto_id
+    where co.nome = 'estado_4' and o.label = 'Ruim';
+
+  begin
+    perform public.apply_opcoes_batch(
+      '00000000-0000-0000-0000-000000000010',
+      jsonb_build_array(
+        jsonb_build_object('item_template_id', '00000000-0000-0000-0000-000000000021', 'opcao_id', v_otimo_id, 'observacao', 'obs A lote misto'),
+        jsonb_build_object('item_template_id', '00000000-0000-0000-0000-000000000022', 'opcao_id', v_ruim_id, 'observacao', null)
+      )
+    );
+    execute 'set constraints all immediate';
+    raise exception 'FALHOU: lote misto (item A seguro + item B Ruim sem foto) deveria ter bloqueado o lote inteiro';
+  exception when check_violation then
+    raise notice 'OK: lote misto e bloqueado por inteiro quando um item falha o RF-16 (check_exige_foto)';
+  end;
+
+  select opcao_id into v_opcao_id_depois from public.checklist_item_responses
+    where inspection_id = '00000000-0000-0000-0000-000000000010'
+      and item_template_id = '00000000-0000-0000-0000-000000000021';
+
+  if v_opcao_id_depois = v_otimo_id then
+    raise exception 'FALHOU: item A do lote misto foi gravado mesmo com item B falhando -- lote nao e atomico';
+  end if;
+  raise notice 'OK: item A do lote misto nao foi gravado -- rollback atomico do lote inteiro confirmado';
+end $$;
+
 rollback;

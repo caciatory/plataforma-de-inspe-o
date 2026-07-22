@@ -33,7 +33,7 @@ export function NewInspectionForm() {
   }
 
   return (
-    <form action={formAction} className="page stack">
+    <form action={formAction} className="stack">
       <fieldset className="panel form-fieldset">
         <legend className="form-fieldset__legend">Cliente</legend>
         <div className="form-grid">

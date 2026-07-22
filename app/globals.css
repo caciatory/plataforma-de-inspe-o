@@ -25,18 +25,11 @@
   --color-ink: oklch(0.2 0.02 160);
   --color-ink-muted: oklch(0.45 0.015 160);
 
-  --color-bg-dark: oklch(0.16 0.01 160);
-  --color-surface-dark: oklch(0.21 0.012 160);
-  --color-border-dark: oklch(0.32 0.015 160);
-  --color-ink-dark: oklch(0.96 0.006 160);
-  --color-ink-muted-dark: oklch(0.72 0.01 160);
-
   --color-identity-black: #000000;
   --color-identity-white: #ffffff;
 
   --color-status-otimo: var(--color-green-500);
   --color-status-medio: var(--color-amber-500);
-  --color-status-ruim: var(--color-red-500);
   --color-status-nf: var(--color-ink-muted);
 
   --color-primary: var(--color-green-500);
@@ -60,8 +53,6 @@
   --space-6: 2rem;
   --space-7: 3rem;
   --space-8: 4rem;
-
-  --shadow-float: 0 1px 2px oklch(0 0 0 / 0.06);
 }
 
 * {
@@ -127,12 +118,6 @@ a {
 
 .page {
   max-width: 640px;
-  margin: 0 auto;
-  padding: var(--space-6) var(--space-4);
-}
-
-.page-wide {
-  max-width: 960px;
   margin: 0 auto;
   padding: var(--space-6) var(--space-4);
 }
@@ -206,10 +191,6 @@ textarea.input {
   cursor: not-allowed;
 }
 
-.input-error {
-  border-color: var(--color-red-500);
-}
-
 .error-text {
   font-size: 0.875rem;
   color: var(--color-red-600);
@@ -263,39 +244,6 @@ textarea.input {
   border-color: var(--color-ink-muted);
 }
 
-/* Status badges — tinted bg, dark text of the same family, never the raw .500 as a fill */
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: 0.875rem;
-  font-weight: 600;
-  border-radius: var(--radius-full);
-  padding: var(--space-1) var(--space-3);
-}
-
-.badge-otimo {
-  background: var(--color-green-100);
-  color: var(--color-green-800);
-}
-
-.badge-medio {
-  background: var(--color-amber-100);
-  color: var(--color-amber-600);
-}
-
-.badge-ruim {
-  background: var(--color-red-100);
-  color: var(--color-red-600);
-}
-
-.badge-nf,
-.badge-pendente {
-  background: var(--color-border);
-  color: var(--color-ink-muted);
-}
-
 .sr-only {
   position: absolute;
   width: 1px;
@@ -344,6 +292,7 @@ textarea.input {
   color: var(--color-identity-white);
   text-decoration: none;
   font-size: 0.9375rem;
+  min-height: 44px;
   transition: background-color 150ms ease-out;
 }
 
@@ -363,14 +312,16 @@ textarea.input {
   flex-shrink: 0;
 }
 
+/* Tinted .100 bg / .600-.800 text, matching the .badge-* convention — never a raw .500 fill */
+
 .checklist-nav__status--done {
-  background: var(--color-green-500);
-  color: var(--color-identity-black);
+  background: var(--color-green-100);
+  color: var(--color-green-800);
 }
 
 .checklist-nav__status--pending {
-  background: var(--color-amber-500);
-  color: var(--color-identity-black);
+  background: var(--color-amber-100);
+  color: var(--color-amber-600);
 }
 
 .checklist-main {
@@ -433,7 +384,7 @@ textarea.input {
 
 .photo-grid__delete {
   padding: var(--space-2) var(--space-3);
-  min-height: 36px;
+  min-height: 44px;
   font-size: 0.8125rem;
 }
 

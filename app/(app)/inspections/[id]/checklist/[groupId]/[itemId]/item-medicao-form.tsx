@@ -12,6 +12,7 @@ export function ItemMedicaoForm({
   itemTemplateId,
   nextUrl,
   qtdPontos,
+  unidadeMedicao,
   initialValores,
   initialObservacao,
   initialPhotos,
@@ -20,12 +21,14 @@ export function ItemMedicaoForm({
   itemTemplateId: string;
   nextUrl: string;
   qtdPontos: number;
+  unidadeMedicao: string | null;
   initialValores: number[];
   initialObservacao: string | null;
   initialPhotos: Photo[];
 }) {
   const [state, formAction] = useActionState(saveMeasurementAction, initialState);
   const pontos = Array.from({ length: qtdPontos }, (_, i) => i);
+  const legend = unidadeMedicao ? `Medição (${unidadeMedicao})` : "Medição";
 
   return (
     <form action={formAction} className="stack">
@@ -34,7 +37,7 @@ export function ItemMedicaoForm({
       <input type="hidden" name="nextUrl" value={nextUrl} />
 
       <fieldset className="panel form-fieldset">
-        <legend className="form-fieldset__legend">Medição (µm)</legend>
+        <legend className="form-fieldset__legend">{legend}</legend>
         <div className="form-grid">
           {pontos.map((i) => (
             <div key={i} className="field">

@@ -2,14 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { applyClassificacaoBatchAction } from "./actions";
+import { applyOpcoesBatchAction } from "./actions";
 import { PhotoManager, type Photo } from "./photo-manager";
-import { CLASSIFICACOES } from "@/lib/checklist/siblings";
+import { slugifyOpcaoLabel, type Opcao } from "@/lib/checklist/siblings";
 
 export type BatchRow = {
   itemTemplateId: string;
   nome: string;
-  classificacao: string;
+  opcao_id: string;
   observacao: string;
   photos: Photo[];
 };
@@ -17,11 +17,13 @@ export type BatchRow = {
 export function BatchApplyPanel({
   inspectionId,
   groupListUrl,
+  opcoes,
   initialRows,
   onCancel,
 }: {
   inspectionId: string;
   groupListUrl: string;
+  opcoes: Opcao[];
   initialRows: BatchRow[];
   onCancel: () => void;
 }) {
@@ -37,26 +39,19 @@ export function BatchApplyPanel({
   function handleConfirm() {
     setError(null);
 
-    const missingFoto = rows.filter((r) => r.classificacao === "ruim" && r.photos.length === 0);
+    const exigeFotoByOpcaoId = new Map(opcoes.map((o) => [o.id, o.exige_foto]));
+    const missingFoto = rows.filter((r) => exigeFotoByOpcaoId.get(r.opcao_id) && r.photos.length === 0);
     if (missingFoto.length > 0) {
       setError(`Anexe pelo menos 1 foto antes de confirmar: ${missingFoto.map((r) => r.nome).join(", ")}.`);
       return;
     }
 
-    const nfCount = rows.filter((r) => r.classificacao === "NF").length;
-    if (nfCount > 0) {
-      const confirmed = window.confirm(
-        `${nfCount} item(ns) será(ão) marcado(s) como Não se aplica (NF). Confirma?`
-      );
-      if (!confirmed) return;
-    }
-
     startTransition(async () => {
-      const result = await applyClassificacaoBatchAction(
+      const result = await applyOpcoesBatchAction(
         inspectionId,
         rows.map((r) => ({
           itemTemplateId: r.itemTemplateId,
-          classificacao: r.classificacao,
+          opcaoId: r.opcao_id,
           observacao: r.observacao || null,
         }))
       );
@@ -77,20 +72,20 @@ export function BatchApplyPanel({
         <fieldset key={row.itemTemplateId} className="panel form-fieldset">
           <legend className="form-fieldset__legend">{row.nome}</legend>
 
-          <div className="classificacao-options">
-            {CLASSIFICACOES.map((c) => (
+          <div className="escolha-options">
+            {opcoes.map((o) => (
               <label
-                key={c.value}
-                className={`classificacao-option classificacao-option--${c.value.toLowerCase()}`}
+                key={o.id}
+                className={`escolha-option escolha-option--${slugifyOpcaoLabel(o.label)}`}
               >
                 <input
                   type="radio"
-                  name={`classificacao-${row.itemTemplateId}`}
-                  value={c.value}
-                  checked={row.classificacao === c.value}
-                  onChange={() => updateRow(row.itemTemplateId, { classificacao: c.value })}
+                  name={`opcao-${row.itemTemplateId}`}
+                  value={o.id}
+                  checked={row.opcao_id === o.id}
+                  onChange={() => updateRow(row.itemTemplateId, { opcao_id: o.id })}
                 />
-                {c.label}
+                {o.label}
               </label>
             ))}
           </div>

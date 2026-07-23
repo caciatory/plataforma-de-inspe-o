@@ -30,7 +30,6 @@
 
   --color-status-otimo: var(--color-green-500);
   --color-status-medio: var(--color-amber-500);
-  --color-status-nf: var(--color-ink-muted);
 
   --color-primary: var(--color-green-500);
   --color-primary-hover: var(--color-green-600);
@@ -560,19 +559,15 @@ textarea.input {
   background: var(--color-status-medio);
 }
 
-.item-list__status--nf {
-  background: var(--color-status-nf);
-}
+/* Escolha — segmented toggle reusing the status color system, native radios stay in the DOM */
 
-/* Classificação — segmented toggle reusing the status color system, native radios stay in the DOM */
-
-.classificacao-options {
+.escolha-options {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.classificacao-option {
+.escolha-option {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -586,29 +581,29 @@ textarea.input {
   transition: background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
 }
 
-.classificacao-option input {
+.escolha-option input {
   accent-color: currentColor;
 }
 
-.classificacao-option--otimo:has(input:checked) {
+.escolha-option--otimo:has(input:checked) {
   background: var(--color-green-100);
   border-color: var(--color-green-500);
   color: var(--color-green-800);
 }
 
-.classificacao-option--medio:has(input:checked) {
+.escolha-option--medio:has(input:checked) {
   background: var(--color-amber-100);
   border-color: var(--color-amber-500);
   color: var(--color-amber-600);
 }
 
-.classificacao-option--ruim:has(input:checked) {
+.escolha-option--ruim:has(input:checked) {
   background: var(--color-red-100);
   border-color: var(--color-red-500);
   color: var(--color-red-600);
 }
 
-.classificacao-option--nf:has(input:checked) {
+.escolha-option--na:has(input:checked) {
   background: var(--color-border);
   border-color: var(--color-ink-muted);
   color: var(--color-ink);

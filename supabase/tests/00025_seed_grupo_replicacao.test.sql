@@ -41,7 +41,7 @@ declare
   v_count int;
 begin
   select count(*) into v_count from public.checklist_item_templates
-    where grupo_replicacao is not null and tipo <> 'padrao';
+    where grupo_replicacao is not null and tipo <> 'escolha';
   if v_count <> 0 then
     raise exception 'FALHOU: nenhum item de medicao deveria ter grupo_replicacao, encontrou %', v_count;
   end if;

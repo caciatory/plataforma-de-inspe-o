@@ -22,7 +22,7 @@ export default async function ChecklistGroupPage({
 
   const [{ data: items, error: itemsError }, { data: responses, error: responsesError }] = await Promise.all([
     supabase.from("checklist_item_templates").select("id, subcategoria, nome").eq("group_id", groupId),
-    supabase.from("checklist_item_responses").select("item_template_id, status").eq("inspection_id", id),
+    supabase.from("checklist_item_status").select("item_template_id, respondido").eq("inspection_id", id),
   ]);
 
   if (itemsError || responsesError) {
@@ -30,11 +30,6 @@ export default async function ChecklistGroupPage({
   }
 
   const subcategorias = groupItemsBySubcategoria(items ?? [], responses ?? []);
-
-  const statusLabel: Record<string, string> = {
-    pendente: "Pendente",
-    NF: "Não se aplica",
-  };
 
   return (
     <div className="stack">
@@ -47,12 +42,10 @@ export default async function ChecklistGroupPage({
               <li key={item.id}>
                 <Link href={`/inspections/${id}/checklist/${groupId}/${item.id}`} className="item-list__row">
                   <span
-                    className={`item-list__status item-list__status--${item.status === "pendente" ? "pendente" : item.status === "NF" ? "nf" : "feito"}`}
+                    className={`item-list__status item-list__status--${item.respondido ? "feito" : "pendente"}`}
                     aria-hidden="true"
                   />
-                  <span className="sr-only">
-                    {statusLabel[item.status] ?? "Preenchido"}:{" "}
-                  </span>
+                  <span className="sr-only">{item.respondido ? "Preenchido" : "Pendente"}: </span>
                   {item.nome}
                 </Link>
               </li>

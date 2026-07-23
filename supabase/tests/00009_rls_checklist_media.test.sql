@@ -16,11 +16,21 @@ insert into public.inspections (id, tecnico_id, status, tipo_cliente, objetivo) 
   ('00000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-000000000001', 'aguardando_aprovacao', 'particular', 'compra');
 
 insert into public.checklist_group_templates (id, ordem, nome) values
-  ('00000000-0000-0000-0000-000000000020', 1, 'Grupo Teste');
+  ('00000000-0000-0000-0000-000000000020', 952, 'Grupo Teste');
 
-insert into public.checklist_item_templates (id, group_id, nome, tipo) values
-  ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000020', 'Item Um', 'padrao'),
-  ('00000000-0000-0000-0000-000000000022', '00000000-0000-0000-0000-000000000020', 'Item Dois', 'padrao');
+-- Item Um/Dois: tipo=escolha, usados pros testes de opcao_id (RLS de
+-- checklist_item_responses). Item Tres: tipo=medicao (sem faixa configurada
+-- -- medicoes_resultado fica null, sem interacao com RF-16), dedicado aos
+-- testes de RLS de medicoes -- precisa ser um item de medicao de verdade
+-- porque a migration 00011 (ja existente antes desta branch) bloqueia
+-- insert em medicoes/paint_measurements pra item sem qtd_pontos_medicao.
+insert into public.checklist_item_templates (id, group_id, nome, tipo, conjunto_opcao_id) values
+  ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000020', 'Item Um', 'escolha',
+    (select id from public.conjuntos_opcao where nome = 'estado_4')),
+  ('00000000-0000-0000-0000-000000000022', '00000000-0000-0000-0000-000000000020', 'Item Dois', 'escolha',
+    (select id from public.conjuntos_opcao where nome = 'estado_4'));
+insert into public.checklist_item_templates (id, group_id, nome, tipo, qtd_pontos_medicao) values
+  ('00000000-0000-0000-0000-000000000023', '00000000-0000-0000-0000-000000000020', 'Item Tres', 'medicao', 2);
 
 -- unico response pre-existente: preso a inspecao 012 (T1, aguardando_aprovacao,
 -- NAO editavel) — usado para testar UPDATE bloqueado e o bypass do admin.
@@ -29,8 +39,14 @@ insert into public.checklist_item_templates (id, group_id, nome, tipo) values
 insert into public.checklist_item_responses (id, inspection_id, item_template_id) values
   ('00000000-0000-0000-0000-000000000032', '00000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-000000000021');
 
-insert into public.paint_measurements (item_response_id, valores_um, resultado_calculado) values
-  ('00000000-0000-0000-0000-000000000032', array[100.0, 105.0]::numeric(6,2)[], 'OK');
+-- resposta gemea de 032, mesma inspecao nao-editavel, ligada ao Item Tres
+-- (medicao) -- usada nos testes de RLS de medicoes que hoje seriam
+-- bloqueados na resposta 032 por ela ser de um item tipo=escolha.
+insert into public.checklist_item_responses (id, inspection_id, item_template_id) values
+  ('00000000-0000-0000-0000-000000000033', '00000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-000000000023');
+
+insert into public.medicoes (item_response_id, valores) values
+  ('00000000-0000-0000-0000-000000000033', array[100.0, 105.0]::numeric(8,2)[]);
 
 -- simulate tecnico 1
 set local role authenticated;
@@ -51,7 +67,7 @@ do $$
 declare v_count int;
 begin
   select count(*) into v_count from public.checklist_item_templates;
-  if v_count <> 2 then
+  if v_count <> 3 then
     raise exception 'FALHOU: tecnico deveria ler templates de item (viu %)', v_count;
   end if;
   raise notice 'OK: tecnico le checklist_item_templates';
@@ -78,7 +94,7 @@ do $$
 declare v_count int;
 begin
   select count(*) into v_count from public.checklist_item_responses;
-  if v_count <> 2 then
+  if v_count <> 3 then
     raise exception 'FALHOU: tecnico deveria ver so as respostas das proprias inspecoes (viu %)', v_count;
   end if;
   raise notice 'OK: tecnico ve apenas checklist_item_responses das proprias inspecoes';
@@ -86,7 +102,8 @@ end $$;
 
 do $$
 begin
-  update public.checklist_item_responses set classificacao = 'otimo'
+  update public.checklist_item_responses
+    set opcao_id = (select o.id from public.opcoes o join public.conjuntos_opcao co on co.id = o.conjunto_id where co.nome = 'estado_4' and o.label = 'Ótimo')
     where id = '00000000-0000-0000-0000-000000000030';
   if not found then
     raise exception 'FALHOU: tecnico deveria editar resposta da propria inspecao em rascunho';
@@ -97,7 +114,8 @@ end $$;
 do $$
 declare v_rows int;
 begin
-  update public.checklist_item_responses set classificacao = 'otimo'
+  update public.checklist_item_responses
+    set opcao_id = (select o.id from public.opcoes o join public.conjuntos_opcao co on co.id = o.conjunto_id where co.nome = 'estado_4' and o.label = 'Ótimo')
     where id = '00000000-0000-0000-0000-000000000032';
   get diagnostics v_rows = row_count;
   if v_rows <> 0 then
@@ -108,31 +126,33 @@ end $$;
 
 do $$
 begin
-  insert into public.paint_measurements (item_response_id, valores_um, resultado_calculado)
-    values ('00000000-0000-0000-0000-000000000030', array[110.0, 112.0]::numeric(6,2)[], 'OK');
-  raise notice 'OK: tecnico insere paint_measurements para resposta propria editavel';
+  insert into public.checklist_item_responses (id, inspection_id, item_template_id)
+    values ('00000000-0000-0000-0000-000000000034', '00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000023');
+  insert into public.medicoes (item_response_id, valores)
+    values ('00000000-0000-0000-0000-000000000034', array[110.0, 112.0]::numeric(8,2)[]);
+  raise notice 'OK: tecnico insere medicoes para resposta propria editavel';
 end $$;
 
 do $$
 declare v_count int;
 begin
-  select count(*) into v_count from public.paint_measurements;
+  select count(*) into v_count from public.medicoes;
   if v_count <> 2 then
-    raise exception 'FALHOU: tecnico deveria ver as paint_measurements das proprias inspecoes (viu %)', v_count;
+    raise exception 'FALHOU: tecnico deveria ver as medicoes das proprias inspecoes (viu %)', v_count;
   end if;
-  raise notice 'OK: tecnico ve paint_measurements via join ate as proprias inspecoes';
+  raise notice 'OK: tecnico ve medicoes via join ate as proprias inspecoes';
 end $$;
 
 do $$
 declare v_rows int;
 begin
-  update public.paint_measurements set resultado_calculado = 'anomalia'
-    where item_response_id = '00000000-0000-0000-0000-000000000032';
+  update public.medicoes set valores = array[999.0, 999.0]::numeric(8,2)[]
+    where item_response_id = '00000000-0000-0000-0000-000000000033';
   get diagnostics v_rows = row_count;
   if v_rows <> 0 then
-    raise exception 'FALHOU: tecnico nao deveria editar paint_measurements de inspecao fora de rascunho/devolvida';
+    raise exception 'FALHOU: tecnico nao deveria editar medicoes de inspecao fora de rascunho/devolvida';
   end if;
-  raise notice 'OK: update bloqueado em paint_measurements fora de status editavel';
+  raise notice 'OK: update bloqueado em medicoes fora de status editavel';
 end $$;
 
 do $$
@@ -182,11 +202,11 @@ set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000002"}';
 do $$
 declare v_count int;
 begin
-  select count(*) into v_count from public.paint_measurements;
+  select count(*) into v_count from public.medicoes;
   if v_count <> 0 then
-    raise exception 'FALHOU: tecnico2 nao deveria ver paint_measurements de outro tecnico (viu %)', v_count;
+    raise exception 'FALHOU: tecnico2 nao deveria ver medicoes de outro tecnico (viu %)', v_count;
   end if;
-  raise notice 'OK: tecnico2 nao enxerga paint_measurements de outro tecnico';
+  raise notice 'OK: tecnico2 nao enxerga medicoes de outro tecnico';
 end $$;
 
 do $$
@@ -207,7 +227,7 @@ do $$
 declare v_count int;
 begin
   select count(*) into v_count from public.checklist_item_responses;
-  if v_count <> 2 then
+  if v_count <> 3 then
     raise exception 'FALHOU: admin deveria ver todas as respostas (viu %)', v_count;
   end if;
   raise notice 'OK: admin ve todas as checklist_item_responses';
@@ -215,12 +235,12 @@ end $$;
 
 do $$
 begin
-  update public.paint_measurements set resultado_calculado = 'anomalia'
-    where item_response_id = '00000000-0000-0000-0000-000000000032';
+  update public.medicoes set valores = array[999.0, 999.0]::numeric(8,2)[]
+    where item_response_id = '00000000-0000-0000-0000-000000000033';
   if not found then
-    raise exception 'FALHOU: admin deveria poder editar paint_measurements de qualquer inspecao';
+    raise exception 'FALHOU: admin deveria poder editar medicoes de qualquer inspecao';
   end if;
-  raise notice 'OK: admin edita paint_measurements mesmo fora de rascunho/devolvida';
+  raise notice 'OK: admin edita medicoes mesmo fora de rascunho/devolvida';
 end $$;
 
 do $$

@@ -1,21 +1,22 @@
-// app/(app)/inspections/[id]/checklist/[groupId]/[itemId]/item-classificacao-form.tsx
+// app/(app)/inspections/[id]/checklist/[groupId]/[itemId]/item-escolha-form.tsx
 "use client";
 
-import { useActionState, useState, type FormEvent } from "react";
-import { saveClassificacaoAction, type SaveClassificacaoState } from "./actions";
+import { useActionState, useState } from "react";
+import { saveEscolhaAction, type SaveEscolhaState } from "./actions";
 import { PhotoManager, type Photo } from "./photo-manager";
 import { BatchApplyPanel, type BatchRow } from "./batch-apply-panel";
-import { buildBatchRows, CLASSIFICACOES, type SiblingRow } from "@/lib/checklist/siblings";
+import { buildBatchRows, slugifyOpcaoLabel, type Opcao, type SiblingRow } from "@/lib/checklist/siblings";
 
-const initialState: SaveClassificacaoState = { status: "idle" };
+const initialState: SaveEscolhaState = { status: "idle" };
 
-export function ItemClassificacaoForm({
+export function ItemEscolhaForm({
   inspectionId,
   itemTemplateId,
   nome,
   nextUrl,
   groupListUrl,
-  initialClassificacao,
+  opcoes,
+  initialOpcaoId,
   initialObservacao,
   initialPhotos,
   siblings,
@@ -25,26 +26,20 @@ export function ItemClassificacaoForm({
   nome: string;
   nextUrl: string;
   groupListUrl: string;
-  initialClassificacao: string | null;
+  opcoes: Opcao[];
+  initialOpcaoId: string | null;
   initialObservacao: string | null;
   initialPhotos: Photo[];
   siblings: SiblingRow[];
 }) {
-  const [state, formAction] = useActionState(saveClassificacaoAction, initialState);
-  const [classificacao, setClassificacao] = useState(initialClassificacao ?? "");
+  const [state, formAction] = useActionState(saveEscolhaAction, initialState);
+  const [opcaoId, setOpcaoId] = useState(initialOpcaoId ?? "");
   const [observacao, setObservacao] = useState(initialObservacao ?? "");
   const [photos, setPhotos] = useState(initialPhotos);
   const [selectedSiblings, setSelectedSiblings] = useState<Set<string>>(
     new Set(siblings.filter((s) => s.defaultChecked).map((s) => s.id))
   );
   const [showBatchPanel, setShowBatchPanel] = useState(false);
-
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    if (classificacao === "NF") {
-      const confirmed = window.confirm("Confirma marcar este item como Não se aplica (NF)?");
-      if (!confirmed) e.preventDefault();
-    }
-  }
 
   function toggleSibling(id: string) {
     setSelectedSiblings((prev) => {
@@ -57,7 +52,7 @@ export function ItemClassificacaoForm({
 
   if (showBatchPanel) {
     const initialRows: BatchRow[] = buildBatchRows(
-      { itemTemplateId, nome, classificacao, observacao, photos },
+      { itemTemplateId, nome, opcao_id: opcaoId, observacao, photos },
       siblings,
       selectedSiblings
     );
@@ -66,6 +61,7 @@ export function ItemClassificacaoForm({
       <BatchApplyPanel
         inspectionId={inspectionId}
         groupListUrl={groupListUrl}
+        opcoes={opcoes}
         initialRows={initialRows}
         onCancel={() => setShowBatchPanel(false)}
       />
@@ -73,27 +69,24 @@ export function ItemClassificacaoForm({
   }
 
   return (
-    <form action={formAction} onSubmit={handleSubmit} className="stack">
+    <form action={formAction} className="stack">
       <input type="hidden" name="inspectionId" value={inspectionId} />
       <input type="hidden" name="itemTemplateId" value={itemTemplateId} />
       <input type="hidden" name="nextUrl" value={nextUrl} />
 
       <fieldset className="panel form-fieldset">
         <legend className="form-fieldset__legend">Classificação</legend>
-        <div className="classificacao-options">
-          {CLASSIFICACOES.map((c) => (
-            <label
-              key={c.value}
-              className={`classificacao-option classificacao-option--${c.value.toLowerCase()}`}
-            >
+        <div className="escolha-options">
+          {opcoes.map((o) => (
+            <label key={o.id} className={`escolha-option escolha-option--${slugifyOpcaoLabel(o.label)}`}>
               <input
                 type="radio"
-                name="classificacao"
-                value={c.value}
-                checked={classificacao === c.value}
-                onChange={() => setClassificacao(c.value)}
+                name="opcao_id"
+                value={o.id}
+                checked={opcaoId === o.id}
+                onChange={() => setOpcaoId(o.id)}
               />
-              {c.label}
+              {o.label}
             </label>
           ))}
         </div>
@@ -139,9 +132,7 @@ export function ItemClassificacaoForm({
                 <input type="checkbox" checked={selectedSiblings.has(s.id)} onChange={() => toggleSibling(s.id)} />
                 <span>
                   {s.nome}
-                  {s.status !== "pendente" && (
-                    <span className="hint"> (já respondido: {s.classificacao ?? s.status})</span>
-                  )}
+                  {s.opcao_label && <span className="hint"> (já respondido: {s.opcao_label})</span>}
                 </span>
               </label>
             ))}
@@ -149,7 +140,7 @@ export function ItemClassificacaoForm({
           <button
             type="button"
             className="btn btn-secondary"
-            disabled={!classificacao || selectedSiblings.size === 0}
+            disabled={!opcaoId || selectedSiblings.size === 0}
             onClick={() => setShowBatchPanel(true)}
           >
             Aplicar aos selecionados

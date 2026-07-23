@@ -25,7 +25,7 @@ export default async function ChecklistLayout({
   ] = await Promise.all([
     supabase.from("checklist_group_templates").select("id, ordem, nome").eq("ativo", true).order("ordem"),
     supabase.from("checklist_item_templates").select("id, group_id"),
-    supabase.from("checklist_item_responses").select("item_template_id, status").eq("inspection_id", id),
+    supabase.from("checklist_item_status").select("item_template_id, respondido").eq("inspection_id", id),
   ]);
 
   if (groupsError || itemsError || responsesError) {

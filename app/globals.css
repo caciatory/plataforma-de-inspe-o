@@ -560,10 +560,6 @@ textarea.input {
   background: var(--color-status-medio);
 }
 
-.item-list__status--nf {
-  background: var(--color-status-nf);
-}
-
 /* Escolha — segmented toggle reusing the status color system, native radios stay in the DOM */
 
 .escolha-options {

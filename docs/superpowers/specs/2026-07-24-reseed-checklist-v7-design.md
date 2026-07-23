@@ -34,7 +34,16 @@ O documento usa 29 rótulos distintos de "Tipo de Resposta" (30 contando "Ver Ca
 | Medição (%) | `medicao` | `unidade_medicao='%'` |
 | Medição (V) | `medicao` | `unidade_medicao='V'` |
 
-Os outros 22 rótulos consolidam em **20 conjuntos de opções únicos** (dois pares de rótulos usam exatamente as mesmas opções e reusam o mesmo conjunto: "Estado de Limpeza" = mesmas opções que "Bom/Médio/Mau"; "Códigos de Erro Ativos" e "Luzes de Aviso Ativas" = mesmo padrão "Nenhum / Indicar (Observações)"):
+Os outros 22 rótulos consolidam em **22 conjuntos de opções únicos** (dois pares de rótulos usam exatamente as mesmas opções e reusam o mesmo conjunto: "Estado de Limpeza" = mesmas opções que "Bom/Médio/Mau"; "Códigos de Erro Ativos" e "Luzes de Aviso Ativas" = mesmo padrão "Nenhum / Indicar (Observações)").
+
+**Correção encontrada ao construir o script de geração** (verificação item-a-item dos 51 usos de "Sim / Não"/"Sim / Não / N.A." no documento): o rótulo por si só não diz se `Sim` é a resposta boa ou má — 33 itens usam `Sim` pra sinalizar um problema (ruído, fuga, infiltração, adulteração de quilometragem...), 18 usam `Sim` pra sinalizar presença de algo bom (documento, kit, pneu suplente...). Como `exige_foto` mora na opção (compartilhada por todo item que usa o conjunto), um conjunto único não consegue carregar as duas polaridades corretamente. Correção: divide em 4 conjuntos, e a montagem do seed usa uma tabela de override por nome de item (não só pelo rótulo) pra escolher qual dos 4 cada um dos 51 itens usa:
+
+| Conjunto | Opções | `Sim` significa |
+|---|---|---|
+| `sim_nao_problema` | Sim, Não | defeito/problema encontrado — `exige_foto` |
+| `sim_nao_problema_na` | Sim, Não, N.A. | defeito/problema encontrado — `exige_foto` |
+| `sim_nao_presenca` | Sim, Não | presença/condição boa — sem `exige_foto` |
+| `sim_nao_presenca_na` | Sim, Não, N.A. | presença/condição boa — sem `exige_foto` |
 
 | Conjunto | Opções |
 |---|---|
@@ -42,8 +51,6 @@ Os outros 22 rótulos consolidam em **20 conjuntos de opções únicos** (dois p
 | `estado_3_na` | Bom, Médio, Mau, N.A. |
 | `funciona_2` | Funciona, Não Funciona |
 | `funciona_2_na` | Funciona, Não Funciona, N.A. |
-| `sim_nao` | Sim, Não |
-| `sim_nao_na` | Sim, Não, N.A. |
 | `grau_corrosao` | Ausente, Ligeira, Moderada, Severa |
 | `estado_fluido` | Bom, Contaminado, Substituir |
 | `nivel_fluido` | Adequado, Baixo, Muito Baixo |
@@ -61,7 +68,7 @@ Os outros 22 rótulos consolidam em **20 conjuntos de opções únicos** (dois p
 
 ### `exige_foto`
 
-No modelo antigo só a classificação universal `'ruim'` disparava a exigência de foto (RF-16). Agora cada conjunto marca sua própria opção terminal negativa: `Mau`, `Não Funciona`, `Severa`, `Substituir`, `Permanece acesa`, `Ausente` (quando o item espera presença, ex. reflectores/triângulo), `Incompleto`/`Nenhuma chave`, `Muito Baixo`, `Alta` (saturação DPF), qualquer cor de emissão ≠ `Ausente`. Opções neutras ou de "não aplicável" (`Médio`, `N.A.`, `Baixa`, `Adequado`) não exigem foto — mantém o espírito da regra antiga, só generalizado por conjunto.
+No modelo antigo só a classificação universal `'ruim'` disparava a exigência de foto (RF-16). Agora cada conjunto marca sua própria opção terminal negativa: `Mau`, `Não Funciona`, `Severa`, `Substituir`, `Permanece acesa`, `Ausente` (quando o item espera presença, ex. reflectores/triângulo), `Incompleto`/`Nenhuma chave`, `Muito Baixo`, `Alta` (saturação DPF), qualquer cor de emissão ≠ `Ausente`, e `Sim` nos dois conjuntos `sim_nao_problema*`. Opções neutras ou de "não aplicável" (`Médio`, `N.A.`, `Baixa`, `Adequado`, `Sim` nos conjuntos `sim_nao_presenca*`) não exigem foto — mantém o espírito da regra antiga, só generalizado por conjunto.
 
 ## 4. Faixas de medição
 
@@ -77,7 +84,9 @@ Os demais itens de medição (número de ciclos de carga, degradação de bateri
 
 ## 5. `grupo_replicacao` (aplicar aos demais)
 
-Recuração completa (não só reaproveitar os 101 itens já curados no v6): qualquer conjunto de itens estruturalmente idênticos e espelhados (esquerdo/direito, dianteiro/traseiro, ou as 4 rodas) dentro da mesma subcategoria vira um grupo, com nome estável na mesma convenção da Fase 2.5 (ex. `farois-farol-dianteiro`, `pneus-piso-profundidade`, `travoes-disco-dianteiro`). Cobre praticamente toda seção de Faróis e Luzes, Pneus e Jantes, Portas, Amortecedores/Molas, Discos de travão, Vidros/Elevadores, Cintos de segurança, Retrovisores. Só itens `tipo='escolha'` podem ter `grupo_replicacao` (constraint já existente da Peça 1a); os itens de medição de piso (mm) não entram nesse grupo apesar de serem 4 rodas, porque medição não tem valor único replicável entre rodas (cada roda mede diferente).
+Recuração completa (não só reaproveitar os 101 itens já curados no v6), com **uma regra única e consistente**: agrupa itens `tipo='escolha'` que diferem só no lado esquerdo/direito, **dentro do mesmo referencial dianteiro/traseiro** — nunca mistura dianteiro com traseiro, mesmo pra itens onde o v6 antigo misturava (pneus, jantes, discos de travão, amortecedores, molas, portas — verificado na migration `00025`: lá os 4 pneus, por exemplo, dividiam um grupo só). Essa é uma decisão deliberada de tornar a regra previsível em vez de reproduzir a curadoria manual antiga, que era inconsistente entre subcategorias sem uma lógica extraível (confirmado com o usuário).
+
+Algoritmo: dentro do mesmo `(group_id, subcategoria)`, remove do nome do item o token esquerdo/direito (`esquerdo`/`esquerda`/`direito`/`direita`/`esq.`/`dir.`); itens que sobram com o nome-base idêntico formam um grupo (nome estável em kebab-case, ex. `farois-farol-dianteiro`, `pneus-desgaste-irregular-dianteiro`, `travoes-disco-dianteiro`); se sobrar só 1 item sem par, fica sem `grupo_replicacao`. Cobre praticamente toda seção de Faróis e Luzes, Pneus e Jantes, Portas, Amortecedores/Molas, Discos de travão, Vidros/Elevadores, Cintos de segurança, Retrovisores — só que agora com grupos de 2 em vez de 4 nos casos que antes misturavam dianteiro/traseiro. Só itens `tipo='escolha'` podem ter `grupo_replicacao` (constraint já existente da Peça 1a); os itens de medição de piso (mm) não entram nesse grupo, porque medição não tem valor único replicável entre rodas (cada roda mede diferente).
 
 ## 6. Grupo 13 (Motoriz. Especial) e limpeza
 
@@ -92,6 +101,7 @@ Teste SQL (`supabase/tests/00037_seed_checklist_v7.test.sql`) cobrindo:
 - 359 itens no total;
 - todo item `tipo='medicao'` tem `qtd_pontos_medicao` e `unidade_medicao` preenchidos;
 - todo item `tipo='escolha'` tem `conjunto_opcao_id` preenchido, apontando pra um conjunto com ≥2 opções;
+- os 4 conjuntos `sim_nao_*` existem e cada opção `Sim` tem `exige_foto` correto (`true` nos `*_problema*`, `false` nos `*_presenca*`);
 - nenhum item referencia o conjunto `estado_4` (prova que a limpeza dos dados órfãos da Peça 1a funcionou — o conjunto não existe mais);
 - os 3 itens com faixa numérica nova (piso, fluido de travões, alternador) têm os limiares certos;
 - item #351 não existe no seed (grupo 13 tem 34 itens, não 35).

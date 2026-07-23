@@ -6,4 +6,5 @@ graphify-out/
 node_modules
 .next
 .claude/worktrees/
+.worktrees/
 tsconfig.tsbuildinfo

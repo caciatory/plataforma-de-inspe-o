@@ -1,12 +1,10 @@
-export type ItemResponseStatus = "pendente" | "respondido" | "NF";
-
 export type GroupTemplate = { id: string; ordem: number; nome: string };
 export type ItemTemplate = { id: string; group_id: string };
-export type ItemResponseRow = { item_template_id: string; status: ItemResponseStatus };
+export type ItemResponseRow = { item_template_id: string; respondido: boolean };
 export type GroupProgress = { id: string; ordem: number; nome: string; pendentes: number; total: number };
 
-export function isItemPending(status: ItemResponseStatus | undefined): boolean {
-  return status === undefined || status === "pendente";
+export function isItemPending(respondido: boolean | undefined): boolean {
+  return !respondido;
 }
 
 export function computeGroupProgress(
@@ -14,7 +12,7 @@ export function computeGroupProgress(
   items: ItemTemplate[],
   responses: ItemResponseRow[]
 ): GroupProgress[] {
-  const statusByItemId = new Map(responses.map((r) => [r.item_template_id, r.status]));
+  const respondidoByItemId = new Map(responses.map((r) => [r.item_template_id, r.respondido]));
   const itemsByGroupId = new Map<string, ItemTemplate[]>();
   for (const item of items) {
     const list = itemsByGroupId.get(item.group_id) ?? [];
@@ -27,20 +25,20 @@ export function computeGroupProgress(
     .sort((a, b) => a.ordem - b.ordem)
     .map((group) => {
       const groupItems = itemsByGroupId.get(group.id) ?? [];
-      const pendentes = groupItems.filter((item) => isItemPending(statusByItemId.get(item.id))).length;
+      const pendentes = groupItems.filter((item) => isItemPending(respondidoByItemId.get(item.id))).length;
       return { id: group.id, ordem: group.ordem, nome: group.nome, pendentes, total: groupItems.length };
     });
 }
 
 export type ItemTemplateDetail = { id: string; subcategoria: string | null; nome: string };
-export type ChecklistItemStatus = { id: string; nome: string; status: ItemResponseStatus };
+export type ChecklistItemStatus = { id: string; nome: string; respondido: boolean };
 export type SubcategoriaGroup = { subcategoria: string | null; items: ChecklistItemStatus[] };
 
 export function groupItemsBySubcategoria(
   items: ItemTemplateDetail[],
   responses: ItemResponseRow[]
 ): SubcategoriaGroup[] {
-  const statusByItemId = new Map(responses.map((r) => [r.item_template_id, r.status]));
+  const respondidoByItemId = new Map(responses.map((r) => [r.item_template_id, r.respondido]));
   const sorted = items.slice().sort((a, b) => {
     const subA = a.subcategoria ?? "";
     const subB = b.subcategoria ?? "";
@@ -59,7 +57,7 @@ export function groupItemsBySubcategoria(
     bucket.get(key)!.push({
       id: item.id,
       nome: item.nome,
-      status: statusByItemId.get(item.id) ?? "pendente",
+      respondido: respondidoByItemId.get(item.id) ?? false,
     });
   }
 

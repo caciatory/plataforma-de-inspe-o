@@ -15,16 +15,12 @@ describe("isItemPending", () => {
     expect(isItemPending(undefined)).toBe(true);
   });
 
-  it("treats status='pendente' as pending", () => {
-    expect(isItemPending("pendente")).toBe(true);
+  it("treats respondido=false as pending", () => {
+    expect(isItemPending(false)).toBe(true);
   });
 
-  it("treats status='respondido' as not pending", () => {
-    expect(isItemPending("respondido")).toBe(false);
-  });
-
-  it("treats status='NF' as not pending", () => {
-    expect(isItemPending("NF")).toBe(false);
+  it("treats respondido=true as not pending", () => {
+    expect(isItemPending(true)).toBe(false);
   });
 });
 
@@ -40,7 +36,7 @@ describe("computeGroupProgress", () => {
   ];
 
   it("counts items without a response row as pending", () => {
-    const responses: ItemResponseRow[] = [{ item_template_id: "i1", status: "respondido" }];
+    const responses: ItemResponseRow[] = [{ item_template_id: "i1", respondido: true }];
     const result = computeGroupProgress(groups, items, responses);
     expect(result.find((g) => g.id === "g1")).toEqual({
       id: "g1",
@@ -51,10 +47,10 @@ describe("computeGroupProgress", () => {
     });
   });
 
-  it("does not count NF or respondido items as pending", () => {
+  it("does not count respondido items as pending", () => {
     const responses: ItemResponseRow[] = [
-      { item_template_id: "i1", status: "respondido" },
-      { item_template_id: "i2", status: "NF" },
+      { item_template_id: "i1", respondido: true },
+      { item_template_id: "i2", respondido: true },
     ];
     const result = computeGroupProgress(groups, items, responses);
     expect(result.find((g) => g.id === "g1")?.pendentes).toBe(0);
@@ -97,14 +93,14 @@ describe("groupItemsBySubcategoria", () => {
     expect(semSubcategoria?.items.map((i) => i.id)).toEqual(["i4"]);
   });
 
-  it("defaults an item's status to pendente when it has no response row", () => {
+  it("defaults an item's respondido to false when it has no response row", () => {
     const result = groupItemsBySubcategoria([items[0]], []);
-    expect(result[0].items[0].status).toBe("pendente");
+    expect(result[0].items[0].respondido).toBe(false);
   });
 
-  it("uses the response's status when one exists", () => {
-    const result = groupItemsBySubcategoria([items[0]], [{ item_template_id: "i1", status: "NF" }]);
-    expect(result[0].items[0].status).toBe("NF");
+  it("uses the response's respondido when one exists", () => {
+    const result = groupItemsBySubcategoria([items[0]], [{ item_template_id: "i1", respondido: true }]);
+    expect(result[0].items[0].respondido).toBe(true);
   });
 });
 

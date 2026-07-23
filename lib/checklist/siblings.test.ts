@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { deriveSiblingRows, buildBatchRows, type SiblingSourceItem, type SiblingRow, type SiblingResponseRow } from "./siblings";
+import {
+  deriveSiblingRows,
+  buildBatchRows,
+  slugifyOpcaoLabel,
+  type SiblingSourceItem,
+  type SiblingRow,
+  type SiblingResponseRow,
+} from "./siblings";
 
 describe("deriveSiblingRows", () => {
   const items: SiblingSourceItem[] = [
@@ -9,45 +16,44 @@ describe("deriveSiblingRows", () => {
     { id: "item-4", nome: "Vidro lateral esquerdo", grupo_replicacao: "vidros-lateral-dianteiro" },
     { id: "item-5", nome: "Marca", grupo_replicacao: null },
   ];
+  const opcaoLabelById = new Map([
+    ["opt-medio", "Médio"],
+    ["opt-ruim", "Ruim"],
+  ]);
 
   it("returns an empty list when the current item has no grupo_replicacao", () => {
-    expect(deriveSiblingRows("item-5", items, [])).toEqual([]);
+    expect(deriveSiblingRows("item-5", items, [], opcaoLabelById)).toEqual([]);
   });
 
   it("returns only items sharing the same grupo_replicacao, excluding self", () => {
-    const result = deriveSiblingRows("item-1", items, []);
+    const result = deriveSiblingRows("item-1", items, [], opcaoLabelById);
     expect(result.map((r) => r.id)).toEqual(["item-2", "item-3"]);
   });
 
-  it("defaults checked=true for pending siblings and false for already-answered ones", () => {
-    const responses: SiblingResponseRow[] = [
-      { item_template_id: "item-2", status: "respondido", classificacao: "medio" },
-    ];
-    const result = deriveSiblingRows("item-1", items, responses);
+  it("defaults checked=true for siblings with no opcao_id and false for already-answered ones", () => {
+    const responses: SiblingResponseRow[] = [{ item_template_id: "item-2", opcao_id: "opt-medio" }];
+    const result = deriveSiblingRows("item-1", items, responses, opcaoLabelById);
 
     const item2 = result.find((r) => r.id === "item-2")!;
     const item3 = result.find((r) => r.id === "item-3")!;
     expect(item2.defaultChecked).toBe(false);
-    expect(item2.status).toBe("respondido");
+    expect(item2.opcao_id).toBe("opt-medio");
     expect(item3.defaultChecked).toBe(true);
-    expect(item3.status).toBe("pendente");
+    expect(item3.opcao_id).toBeNull();
   });
 
-  it("carries the sibling's real classificacao, not just the collapsed status", () => {
-    const responses: SiblingResponseRow[] = [
-      { item_template_id: "item-2", status: "respondido", classificacao: "ruim" },
-      { item_template_id: "item-3", status: "NF", classificacao: null },
-    ];
-    const result = deriveSiblingRows("item-1", items, responses);
+  it("resolves the sibling's opcao label from the given map", () => {
+    const responses: SiblingResponseRow[] = [{ item_template_id: "item-2", opcao_id: "opt-ruim" }];
+    const result = deriveSiblingRows("item-1", items, responses, opcaoLabelById);
 
     const item2 = result.find((r) => r.id === "item-2")!;
     const item3 = result.find((r) => r.id === "item-3")!;
-    expect(item2.classificacao).toBe("ruim");
-    expect(item3.classificacao).toBeNull();
+    expect(item2.opcao_label).toBe("Ruim");
+    expect(item3.opcao_label).toBeNull();
   });
 
   it("returns an empty list when the current item id isn't found", () => {
-    expect(deriveSiblingRows("does-not-exist", items, [])).toEqual([]);
+    expect(deriveSiblingRows("does-not-exist", items, [], opcaoLabelById)).toEqual([]);
   });
 });
 
@@ -55,14 +61,14 @@ describe("buildBatchRows", () => {
   const current = {
     itemTemplateId: "item-1",
     nome: "Pneu dianteiro esquerdo",
-    classificacao: "ruim",
+    opcao_id: "opt-ruim",
     observacao: "Desgaste irregular",
     photos: [{ id: "photo-1", url: "https://example.com/photo-1.jpg" }],
   };
 
   const siblings: SiblingRow[] = [
-    { id: "item-2", nome: "Pneu dianteiro direito", status: "pendente", classificacao: null, defaultChecked: true },
-    { id: "item-3", nome: "Pneu traseiro esquerdo", status: "pendente", classificacao: null, defaultChecked: true },
+    { id: "item-2", nome: "Pneu dianteiro direito", opcao_id: null, opcao_label: null, defaultChecked: true },
+    { id: "item-3", nome: "Pneu traseiro esquerdo", opcao_id: null, opcao_label: null, defaultChecked: true },
   ];
 
   it("never copies the current item's photos onto sibling rows, regardless of how many it has", () => {
@@ -89,13 +95,22 @@ describe("buildBatchRows", () => {
     expect(result[0]).toEqual(current);
   });
 
-  it("applies the current item's classificacao and observacao to every selected sibling", () => {
+  it("applies the current item's opcao_id and observacao to every selected sibling", () => {
     const result = buildBatchRows(current, siblings, new Set(["item-2", "item-3"]));
 
     const siblingRows = result.filter((r) => r.itemTemplateId !== "item-1");
     for (const row of siblingRows) {
-      expect(row.classificacao).toBe(current.classificacao);
+      expect(row.opcao_id).toBe(current.opcao_id);
       expect(row.observacao).toBe(current.observacao);
     }
+  });
+});
+
+describe("slugifyOpcaoLabel", () => {
+  it("strips accents, lowercases, and removes non-alphanumeric characters", () => {
+    expect(slugifyOpcaoLabel("Ótimo")).toBe("otimo");
+    expect(slugifyOpcaoLabel("Médio")).toBe("medio");
+    expect(slugifyOpcaoLabel("Ruim")).toBe("ruim");
+    expect(slugifyOpcaoLabel("N.A.")).toBe("na");
   });
 });

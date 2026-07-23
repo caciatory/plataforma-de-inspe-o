@@ -3,46 +3,61 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-const ITEM_CLASSIFICACOES = ["otimo", "medio", "ruim", "NF"] as const;
-type ItemClassificacao = (typeof ITEM_CLASSIFICACOES)[number];
-
-export type SaveClassificacaoState = { status: "idle" } | { status: "error"; message: string };
+export type SaveEscolhaState = { status: "idle" } | { status: "error"; message: string };
 export type SaveMeasurementState = { status: "idle" } | { status: "error"; message: string };
 
-function friendlyDbError(error: { code?: string; message?: string }, ruimMessage: string): string {
-  if (error.code === "23514") return ruimMessage;
+function friendlyDbError(error: { code?: string; message?: string }, exigeFotoMessage: string): string {
+  if (error.code === "23514") return exigeFotoMessage;
   return "Não foi possível guardar. Tente novamente.";
 }
 
-export async function saveClassificacaoAction(
-  _prevState: SaveClassificacaoState,
+export async function saveEscolhaAction(
+  _prevState: SaveEscolhaState,
   formData: FormData
-): Promise<SaveClassificacaoState> {
+): Promise<SaveEscolhaState> {
   const inspectionId = formData.get("inspectionId") as string;
   const itemTemplateId = formData.get("itemTemplateId") as string;
   const nextUrl = formData.get("nextUrl") as string;
-  const classificacao = formData.get("classificacao") as string;
+  const opcaoId = formData.get("opcao_id") as string;
   const observacao = (formData.get("observacao") as string) || null;
 
-  if (!ITEM_CLASSIFICACOES.includes(classificacao as ItemClassificacao)) {
-    return { status: "error", message: "Selecione uma classificação." };
+  if (!opcaoId) {
+    return { status: "error", message: "Selecione uma opção." };
   }
 
   const supabase = await createClient();
+
+  const { data: item } = await supabase
+    .from("checklist_item_templates")
+    .select("conjunto_opcao_id")
+    .eq("id", itemTemplateId)
+    .single();
+
+  const { data: opcao } = await supabase
+    .from("opcoes")
+    .select("id")
+    .eq("id", opcaoId)
+    .eq("conjunto_id", item?.conjunto_opcao_id ?? "")
+    .maybeSingle();
+
+  if (!opcao) {
+    return { status: "error", message: "Opção inválida para este item." };
+  }
+
   const { error } = await supabase
     .from("checklist_item_responses")
     .upsert(
-      { inspection_id: inspectionId, item_template_id: itemTemplateId, classificacao, observacao },
+      { inspection_id: inspectionId, item_template_id: itemTemplateId, opcao_id: opcaoId, observacao },
       { onConflict: "inspection_id,item_template_id" }
     )
     .select("id")
     .single();
 
   if (error) {
-    console.error("saveClassificacaoAction failed", error);
+    console.error("saveEscolhaAction failed", error);
     return {
       status: "error",
-      message: friendlyDbError(error, "Classificação 'ruim' exige pelo menos 1 foto anexada. Anexe uma foto antes de salvar."),
+      message: friendlyDbError(error, "Esta resposta exige pelo menos 1 foto anexada. Anexe uma foto antes de salvar."),
     };
   }
 
@@ -111,10 +126,10 @@ export async function saveMeasurementAction(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("save_paint_measurement", {
+  const { error } = await supabase.rpc("save_medicao", {
     p_inspection_id: inspectionId,
     p_item_template_id: itemTemplateId,
-    p_valores_um: valores,
+    p_valores: valores,
     p_observacao: observacao,
   });
 
@@ -122,39 +137,61 @@ export async function saveMeasurementAction(
     console.error("saveMeasurementAction failed", error);
     return {
       status: "error",
-      message: friendlyDbError(error, "Este resultado indica reparação de colisão — anexe pelo menos 1 foto antes de salvar."),
+      message: friendlyDbError(error, "Este resultado exige pelo menos 1 foto anexada. Anexe uma foto antes de salvar."),
     };
   }
 
   redirect(nextUrl);
 }
 
-export type BatchItem = { itemTemplateId: string; classificacao: string; observacao: string | null };
+export type BatchItem = { itemTemplateId: string; opcaoId: string; observacao: string | null };
 
-export async function applyClassificacaoBatchAction(
+export async function applyOpcoesBatchAction(
   inspectionId: string,
   items: BatchItem[]
 ): Promise<{ error?: string }> {
-  if (items.some((i) => !ITEM_CLASSIFICACOES.includes(i.classificacao as ItemClassificacao))) {
-    return { error: "Classificação inválida em um dos itens do lote." };
+  if (items.some((i) => !i.opcaoId)) {
+    return { error: "Selecione uma opção em todos os itens do lote." };
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("apply_classificacao_batch", {
+
+  const [{ data: templates }, { data: opcoes }] = await Promise.all([
+    supabase
+      .from("checklist_item_templates")
+      .select("id, conjunto_opcao_id")
+      .in("id", items.map((i) => i.itemTemplateId)),
+    supabase
+      .from("opcoes")
+      .select("id, conjunto_id")
+      .in("id", items.map((i) => i.opcaoId)),
+  ]);
+
+  const conjuntoByTemplateId = new Map((templates ?? []).map((t) => [t.id, t.conjunto_opcao_id]));
+  const conjuntoByOpcaoId = new Map((opcoes ?? []).map((o) => [o.id, o.conjunto_id]));
+
+  const hasInvalidItem = items.some(
+    (i) => conjuntoByOpcaoId.get(i.opcaoId) !== conjuntoByTemplateId.get(i.itemTemplateId)
+  );
+  if (hasInvalidItem) {
+    return { error: "Opção inválida em um dos itens do lote." };
+  }
+
+  const { error } = await supabase.rpc("apply_opcoes_batch", {
     p_inspection_id: inspectionId,
     p_items: items.map((i) => ({
       item_template_id: i.itemTemplateId,
-      classificacao: i.classificacao,
+      opcao_id: i.opcaoId,
       observacao: i.observacao,
     })),
   });
 
   if (error) {
-    console.error("applyClassificacaoBatchAction failed", error);
+    console.error("applyOpcoesBatchAction failed", error);
     return {
       error: friendlyDbError(
         error,
-        "Um dos itens marcados como 'ruim' precisa de pelo menos 1 foto anexada. Anexe a foto e confirme de novo."
+        "Um dos itens do lote exige pelo menos 1 foto anexada. Anexe a foto e confirme de novo."
       ),
     };
   }

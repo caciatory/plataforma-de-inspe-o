@@ -9,9 +9,27 @@ const insert = vi.fn(() => insertQuery);
 const deleteQuery = { eq: vi.fn() };
 const del = vi.fn(() => deleteQuery);
 
+const templateQuery: { eq: ReturnType<typeof vi.fn>; single: ReturnType<typeof vi.fn>; in: ReturnType<typeof vi.fn> } = {
+  eq: vi.fn(() => templateQuery),
+  single: vi.fn(),
+  in: vi.fn(),
+};
+const templateSelect = vi.fn(() => templateQuery);
+
+const opcoesQuery: { eq: ReturnType<typeof vi.fn>; maybeSingle: ReturnType<typeof vi.fn>; in: ReturnType<typeof vi.fn> } = {
+  eq: vi.fn(() => opcoesQuery),
+  maybeSingle: vi.fn(),
+  in: vi.fn(),
+};
+const opcoesSelect = vi.fn(() => opcoesQuery);
+
 const rpc = vi.fn();
 
-const from = vi.fn(() => ({ upsert, insert, delete: del }));
+const from = vi.fn((table: string) => {
+  if (table === "checklist_item_templates") return { select: templateSelect };
+  if (table === "opcoes") return { select: opcoesSelect };
+  return { upsert, insert, delete: del };
+});
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({ from, rpc }),
 }));
@@ -31,54 +49,82 @@ beforeEach(() => {
   insertQuery.single.mockReset();
   del.mockClear();
   deleteQuery.eq.mockReset();
+  templateSelect.mockClear();
+  templateQuery.eq.mockClear();
+  templateQuery.single.mockReset();
+  templateQuery.in.mockReset();
+  opcoesSelect.mockClear();
+  opcoesQuery.eq.mockClear();
+  opcoesQuery.maybeSingle.mockReset();
+  opcoesQuery.in.mockReset();
   rpc.mockReset();
   redirect.mockClear();
 });
 
-describe("saveClassificacaoAction", () => {
-  it("returns a validation error without writing when classificacao is missing", async () => {
-    const { saveClassificacaoAction } = await import("./actions");
+describe("saveEscolhaAction", () => {
+  it("returns a validation error without writing when opcao_id is missing", async () => {
+    const { saveEscolhaAction } = await import("./actions");
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
     formData.set("nextUrl", "/inspections/insp-1/checklist/group-1/item-2");
 
-    const result = await saveClassificacaoAction({ status: "idle" }, formData);
+    const result = await saveEscolhaAction({ status: "idle" }, formData);
+
+    expect(result.status).toBe("error");
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
+  it("returns an error without writing when the opcao does not belong to the item's conjunto", async () => {
+    templateQuery.single.mockResolvedValue({ data: { conjunto_opcao_id: "conj-1" }, error: null });
+    opcoesQuery.maybeSingle.mockResolvedValue({ data: null, error: null });
+    const { saveEscolhaAction } = await import("./actions");
+    const formData = new FormData();
+    formData.set("inspectionId", "insp-1");
+    formData.set("itemTemplateId", "item-1");
+    formData.set("nextUrl", "/x");
+    formData.set("opcao_id", "opt-de-outro-conjunto");
+
+    const result = await saveEscolhaAction({ status: "idle" }, formData);
 
     expect(result.status).toBe("error");
     expect(upsert).not.toHaveBeenCalled();
   });
 
   it("upserts the response and redirects to nextUrl on success", async () => {
+    templateQuery.single.mockResolvedValue({ data: { conjunto_opcao_id: "conj-1" }, error: null });
+    opcoesQuery.maybeSingle.mockResolvedValue({ data: { id: "opt-medio" }, error: null });
     upsertQuery.single.mockResolvedValue({ data: { id: "resp-1" }, error: null });
-    const { saveClassificacaoAction } = await import("./actions");
+    const { saveEscolhaAction } = await import("./actions");
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
     formData.set("nextUrl", "/inspections/insp-1/checklist/group-1/item-2");
-    formData.set("classificacao", "medio");
+    formData.set("opcao_id", "opt-medio");
     formData.set("observacao", "Desgaste leve");
 
-    await expect(saveClassificacaoAction({ status: "idle" }, formData)).rejects.toThrow(
+    await expect(saveEscolhaAction({ status: "idle" }, formData)).rejects.toThrow(
       "REDIRECT:/inspections/insp-1/checklist/group-1/item-2"
     );
 
     expect(upsert).toHaveBeenCalledWith(
-      { inspection_id: "insp-1", item_template_id: "item-1", classificacao: "medio", observacao: "Desgaste leve" },
+      { inspection_id: "insp-1", item_template_id: "item-1", opcao_id: "opt-medio", observacao: "Desgaste leve" },
       { onConflict: "inspection_id,item_template_id" }
     );
   });
 
-  it("returns a friendly message when the DB rejects 'ruim' without a photo (check_violation)", async () => {
+  it("returns a friendly message when the DB rejects a response that exige foto without a photo (check_violation)", async () => {
+    templateQuery.single.mockResolvedValue({ data: { conjunto_opcao_id: "conj-1" }, error: null });
+    opcoesQuery.maybeSingle.mockResolvedValue({ data: { id: "opt-ruim" }, error: null });
     upsertQuery.single.mockResolvedValue({ data: null, error: { code: "23514", message: "RF-16" } });
-    const { saveClassificacaoAction } = await import("./actions");
+    const { saveEscolhaAction } = await import("./actions");
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
     formData.set("nextUrl", "/x");
-    formData.set("classificacao", "ruim");
+    formData.set("opcao_id", "opt-ruim");
 
-    const result = await saveClassificacaoAction({ status: "idle" }, formData);
+    const result = await saveEscolhaAction({ status: "idle" }, formData);
 
     expect(result.status).toBe("error");
     if (result.status === "error") {
@@ -153,7 +199,7 @@ describe("saveMeasurementAction", () => {
   });
 
   it("calls the RPC with numeric values and redirects on success", async () => {
-    rpc.mockResolvedValue({ data: [{ item_response_id: "resp-1" }], error: null });
+    rpc.mockResolvedValue({ data: [{ item_response_id: "resp-1", resultado: "ok" }], error: null });
     const { saveMeasurementAction } = await import("./actions");
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
@@ -168,15 +214,15 @@ describe("saveMeasurementAction", () => {
       "REDIRECT:/inspections/insp-1/checklist/group-1/item-2"
     );
 
-    expect(rpc).toHaveBeenCalledWith("save_paint_measurement", {
+    expect(rpc).toHaveBeenCalledWith("save_medicao", {
       p_inspection_id: "insp-1",
       p_item_template_id: "item-1",
-      p_valores_um: [100, 110, 120],
+      p_valores: [100, 110, 120],
       p_observacao: "Desgaste leve",
     });
   });
 
-  it("returns a friendly message when the DB rejects reparacao_colisao without a photo", async () => {
+  it("returns a friendly message when the DB rejects a critical measurement without a photo", async () => {
     rpc.mockResolvedValue({ data: null, error: { code: "23514", message: "RF-16" } });
     const { saveMeasurementAction } = await import("./actions");
     const formData = new FormData();
@@ -196,13 +242,39 @@ describe("saveMeasurementAction", () => {
   });
 });
 
-describe("applyClassificacaoBatchAction", () => {
-  it("returns an error without calling the RPC when an item has an invalid classificacao", async () => {
-    const { applyClassificacaoBatchAction } = await import("./actions");
+describe("applyOpcoesBatchAction", () => {
+  it("returns an error without calling the RPC when an item has no opcao_id", async () => {
+    const { applyOpcoesBatchAction } = await import("./actions");
 
-    const result = await applyClassificacaoBatchAction("insp-1", [
-      { itemTemplateId: "item-1", classificacao: "otimo", observacao: null },
-      { itemTemplateId: "item-2", classificacao: "nao-e-valido", observacao: null },
+    const result = await applyOpcoesBatchAction("insp-1", [
+      { itemTemplateId: "item-1", opcaoId: "opt-otimo", observacao: null },
+      { itemTemplateId: "item-2", opcaoId: "", observacao: null },
+    ]);
+
+    expect(result.error).toBeTruthy();
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it("returns an error without calling the RPC when an opcao doesn't belong to its item's conjunto", async () => {
+    templateQuery.in.mockResolvedValue({
+      data: [
+        { id: "item-1", conjunto_opcao_id: "conj-1" },
+        { id: "item-2", conjunto_opcao_id: "conj-1" },
+      ],
+      error: null,
+    });
+    opcoesQuery.in.mockResolvedValue({
+      data: [
+        { id: "opt-otimo", conjunto_id: "conj-1" },
+        { id: "opt-de-outro-conjunto", conjunto_id: "conj-2" },
+      ],
+      error: null,
+    });
+    const { applyOpcoesBatchAction } = await import("./actions");
+
+    const result = await applyOpcoesBatchAction("insp-1", [
+      { itemTemplateId: "item-1", opcaoId: "opt-otimo", observacao: null },
+      { itemTemplateId: "item-2", opcaoId: "opt-de-outro-conjunto", observacao: null },
     ]);
 
     expect(result.error).toBeTruthy();
@@ -210,30 +282,46 @@ describe("applyClassificacaoBatchAction", () => {
   });
 
   it("calls the RPC with the mapped batch payload on success", async () => {
+    templateQuery.in.mockResolvedValue({
+      data: [
+        { id: "item-1", conjunto_opcao_id: "conj-1" },
+        { id: "item-2", conjunto_opcao_id: "conj-1" },
+      ],
+      error: null,
+    });
+    opcoesQuery.in.mockResolvedValue({
+      data: [
+        { id: "opt-otimo", conjunto_id: "conj-1" },
+        { id: "opt-medio", conjunto_id: "conj-1" },
+      ],
+      error: null,
+    });
     rpc.mockResolvedValue({ data: null, error: null });
-    const { applyClassificacaoBatchAction } = await import("./actions");
+    const { applyOpcoesBatchAction } = await import("./actions");
 
-    const result = await applyClassificacaoBatchAction("insp-1", [
-      { itemTemplateId: "item-1", classificacao: "otimo", observacao: "Sem avarias" },
-      { itemTemplateId: "item-2", classificacao: "medio", observacao: null },
+    const result = await applyOpcoesBatchAction("insp-1", [
+      { itemTemplateId: "item-1", opcaoId: "opt-otimo", observacao: "Sem avarias" },
+      { itemTemplateId: "item-2", opcaoId: "opt-medio", observacao: null },
     ]);
 
     expect(result).toEqual({});
-    expect(rpc).toHaveBeenCalledWith("apply_classificacao_batch", {
+    expect(rpc).toHaveBeenCalledWith("apply_opcoes_batch", {
       p_inspection_id: "insp-1",
       p_items: [
-        { item_template_id: "item-1", classificacao: "otimo", observacao: "Sem avarias" },
-        { item_template_id: "item-2", classificacao: "medio", observacao: null },
+        { item_template_id: "item-1", opcao_id: "opt-otimo", observacao: "Sem avarias" },
+        { item_template_id: "item-2", opcao_id: "opt-medio", observacao: null },
       ],
     });
   });
 
-  it("returns a friendly message when the DB rejects a 'ruim' item without a photo", async () => {
+  it("returns a friendly message when the DB rejects an item that exige foto without a photo", async () => {
+    templateQuery.in.mockResolvedValue({ data: [{ id: "item-1", conjunto_opcao_id: "conj-1" }], error: null });
+    opcoesQuery.in.mockResolvedValue({ data: [{ id: "opt-ruim", conjunto_id: "conj-1" }], error: null });
     rpc.mockResolvedValue({ data: null, error: { code: "23514", message: "RF-16" } });
-    const { applyClassificacaoBatchAction } = await import("./actions");
+    const { applyOpcoesBatchAction } = await import("./actions");
 
-    const result = await applyClassificacaoBatchAction("insp-1", [
-      { itemTemplateId: "item-1", classificacao: "ruim", observacao: null },
+    const result = await applyOpcoesBatchAction("insp-1", [
+      { itemTemplateId: "item-1", opcaoId: "opt-ruim", observacao: null },
     ]);
 
     expect(result.error).toMatch(/foto/i);

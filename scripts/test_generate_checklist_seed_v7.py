@@ -110,7 +110,20 @@ def test_faixas_de_medicao_dos_3_itens_novos_mais_tinta():
     tinta = faixa_para("Espessura de pintura – Capô")
     assert tinta == dict(unidade_medicao="µm", faixa_min_ok=70, faixa_max_ok=160, limiar_critico_superior=300)
     sem_faixa = faixa_para("Degradação da bateria – capacidade real vs. nominal (%)")
-    assert sem_faixa == {}, "bateria BEV nao tem faixa numerica no documento, deve ficar medicao pura"
+    assert sem_faixa == dict(unidade_medicao="%"), (
+        "bateria BEV nao tem faixa/limiar no documento (medicao pura), "
+        "mas ainda precisa de unidade_medicao preenchido"
+    )
+
+
+def test_todo_item_medicao_tem_unidade_medicao():
+    from generate_checklist_seed_v7 import faixa_para
+    rows = [r for r in parse_markdown(SRC) if r["num"] != ITEM_NOTA_EXCLUIDA]
+    sem_unidade = [
+        r["nome"] for r in rows
+        if resolve_tipo(r)[0] == "medicao" and not faixa_para(r["nome"]).get("unidade_medicao")
+    ]
+    assert not sem_unidade, f"itens de medicao sem unidade_medicao: {sem_unidade}"
 
 
 def test_qtd_pontos_medicao_extrai_da_observacao():

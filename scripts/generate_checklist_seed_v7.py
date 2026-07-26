@@ -157,6 +157,10 @@ FAIXA_OVERRIDE_POR_PREFIXO = {
 FAIXA_OVERRIDE_POR_NOME = {
     "Teste do fluido de travões": dict(unidade_medicao="%", limiar_critico_superior=3),
     "Alternador – tensão de carga": dict(unidade_medicao="V", faixa_min_ok=13.8, faixa_max_ok=14.4),
+    # Sem faixa numerica no documento (so' "Scanner BEV") -- medicao pura,
+    # mas ainda precisa de unidade_medicao (a coluna e' NOT NULL logicamente
+    # exigida pra medicao ter sentido na UI, mesmo sem faixa/limiar).
+    "Degradação da bateria – capacidade real vs. nominal (%)": dict(unidade_medicao="%"),
 }
 
 PTS_RE = re.compile(r"(\d+)\s*pts")
@@ -269,6 +273,12 @@ def build(rows: list[dict]) -> str:
         "",
         "-- Limpa o seed antigo (320 itens/12 grupos) e os conjuntos de opcoes",
         "-- orfaos da Peca 1a (estado_4, so' existia pro backfill temporario).",
+        "-- checklist_item_responses e dado de resposta de teste (sem inspecoes",
+        "-- reais ainda) que referencia checklist_item_templates sem ON DELETE",
+        "-- proprio -- bloqueia o delete de templates abaixo se nao for limpo",
+        "-- primeiro; a limpeza cascateia pra medicoes/photos via o ON DELETE",
+        "-- CASCADE que ja existe a partir de checklist_item_responses.",
+        "delete from public.checklist_item_responses;",
         "delete from public.checklist_item_templates;",
         "delete from public.checklist_group_templates;",
         "delete from public.opcoes where conjunto_id in (select id from public.conjuntos_opcao where nome = 'estado_4');",

@@ -225,6 +225,7 @@ function TextoCell({
   const [isPending, startTransition] = useTransition();
 
   function handleBlur() {
+    if (value === (response?.resposta_texto ?? "")) return;
     setError(null);
     const formData = new FormData();
     formData.set("inspectionId", inspectionId);
@@ -273,6 +274,7 @@ function DataCell({
   const [isPending, startTransition] = useTransition();
 
   function handleBlur() {
+    if (value === (response?.resposta_data ?? "")) return;
     setError(null);
     const formData = new FormData();
     formData.set("inspectionId", inspectionId);
@@ -344,6 +346,13 @@ function MedicaoCell({
         {label}
       </button>
       <dialog ref={dialogRef} className="dialog-panel">
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => dialogRef.current?.close()}
+        >
+          Cancelar
+        </button>
         <ItemMedicaoForm
           inspectionId={inspectionId}
           itemTemplateId={item.id}

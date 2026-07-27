@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { applyOpcoesBatchAction } from "./actions";
 import { PhotoManager, type Photo } from "./photo-manager";
-import { slugifyOpcaoLabel, type Opcao } from "@/lib/checklist/siblings";
+import { resolveEscolhaColorModifier, type Opcao } from "@/lib/checklist/siblings";
 
 export type BatchRow = {
   itemTemplateId: string;
@@ -79,7 +79,7 @@ export function BatchApplyPanel({
             {opcoes.map((o) => (
               <label
                 key={o.id}
-                className={`escolha-option escolha-option--${slugifyOpcaoLabel(o.label)}`}
+                className={`escolha-option escolha-option--${resolveEscolhaColorModifier(opcoes, o.id)}`}
               >
                 <input
                   type="radio"

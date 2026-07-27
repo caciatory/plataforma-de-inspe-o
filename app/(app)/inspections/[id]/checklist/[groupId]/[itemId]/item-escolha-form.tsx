@@ -5,7 +5,7 @@ import { useActionState, useState } from "react";
 import { saveEscolhaAction, type SaveEscolhaState } from "./actions";
 import { PhotoManager, type Photo } from "./photo-manager";
 import { BatchApplyPanel, type BatchRow } from "./batch-apply-panel";
-import { buildBatchRows, slugifyOpcaoLabel, type Opcao, type SiblingRow } from "@/lib/checklist/siblings";
+import { buildBatchRows, resolveEscolhaColorModifier, type Opcao, type SiblingRow } from "@/lib/checklist/siblings";
 
 const initialState: SaveEscolhaState = { status: "idle" };
 
@@ -78,7 +78,7 @@ export function ItemEscolhaForm({
         <legend className="form-fieldset__legend">Classificação</legend>
         <div className="escolha-options">
           {opcoes.map((o) => (
-            <label key={o.id} className={`escolha-option escolha-option--${slugifyOpcaoLabel(o.label)}`}>
+            <label key={o.id} className={`escolha-option escolha-option--${resolveEscolhaColorModifier(opcoes, o.id)}`}>
               <input
                 type="radio"
                 name="opcao_id"

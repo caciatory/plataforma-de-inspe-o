@@ -3,9 +3,11 @@ import {
   deriveSiblingRows,
   buildBatchRows,
   slugifyOpcaoLabel,
+  resolveEscolhaColorModifier,
   type SiblingSourceItem,
   type SiblingRow,
   type SiblingResponseRow,
+  type Opcao,
 } from "./siblings";
 
 describe("deriveSiblingRows", () => {
@@ -112,5 +114,49 @@ describe("slugifyOpcaoLabel", () => {
     expect(slugifyOpcaoLabel("Médio")).toBe("medio");
     expect(slugifyOpcaoLabel("Ruim")).toBe("ruim");
     expect(slugifyOpcaoLabel("N.A.")).toBe("na");
+  });
+});
+
+describe("resolveEscolhaColorModifier", () => {
+  it("keeps N.A. neutral regardless of its position in the conjunto", () => {
+    const opcoes: Opcao[] = [
+      { id: "1", label: "Bom", ordem: 1, exige_foto: false },
+      { id: "2", label: "Mau", ordem: 2, exige_foto: false },
+      { id: "3", label: "N.A.", ordem: 3, exige_foto: false },
+    ];
+    expect(resolveEscolhaColorModifier(opcoes, "3")).toBe("na");
+  });
+
+  it("colors a 2-option conjunto: first=otimo, last=ruim", () => {
+    const opcoes: Opcao[] = [
+      { id: "1", label: "Bom", ordem: 1, exige_foto: false },
+      { id: "2", label: "Mau", ordem: 2, exige_foto: false },
+    ];
+    expect(resolveEscolhaColorModifier(opcoes, "1")).toBe("otimo");
+    expect(resolveEscolhaColorModifier(opcoes, "2")).toBe("ruim");
+  });
+
+  it("colors a 3-option conjunto: first=otimo, middle=medio, last=ruim", () => {
+    const opcoes: Opcao[] = [
+      { id: "1", label: "Bom", ordem: 1, exige_foto: false },
+      { id: "2", label: "Médio", ordem: 2, exige_foto: false },
+      { id: "3", label: "Mau", ordem: 3, exige_foto: false },
+    ];
+    expect(resolveEscolhaColorModifier(opcoes, "1")).toBe("otimo");
+    expect(resolveEscolhaColorModifier(opcoes, "2")).toBe("medio");
+    expect(resolveEscolhaColorModifier(opcoes, "3")).toBe("ruim");
+  });
+
+  it("colors a 4-option conjunto: first=otimo, both middles=medio, last=ruim", () => {
+    const opcoes: Opcao[] = [
+      { id: "1", label: "Ausente", ordem: 1, exige_foto: false },
+      { id: "2", label: "Ligeira", ordem: 2, exige_foto: false },
+      { id: "3", label: "Moderada", ordem: 3, exige_foto: false },
+      { id: "4", label: "Severa", ordem: 4, exige_foto: false },
+    ];
+    expect(resolveEscolhaColorModifier(opcoes, "1")).toBe("otimo");
+    expect(resolveEscolhaColorModifier(opcoes, "2")).toBe("medio");
+    expect(resolveEscolhaColorModifier(opcoes, "3")).toBe("medio");
+    expect(resolveEscolhaColorModifier(opcoes, "4")).toBe("ruim");
   });
 });

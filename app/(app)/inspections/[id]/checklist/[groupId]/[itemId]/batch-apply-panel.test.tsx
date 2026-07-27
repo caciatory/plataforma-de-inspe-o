@@ -22,10 +22,10 @@ beforeEach(() => {
 });
 
 const opcoes = [
-  { id: "opt-otimo", label: "Ótimo", exige_foto: false },
-  { id: "opt-medio", label: "Médio", exige_foto: false },
-  { id: "opt-ruim", label: "Ruim", exige_foto: true },
-  { id: "opt-na", label: "N.A.", exige_foto: false },
+  { id: "opt-otimo", label: "Ótimo", exige_foto: false, ordem: 1 },
+  { id: "opt-medio", label: "Médio", exige_foto: false, ordem: 2 },
+  { id: "opt-ruim", label: "Ruim", exige_foto: true, ordem: 3 },
+  { id: "opt-na", label: "N.A.", exige_foto: false, ordem: 4 },
 ];
 
 const rowA = { itemTemplateId: "item-1", nome: "Pneu A", opcao_id: "opt-otimo", observacao: "Sem avarias", photos: [] };

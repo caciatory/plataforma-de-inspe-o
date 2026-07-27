@@ -1,4 +1,4 @@
-export type Opcao = { id: string; label: string; exige_foto: boolean };
+export type Opcao = { id: string; label: string; exige_foto: boolean; ordem: number };
 
 export type SiblingSourceItem = { id: string; nome: string; grupo_replicacao: string | null };
 export type SiblingResponseRow = { item_template_id: string; opcao_id: string | null };
@@ -68,4 +68,22 @@ export function slugifyOpcaoLabel(label: string): string {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "");
+}
+
+// Colors an escolha option by its rank within its conjunto (best -> worst),
+// rather than by literal label text, so any label set gets colored (not just
+// ones that happen to slugify to otimo/medio/ruim).
+export function resolveEscolhaColorModifier(opcoes: Opcao[], opcaoId: string): string {
+  const target = opcoes.find((o) => o.id === opcaoId);
+  if (!target) return slugifyOpcaoLabel("");
+
+  if (slugifyOpcaoLabel(target.label) === "na") return "na";
+
+  const ranked = opcoes.filter((o) => slugifyOpcaoLabel(o.label) !== "na").sort((a, b) => a.ordem - b.ordem);
+  const rank = ranked.findIndex((o) => o.id === opcaoId);
+  const lastRank = ranked.length - 1;
+
+  if (rank === 0) return "otimo";
+  if (rank === lastRank) return "ruim";
+  return "medio";
 }

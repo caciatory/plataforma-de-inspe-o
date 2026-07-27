@@ -8,7 +8,7 @@ import { BatchApplyPanel, type BatchRow } from "./[itemId]/batch-apply-panel";
 import {
   deriveSiblingRows,
   buildBatchRows,
-  slugifyOpcaoLabel,
+  resolveEscolhaColorModifier,
   type SiblingSourceItem,
   type SiblingResponseRow,
 } from "@/lib/checklist/siblings";
@@ -34,7 +34,7 @@ export type TableResponse = {
   respondido: boolean;
 };
 
-export type TableOpcao = { id: string; conjunto_id: string; label: string; exige_foto: boolean };
+export type TableOpcao = { id: string; conjunto_id: string; label: string; exige_foto: boolean; ordem: number };
 export type TablePhoto = { id: string; url: string; item_response_id: string };
 export type TableMedicaoResultado = { item_response_id: string; resultado: "ok" | "atencao" | "critico" | null };
 export type TableMedicaoValores = { item_response_id: string; valores: number[] };
@@ -197,7 +197,7 @@ function EscolhaCell({
   return (
     <div className="escolha-options">
       {opcoes.map((o) => (
-        <label key={o.id} className={`escolha-option escolha-option--${slugifyOpcaoLabel(o.label)}`}>
+        <label key={o.id} className={`escolha-option escolha-option--${resolveEscolhaColorModifier(opcoes, o.id)}`}>
           <input
             type="radio"
             name={`opcao-${item.id}`}

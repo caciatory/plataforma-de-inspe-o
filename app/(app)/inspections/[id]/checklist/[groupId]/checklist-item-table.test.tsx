@@ -73,8 +73,8 @@ const medicaoItem: TableItem = {
 };
 
 const opcoes: TableOpcao[] = [
-  { id: "opt-bom", conjunto_id: "conj-1", label: "Bom", exige_foto: false },
-  { id: "opt-mau", conjunto_id: "conj-1", label: "Mau", exige_foto: true },
+  { id: "opt-bom", conjunto_id: "conj-1", label: "Bom", exige_foto: false, ordem: 1 },
+  { id: "opt-mau", conjunto_id: "conj-1", label: "Mau", exige_foto: true, ordem: 2 },
 ];
 
 describe("ChecklistItemTable", () => {

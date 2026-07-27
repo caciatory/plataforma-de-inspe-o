@@ -4,10 +4,13 @@ import {
   computeGroupProgress,
   groupItemsBySubcategoria,
   findNextItemId,
+  computeSubcategoriaProgress,
+  SEM_SUBCATEGORIA_PARAM,
   type GroupTemplate,
   type ItemTemplate,
   type ItemResponseRow,
   type ItemTemplateDetail,
+  type ItemGroupSubcategoria,
 } from "./progress";
 
 describe("isItemPending", () => {
@@ -128,5 +131,55 @@ describe("findNextItemId", () => {
 
   it("returns null when the current item id isn't found", () => {
     expect(findNextItemId(subcategorias, "does-not-exist")).toBeNull();
+  });
+});
+
+describe("computeSubcategoriaProgress", () => {
+  const items: ItemGroupSubcategoria[] = [
+    { id: "i1", group_id: "g1", subcategoria: "Pneus" },
+    { id: "i2", group_id: "g1", subcategoria: "Pneus" },
+    { id: "i3", group_id: "g1", subcategoria: "Pintura" },
+    { id: "i4", group_id: "g2", subcategoria: null },
+  ];
+
+  it("groups items by group_id then by subcategoria, counting pendentes/total per bucket", () => {
+    const responses: ItemResponseRow[] = [{ item_template_id: "i1", respondido: true }];
+    const result = computeSubcategoriaProgress(items, responses);
+    const g1 = result.find((g) => g.id === "g1")!;
+    expect(g1.subcategorias).toEqual([
+      { subcategoria: "Pintura", pendentes: 1, total: 1 },
+      { subcategoria: "Pneus", pendentes: 1, total: 2 },
+    ]);
+  });
+
+  it("puts items with null subcategoria in their own bucket", () => {
+    const result = computeSubcategoriaProgress(items, []);
+    const g2 = result.find((g) => g.id === "g2")!;
+    expect(g2.subcategorias).toEqual([{ subcategoria: null, pendentes: 1, total: 1 }]);
+  });
+
+  it("treats an item without a response row as pending", () => {
+    const result = computeSubcategoriaProgress([items[0]], []);
+    expect(result[0].subcategorias[0].pendentes).toBe(1);
+  });
+
+  it("does not count respondido items as pending", () => {
+    const responses: ItemResponseRow[] = [
+      { item_template_id: "i1", respondido: true },
+      { item_template_id: "i2", respondido: true },
+    ];
+    const result = computeSubcategoriaProgress(items, responses);
+    const g1 = result.find((g) => g.id === "g1")!;
+    expect(g1.subcategorias.find((s) => s.subcategoria === "Pneus")?.pendentes).toBe(0);
+  });
+
+  it("returns an empty array when there are no items", () => {
+    expect(computeSubcategoriaProgress([], [])).toEqual([]);
+  });
+});
+
+describe("SEM_SUBCATEGORIA_PARAM", () => {
+  it("is the URL sentinel string for a null subcategoria", () => {
+    expect(SEM_SUBCATEGORIA_PARAM).toBe("sem-subcategoria");
   });
 });

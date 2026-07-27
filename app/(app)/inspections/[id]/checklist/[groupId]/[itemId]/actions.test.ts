@@ -327,3 +327,126 @@ describe("applyOpcoesBatchAction", () => {
     expect(result.error).toMatch(/foto/i);
   });
 });
+
+describe("saveTextoAction", () => {
+  it("returns a validation error without writing when resposta_texto is empty", async () => {
+    const { saveTextoAction } = await import("./actions");
+    const formData = new FormData();
+    formData.set("inspectionId", "insp-1");
+    formData.set("itemTemplateId", "item-1");
+    formData.set("nextUrl", "/x");
+
+    const result = await saveTextoAction({ status: "idle" }, formData);
+
+    expect(result.status).toBe("error");
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
+  it("upserts resposta_texto and redirects to nextUrl on success", async () => {
+    upsertQuery.single.mockResolvedValue({ data: { id: "resp-1" }, error: null });
+    const { saveTextoAction } = await import("./actions");
+    const formData = new FormData();
+    formData.set("inspectionId", "insp-1");
+    formData.set("itemTemplateId", "item-1");
+    formData.set("nextUrl", "/inspections/insp-1/checklist/group-1?sub=motor");
+    formData.set("resposta_texto", "Chassi OK, sem avarias visíveis");
+    formData.set("observacao", "Verificado às 10h");
+
+    await expect(saveTextoAction({ status: "idle" }, formData)).rejects.toThrow(
+      "REDIRECT:/inspections/insp-1/checklist/group-1?sub=motor"
+    );
+
+    expect(upsert).toHaveBeenCalledWith(
+      {
+        inspection_id: "insp-1",
+        item_template_id: "item-1",
+        resposta_texto: "Chassi OK, sem avarias visíveis",
+        observacao: "Verificado às 10h",
+      },
+      { onConflict: "inspection_id,item_template_id" }
+    );
+  });
+
+  it("returns a friendly message when the DB rejects the write (check_violation)", async () => {
+    upsertQuery.single.mockResolvedValue({ data: null, error: { code: "23514", message: "RF-16" } });
+    const { saveTextoAction } = await import("./actions");
+    const formData = new FormData();
+    formData.set("inspectionId", "insp-1");
+    formData.set("itemTemplateId", "item-1");
+    formData.set("nextUrl", "/x");
+    formData.set("resposta_texto", "Texto qualquer");
+
+    const result = await saveTextoAction({ status: "idle" }, formData);
+
+    expect(result.status).toBe("error");
+    if (result.status === "error") {
+      expect(result.message).toMatch(/foto/i);
+    }
+  });
+});
+
+describe("saveDataAction", () => {
+  it("returns a validation error without writing when resposta_data is missing", async () => {
+    const { saveDataAction } = await import("./actions");
+    const formData = new FormData();
+    formData.set("inspectionId", "insp-1");
+    formData.set("itemTemplateId", "item-1");
+    formData.set("nextUrl", "/x");
+
+    const result = await saveDataAction({ status: "idle" }, formData);
+
+    expect(result.status).toBe("error");
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
+  it("returns a validation error without writing when resposta_data is not in yyyy-mm-dd format", async () => {
+    const { saveDataAction } = await import("./actions");
+    const formData = new FormData();
+    formData.set("inspectionId", "insp-1");
+    formData.set("itemTemplateId", "item-1");
+    formData.set("nextUrl", "/x");
+    formData.set("resposta_data", "21/07/2026");
+
+    const result = await saveDataAction({ status: "idle" }, formData);
+
+    expect(result.status).toBe("error");
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
+  it("upserts resposta_data and redirects to nextUrl on success", async () => {
+    upsertQuery.single.mockResolvedValue({ data: { id: "resp-1" }, error: null });
+    const { saveDataAction } = await import("./actions");
+    const formData = new FormData();
+    formData.set("inspectionId", "insp-1");
+    formData.set("itemTemplateId", "item-1");
+    formData.set("nextUrl", "/inspections/insp-1/checklist/group-1?sub=motor");
+    formData.set("resposta_data", "2026-07-21");
+    formData.set("observacao", "");
+
+    await expect(saveDataAction({ status: "idle" }, formData)).rejects.toThrow(
+      "REDIRECT:/inspections/insp-1/checklist/group-1?sub=motor"
+    );
+
+    expect(upsert).toHaveBeenCalledWith(
+      { inspection_id: "insp-1", item_template_id: "item-1", resposta_data: "2026-07-21", observacao: null },
+      { onConflict: "inspection_id,item_template_id" }
+    );
+  });
+
+  it("returns a friendly message when the DB rejects the write (check_violation)", async () => {
+    upsertQuery.single.mockResolvedValue({ data: null, error: { code: "23514", message: "RF-16" } });
+    const { saveDataAction } = await import("./actions");
+    const formData = new FormData();
+    formData.set("inspectionId", "insp-1");
+    formData.set("itemTemplateId", "item-1");
+    formData.set("nextUrl", "/x");
+    formData.set("resposta_data", "2026-07-21");
+
+    const result = await saveDataAction({ status: "idle" }, formData);
+
+    expect(result.status).toBe("error");
+    if (result.status === "error") {
+      expect(result.message).toMatch(/foto/i);
+    }
+  });
+});

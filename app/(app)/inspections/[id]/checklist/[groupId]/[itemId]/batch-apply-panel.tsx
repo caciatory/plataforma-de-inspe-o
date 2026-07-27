@@ -20,12 +20,14 @@ export function BatchApplyPanel({
   opcoes,
   initialRows,
   onCancel,
+  onSuccess,
 }: {
   inspectionId: string;
   groupListUrl: string;
   opcoes: Opcao[];
   initialRows: BatchRow[];
   onCancel: () => void;
+  onSuccess?: () => void;
 }) {
   const router = useRouter();
   const [rows, setRows] = useState<BatchRow[]>(initialRows);
@@ -62,6 +64,7 @@ export function BatchApplyPanel({
       }
 
       router.push(groupListUrl);
+      onSuccess?.();
     });
   }
 

@@ -431,6 +431,7 @@ function FamiliaCell({
             opcoes={opcoes}
             initialRows={rows}
             onCancel={() => dialogRef.current?.close()}
+            onSuccess={() => dialogRef.current?.close()}
           />
         )}
       </dialog>

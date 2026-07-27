@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { computeGroupProgress, computeSubcategoriaProgress, SEM_SUBCATEGORIA_PARAM } from "@/lib/checklist/progress";
+import { computeGroupProgress, computeSubcategoriaProgress } from "@/lib/checklist/progress";
+import { ChecklistNavGroup } from "./checklist-nav-group";
 
 export default async function ChecklistLayout({
   children,
@@ -41,51 +41,14 @@ export default async function ChecklistLayout({
       <nav className="checklist-nav identity-bar" aria-label="Grupos da checklist">
         <h2 className="checklist-nav__title">Checklist</h2>
         <ul className="checklist-nav__list">
-          {progress.map((group) => {
-            const subcategorias = subcategoriasByGroupId.get(group.id) ?? [];
-            return (
-              <li key={group.id}>
-                <Link href={`/inspections/${id}/checklist/${group.id}`} className="checklist-nav__link">
-                  <span
-                    className={`checklist-nav__status ${group.pendentes === 0 ? "checklist-nav__status--done" : "checklist-nav__status--pending"}`}
-                    aria-hidden="true"
-                  >
-                    {group.pendentes === 0 ? "✓" : group.pendentes}
-                  </span>
-                  <span className="sr-only">
-                    {group.pendentes === 0 ? "Concluído: " : `${group.pendentes} pendentes: `}
-                  </span>
-                  {group.nome}
-                </Link>
-                {subcategorias.length > 0 && (
-                  <ul className="checklist-nav__sublist">
-                    {subcategorias.map((sub) => {
-                      const subParam = sub.subcategoria ?? SEM_SUBCATEGORIA_PARAM;
-                      return (
-                        <li key={subParam}>
-                          <Link
-                            href={`/inspections/${id}/checklist/${group.id}?sub=${encodeURIComponent(subParam)}`}
-                            className="checklist-nav__sublink"
-                          >
-                            <span
-                              className={`checklist-nav__substatus ${sub.pendentes === 0 ? "checklist-nav__substatus--done" : "checklist-nav__substatus--pending"}`}
-                              aria-hidden="true"
-                            >
-                              {sub.pendentes === 0 ? "✓" : sub.pendentes}
-                            </span>
-                            <span className="sr-only">
-                              {sub.pendentes === 0 ? "Concluído: " : `${sub.pendentes} pendentes: `}
-                            </span>
-                            {sub.subcategoria ?? "Sem subcategoria"}
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </li>
-            );
-          })}
+          {progress.map((group) => (
+            <ChecklistNavGroup
+              key={group.id}
+              inspectionId={id}
+              group={group}
+              subcategorias={subcategoriasByGroupId.get(group.id) ?? []}
+            />
+          ))}
         </ul>
       </nav>
       <main className="checklist-main">{children}</main>

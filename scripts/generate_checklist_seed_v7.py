@@ -94,6 +94,7 @@ SIM_NAO_PROBLEMA = {
     "Alertas ou células danificadas na bateria",
     "Alertas do sistema híbrido no painel",
     "Tubagens e ligações GPL – fugas (detetor de gás)",
+    "Tubagens de admissão – estado e fugas",
 }
 
 CONJUNTO_OPCOES: dict[str, list[str]] = {
@@ -147,20 +148,25 @@ EXIGE_FOTO: dict[str, set[str]] = {
     "temperatura_apos_conducao": {"Elevada"},
 }
 
-# Item (por nome exato) -> overrides de faixa de medicao. Tinta reusa os
+# Item (por nome exato) -> overrides de faixa de medicao (so' os limiares
+# numericos -- a unidade vem sempre de TIPO_MAP via resolve_tipo(), nunca
+# daqui, pra nao ter duas fontes de verdade pra unidade). Tinta reusa os
 # valores ja em producao (Peca 1a); piso/fluido de travoes/alternador vem
 # dos numeros explicitos no proprio documento v7 (ver design §4).
 FAIXA_OVERRIDE_POR_PREFIXO = {
-    "Espessura de pintura": dict(unidade_medicao="µm", faixa_min_ok=70, faixa_max_ok=160, limiar_critico_superior=300),
-    "Profundidade do piso": dict(unidade_medicao="mm", limiar_critico_inferior=1.6),
+    # Estes numeros (70/160/300) sao os ja em producao (de uma migracao
+    # anterior), NAO os do item #33 do documento fonte ("Ref: 80-180µm /
+    # >200µm repintura / >400µm rechape"). Intencional -- nao "corrigir"
+    # pra bater com o documento sem uma decisao em separado, ja que isso
+    # mudaria a pontuacao de inspecoes ja ao vivo.
+    "Espessura de pintura": dict(faixa_min_ok=70, faixa_max_ok=160, limiar_critico_superior=300),
+    "Profundidade do piso": dict(limiar_critico_inferior=1.6),
 }
 FAIXA_OVERRIDE_POR_NOME = {
-    "Teste do fluido de travões": dict(unidade_medicao="%", limiar_critico_superior=3),
-    "Alternador – tensão de carga": dict(unidade_medicao="V", faixa_min_ok=13.8, faixa_max_ok=14.4),
-    # Sem faixa numerica no documento (so' "Scanner BEV") -- medicao pura,
-    # mas ainda precisa de unidade_medicao (a coluna e' NOT NULL logicamente
-    # exigida pra medicao ter sentido na UI, mesmo sem faixa/limiar).
-    "Degradação da bateria – capacidade real vs. nominal (%)": dict(unidade_medicao="%"),
+    "Teste do fluido de travões": dict(limiar_critico_superior=3),
+    "Alternador – tensão de carga": dict(faixa_min_ok=13.8, faixa_max_ok=14.4),
+    # Sem faixa numerica no documento (so' "Scanner BEV") -- medicao pura;
+    # nao precisa de entrada aqui, a unidade ja vem de TIPO_MAP.
 }
 
 PTS_RE = re.compile(r"(\d+)\s*pts")
@@ -329,7 +335,7 @@ def build(rows: list[dict]) -> str:
         elif tipo == "medicao":
             qtd = str(qtd_pontos_medicao(r))
             faixa = faixa_para(r["nome"])
-            unidade = sql_str(faixa.get("unidade_medicao"))
+            unidade = sql_str(extra)
             faixa_min = sql_num(faixa.get("faixa_min_ok"))
             faixa_max = sql_num(faixa.get("faixa_max_ok"))
             limiar_inf = sql_num(faixa.get("limiar_critico_inferior"))

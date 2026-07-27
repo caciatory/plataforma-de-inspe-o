@@ -102,26 +102,28 @@ def test_grupo_replicacao_nunca_mistura_dianteiro_traseiro():
 def test_faixas_de_medicao_dos_3_itens_novos_mais_tinta():
     from generate_checklist_seed_v7 import faixa_para
     piso = faixa_para("Profundidade do piso – dianteiro esq.")
-    assert piso == dict(unidade_medicao="mm", limiar_critico_inferior=1.6)
+    assert piso == dict(limiar_critico_inferior=1.6)
     fluido = faixa_para("Teste do fluido de travões")
-    assert fluido == dict(unidade_medicao="%", limiar_critico_superior=3)
+    assert fluido == dict(limiar_critico_superior=3)
     alternador = faixa_para("Alternador – tensão de carga")
-    assert alternador == dict(unidade_medicao="V", faixa_min_ok=13.8, faixa_max_ok=14.4)
+    assert alternador == dict(faixa_min_ok=13.8, faixa_max_ok=14.4)
     tinta = faixa_para("Espessura de pintura – Capô")
-    assert tinta == dict(unidade_medicao="µm", faixa_min_ok=70, faixa_max_ok=160, limiar_critico_superior=300)
+    assert tinta == dict(faixa_min_ok=70, faixa_max_ok=160, limiar_critico_superior=300)
     sem_faixa = faixa_para("Degradação da bateria – capacidade real vs. nominal (%)")
-    assert sem_faixa == dict(unidade_medicao="%"), (
-        "bateria BEV nao tem faixa/limiar no documento (medicao pura), "
-        "mas ainda precisa de unidade_medicao preenchido"
+    assert sem_faixa == {}, (
+        "bateria BEV nao tem faixa/limiar no documento (medicao pura) e nao "
+        "precisa de entrada em FAIXA_OVERRIDE_POR_NOME -- a unidade vem de TIPO_MAP"
     )
 
 
 def test_todo_item_medicao_tem_unidade_medicao():
-    from generate_checklist_seed_v7 import faixa_para
+    # Guarda estrutural: toda entrada 'medicao' em TIPO_MAP tem que ter uma
+    # unidade nao-vazia, senao um item de medicao acaba com unidade_medicao
+    # nulo (a unidade agora vem sempre de TIPO_MAP, nunca de faixa_para()).
     rows = [r for r in parse_markdown(SRC) if r["num"] != ITEM_NOTA_EXCLUIDA]
     sem_unidade = [
         r["nome"] for r in rows
-        if resolve_tipo(r)[0] == "medicao" and not faixa_para(r["nome"]).get("unidade_medicao")
+        if resolve_tipo(r)[0] == "medicao" and not resolve_tipo(r)[1]
     ]
     assert not sem_unidade, f"itens de medicao sem unidade_medicao: {sem_unidade}"
 

@@ -23,7 +23,7 @@ Limpo, rápido, direto. Ferramenta de trabalho, não vitrine — o design deve s
 ## Anti-references
 
 - Nada que pareça um dashboard SaaS genérico de métricas/gráficos — isso não é uma ferramenta de analytics.
-- Nada de UI densa demais tipo planilha corporativa — apesar do volume de itens (320), a navegação precisa ser óbvia, não uma tabela cheia de campos.
+- Densidade é aceitável quando serve à tarefa: a tabela por subcategoria (Peça 3, Fase 2.8) usa uma linha por item porque o técnico opera em tablet e precisa ver/editar vários itens sem trocar de tela — o que continua proibido é densidade decorativa ou sem hierarquia clara.
 - Nada de estética "marketing" (gradientes decorativos, ilustrações grandes, hero sections) — este é um produto interno/utilitário, não uma landing page.
 
 ## Design Principles

@@ -34,6 +34,7 @@ describe("ChecklistGroupPage", () => {
           id: "11111111-1111-1111-1111-111111111111",
           groupId: "99999999-9999-9999-9999-999999999999",
         }),
+        searchParams: Promise.resolve({}),
       })
     ).rejects.toThrow("NOT_FOUND");
     expect(query.eq).toHaveBeenCalledWith("ativo", true);

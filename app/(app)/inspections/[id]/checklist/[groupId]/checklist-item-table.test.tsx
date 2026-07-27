@@ -23,6 +23,12 @@ vi.mock("./[itemId]/batch-apply-panel", () => ({
   ),
 }));
 
+vi.mock("./[itemId]/photo-manager", () => ({
+  PhotoManager: ({ itemTemplateId }: { itemTemplateId: string }) => (
+    <div data-testid="photo-manager">Fotos de {itemTemplateId}</div>
+  ),
+}));
+
 beforeEach(() => {
   saveEscolhaAction.mockReset();
   saveTextoAction.mockReset();
@@ -111,6 +117,63 @@ describe("ChecklistItemTable", () => {
 
     await waitFor(() => expect(saveEscolhaAction).toHaveBeenCalledWith({ status: "idle" }, expect.any(FormData)));
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(/foto/i));
+  });
+
+  it("shows the photo uploader once an option requiring a photo is selected, and lets the técnico retry the save", async () => {
+    saveEscolhaAction.mockResolvedValue({ status: "error", message: "Esta resposta exige pelo menos 1 foto anexada." });
+    render(
+      <ChecklistItemTable
+        inspectionId="insp-1"
+        items={[escolhaItem]}
+        allGroupItems={[]}
+        responses={[]}
+        opcoes={opcoes}
+        photos={[]}
+        medicaoResultados={[]}
+        medicaoValores={[]}
+        pageUrl="/x"
+      />
+    );
+
+    expect(screen.queryByTestId("photo-manager")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("Mau"));
+
+    expect(screen.getByTestId("photo-manager")).toHaveTextContent("item-escolha");
+    await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
+
+    saveEscolhaAction.mockResolvedValue({ status: "idle" });
+    fireEvent.click(screen.getByRole("button", { name: "Tentar novamente" }));
+
+    await waitFor(() => expect(saveEscolhaAction).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(screen.queryByRole("alert")).not.toBeInTheDocument());
+  });
+
+  it("shows the photo uploader on initial render when the already-saved option requires a photo", () => {
+    const response: TableResponse = {
+      id: "resp-mau",
+      item_template_id: "item-escolha",
+      opcao_id: "opt-mau",
+      resposta_texto: null,
+      resposta_data: null,
+      observacao: null,
+      respondido: true,
+    };
+    render(
+      <ChecklistItemTable
+        inspectionId="insp-1"
+        items={[escolhaItem]}
+        allGroupItems={[]}
+        responses={[response]}
+        opcoes={opcoes}
+        photos={[]}
+        medicaoResultados={[]}
+        medicaoValores={[]}
+        pageUrl="/x"
+      />
+    );
+
+    expect(screen.getByTestId("photo-manager")).toHaveTextContent("item-escolha");
   });
 
   it("renders a texto row and saves resposta_texto on blur", async () => {

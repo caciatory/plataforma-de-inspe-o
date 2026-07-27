@@ -12,7 +12,7 @@ import {
   type SiblingSourceItem,
   type SiblingResponseRow,
 } from "@/lib/checklist/siblings";
-import type { Photo } from "./[itemId]/photo-manager";
+import { PhotoManager, type Photo } from "./[itemId]/photo-manager";
 
 export type TableItem = {
   id: string;
@@ -98,6 +98,7 @@ export function ChecklistItemTable({
                     item={item}
                     response={response}
                     opcoes={opcoes.filter((o) => o.conjunto_id === item.conjunto_opcao_id)}
+                    photos={response ? (photosByResponseId.get(response.id) ?? []) : []}
                     nextUrl={pageUrl}
                   />
                 )}
@@ -163,27 +164,35 @@ function EscolhaCell({
   item,
   response,
   opcoes,
+  photos,
   nextUrl,
 }: {
   inspectionId: string;
   item: TableItem;
   response: TableResponse | undefined;
   opcoes: TableOpcao[];
+  photos: Photo[];
   nextUrl: string;
 }) {
   const [opcaoId, setOpcaoId] = useState(response?.opcao_id ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  function handleChange(newOpcaoId: string) {
-    setOpcaoId(newOpcaoId);
+  function save(currentOpcaoId: string) {
     setError(null);
-    const formData = buildEscolhaFormData(inspectionId, item.id, nextUrl, newOpcaoId, response?.observacao ?? "");
+    const formData = buildEscolhaFormData(inspectionId, item.id, nextUrl, currentOpcaoId, response?.observacao ?? "");
     startTransition(async () => {
       const result = await saveEscolhaAction({ status: "idle" }, formData);
       if (result.status === "error") setError(result.message);
     });
   }
+
+  function handleChange(newOpcaoId: string) {
+    setOpcaoId(newOpcaoId);
+    save(newOpcaoId);
+  }
+
+  const requiresPhoto = opcoes.find((o) => o.id === opcaoId)?.exige_foto === true;
 
   return (
     <div className="escolha-options">
@@ -200,10 +209,18 @@ function EscolhaCell({
           {o.label}
         </label>
       ))}
+      {requiresPhoto && (
+        <PhotoManager inspectionId={inspectionId} itemTemplateId={item.id} initialPhotos={photos} />
+      )}
       {error && (
         <p role="alert" className="error-text">
           {error}
         </p>
+      )}
+      {error && (
+        <button type="button" className="btn btn-secondary" disabled={isPending} onClick={() => save(opcaoId)}>
+          Tentar novamente
+        </button>
       )}
     </div>
   );

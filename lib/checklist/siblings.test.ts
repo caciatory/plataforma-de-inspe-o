@@ -127,6 +127,27 @@ describe("resolveEscolhaColorModifier", () => {
     expect(resolveEscolhaColorModifier(opcoes, "3")).toBe("na");
   });
 
+  it("keeps a multi-word N.A. variant neutral even though it's last in ordem (real seed data: nivel_saturacao)", () => {
+    const opcoes: Opcao[] = [
+      { id: "1", label: "Baixa", ordem: 1, exige_foto: false },
+      { id: "2", label: "Média", ordem: 2, exige_foto: false },
+      { id: "3", label: "Alta", ordem: 3, exige_foto: true },
+      { id: "4", label: "N.A. (gasolina)", ordem: 4, exige_foto: false },
+    ];
+    expect(resolveEscolhaColorModifier(opcoes, "4")).toBe("na");
+    expect(resolveEscolhaColorModifier(opcoes, "1")).toBe("otimo");
+    expect(resolveEscolhaColorModifier(opcoes, "3")).toBe("ruim");
+  });
+
+  it("does not false-positive on labels that merely start with the letters 'na' (Não, Não Funciona)", () => {
+    const opcoes: Opcao[] = [
+      { id: "1", label: "Funciona", ordem: 1, exige_foto: false },
+      { id: "2", label: "Não Funciona", ordem: 2, exige_foto: true },
+    ];
+    expect(resolveEscolhaColorModifier(opcoes, "1")).toBe("otimo");
+    expect(resolveEscolhaColorModifier(opcoes, "2")).toBe("ruim");
+  });
+
   it("colors a 2-option conjunto: first=otimo, last=ruim", () => {
     const opcoes: Opcao[] = [
       { id: "1", label: "Bom", ordem: 1, exige_foto: false },

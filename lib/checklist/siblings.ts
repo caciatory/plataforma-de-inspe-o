@@ -70,6 +70,12 @@ export function slugifyOpcaoLabel(label: string): string {
     .replace(/[^a-z0-9]+/g, "");
 }
 
+// Matches "N.A." and multi-word variants like "N.A. (gasolina)", but not
+// unrelated labels that happen to start with the letters "na" (e.g. "Não",
+// "Não Funciona", "Nenhum") — checked against the raw label, since
+// slugifyOpcaoLabel strips the "." and space that make those distinguishable.
+const NA_LABEL_RE = /^n\.?a\.?(?:\s|\(|$)/i;
+
 // Colors an escolha option by its rank within its conjunto (best -> worst),
 // rather than by literal label text, so any label set gets colored (not just
 // ones that happen to slugify to otimo/medio/ruim).
@@ -77,9 +83,9 @@ export function resolveEscolhaColorModifier(opcoes: Opcao[], opcaoId: string): s
   const target = opcoes.find((o) => o.id === opcaoId);
   if (!target) return slugifyOpcaoLabel("");
 
-  if (slugifyOpcaoLabel(target.label) === "na") return "na";
+  if (NA_LABEL_RE.test(target.label)) return "na";
 
-  const ranked = opcoes.filter((o) => slugifyOpcaoLabel(o.label) !== "na").sort((a, b) => a.ordem - b.ordem);
+  const ranked = opcoes.filter((o) => !NA_LABEL_RE.test(o.label)).sort((a, b) => a.ordem - b.ordem);
   const rank = ranked.findIndex((o) => o.id === opcaoId);
   const lastRank = ranked.length - 1;
 

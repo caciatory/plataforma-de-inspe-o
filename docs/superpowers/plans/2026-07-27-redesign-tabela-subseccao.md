@@ -2528,7 +2528,41 @@ git commit -m "feat: rewrite checklist group page to render ChecklistItemTable"
 
 ---
 
-## After all 6 tasks land
+### Task 7: `PRODUCT.md` — update the stale dense-UI anti-reference
+
+**Files:**
+- Modify: `PRODUCT.md`
+
+**Interfaces:** none — doc-only change, no code consumes this.
+
+**Why:** design doc §2 flags this as a real gap and says fixing it is part of this piece ("Atualizar essa frase faz parte desta peça (task de doc, não de código)"): the anti-reference at line 26 still says "Nada de UI densa demais tipo planilha corporativa", but Tasks 1-6 of this same plan ship exactly that — a dense per-row table — because the Fase 2.8 brainstorming already revisited this call (técnico uses density on tablet, explicit decision). Leaving the line as-is would make `PRODUCT.md` contradict the shipped UI.
+
+No test — pure doc change.
+
+- [ ] **Step 1: Replace the stale anti-reference line**
+
+In `PRODUCT.md`, under `## Anti-references`, replace:
+
+```
+- Nada de UI densa demais tipo planilha corporativa — apesar do volume de itens (320), a navegação precisa ser óbvia, não uma tabela cheia de campos.
+```
+
+with:
+
+```
+- Densidade é aceitável quando serve à tarefa: a tabela por subcategoria (Peça 3, Fase 2.8) usa uma linha por item porque o técnico opera em tablet e precisa ver/editar vários itens sem trocar de tela — o que continua proibido é densidade decorativa ou sem hierarquia clara.
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add PRODUCT.md
+git commit -m "docs: update PRODUCT.md anti-reference to match Peça 3's dense table decision"
+```
+
+---
+
+## After all 7 tasks land
 
 Design doc §6 requires a mandatory end-to-end browser check (técnico test account, a real group with a mix of `escolha`/`texto`/`data`/`medicao` items) before this piece is considered done — no task above substitutes for it. Verify at minimum: nested sidebar shows subcategoria counts and links correctly; `escolha` segmented control saves and re-renders with the new state; `texto`/`data` inputs save on blur; the `medicao` badge opens `ItemMedicaoForm` in a dialog and reflects `ok`/`atencao`/`critico` after saving; the família icon appears only for `grupo_replicacao` + respondido items and opens `BatchApplyPanel` with the right siblings; RF-16 (foto obrigatória) still blocks saves inline without breaking other rows. Then follow the project's standard gate (`docs/ROADMAP.md`, final section): `requesting-code-review` → `ponytail-review` → `verify` → `verification-before-completion` → `finishing-a-development-branch`. `security-review` does not apply (no auth/RLS changes).
 

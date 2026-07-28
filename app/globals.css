@@ -788,6 +788,52 @@ textarea.input {
   background: oklch(0 0 0 / 0.4);
 }
 
+/* Form tabs — reorganizes existing single-page forms into labeled sections (Peça 3, recorte 2) */
+
+.form-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-5);
+}
+
+.form-tabs__button {
+  font-family: var(--font-family-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: var(--space-3) var(--space-4);
+  min-height: 44px;
+  cursor: pointer;
+  transition: color 150ms ease-out, border-color 150ms ease-out;
+}
+
+.form-tabs__button:hover {
+  color: var(--color-ink);
+}
+
+.form-tabs__button--active {
+  color: var(--color-green-800);
+  border-bottom-color: var(--color-green-600);
+}
+
+.form-tabs__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* [hidden] and this class both set `display`, same specificity — without
+   this rule, whichever the author stylesheet applies last (this one) would
+   silently cancel the `hidden` attribute's own display:none. */
+.form-tabs__panel[hidden] {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition-duration: 0.01ms !important;

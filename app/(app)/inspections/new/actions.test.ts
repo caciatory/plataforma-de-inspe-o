@@ -30,7 +30,7 @@ beforeEach(() => {
 });
 
 describe("createInspectionAction", () => {
-  it("returns a validation error without calling the RPC when required fields are missing", async () => {
+  it("returns a validation error (with the failing field) without calling the RPC when required fields are missing", async () => {
     const { createInspectionAction } = await import("./actions");
     const formData = new FormData();
     formData.set("tipoCliente", "particular");
@@ -41,9 +41,12 @@ describe("createInspectionAction", () => {
 
     expect(result.status).toBe("error");
     expect(rpc).not.toHaveBeenCalled();
+    if (result.status === "error") {
+      expect(result.field).toBe("nomeSolicitante");
+    }
   });
 
-  it("returns a validation error when quilometragem is missing", async () => {
+  it("returns a validation error (with field=quilometragem) when quilometragem is missing", async () => {
     const { createInspectionAction } = await import("./actions");
     const formData = new FormData();
     formData.set("tipoCliente", "particular");
@@ -58,6 +61,9 @@ describe("createInspectionAction", () => {
 
     expect(result.status).toBe("error");
     expect(rpc).not.toHaveBeenCalled();
+    if (result.status === "error") {
+      expect(result.field).toBe("quilometragem");
+    }
   });
 
   it("calls create_inspection with mapped params and redirects on success", async () => {

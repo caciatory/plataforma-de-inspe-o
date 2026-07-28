@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { inspectionFormSchema } from "@/lib/inspection/schema";
 import type { StandContact } from "./stand-autocomplete";
 
-export type CreateInspectionState = { status: "idle" } | { status: "error"; message: string };
+export type CreateInspectionState = { status: "idle" } | { status: "error"; message: string; field?: string };
 
 export async function createInspectionAction(
   _prevState: CreateInspectionState,
@@ -15,7 +15,12 @@ export async function createInspectionAction(
   const parsed = inspectionFormSchema.safeParse(raw);
 
   if (!parsed.success) {
-    return { status: "error", message: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+    const firstIssue = parsed.error.issues[0];
+    return {
+      status: "error",
+      message: firstIssue?.message ?? "Dados inválidos.",
+      field: firstIssue?.path[0] !== undefined ? String(firstIssue.path[0]) : undefined,
+    };
   }
 
   const v = parsed.data;

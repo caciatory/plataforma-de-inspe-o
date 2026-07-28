@@ -22,7 +22,7 @@ As screenshots de referência (as mesmas 6 usadas no recorte 1) mostram, além d
 
 ## 3. Mapeamento de campos existentes → abas
 
-Os 21 campos atuais (schema em `lib/inspection/schema.ts`, formulário em `new-inspection-form.tsx`) se dividem assim:
+Os 22 campos atuais (schema em `lib/inspection/schema.ts`, formulário em `new-inspection-form.tsx`) se dividem assim:
 
 | Aba | Campos |
 |---|---|

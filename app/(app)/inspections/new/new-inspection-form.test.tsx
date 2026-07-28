@@ -1,9 +1,14 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { NewInspectionForm } from "./new-inspection-form";
+import type { CreateInspectionState } from "./actions";
 
+const createInspectionAction = vi.fn<
+  (prevState: CreateInspectionState, formData: FormData) => Promise<CreateInspectionState>
+>(async () => ({ status: "idle" }));
 vi.mock("./actions", () => ({
-  createInspectionAction: vi.fn(async (_prevState: unknown) => ({ status: "idle" })),
+  createInspectionAction: (...args: Parameters<typeof createInspectionAction>) => createInspectionAction(...args),
+  searchStandContactsAction: vi.fn(async () => []),
 }));
 
 describe("NewInspectionForm", () => {
@@ -33,9 +38,7 @@ describe("NewInspectionForm", () => {
   });
 
   it("submits objetivo=venda via a hidden input when the select is disabled for stand (regression)", async () => {
-    const { createInspectionAction } = await import("./actions");
-    const mockAction = createInspectionAction as unknown as ReturnType<typeof vi.fn>;
-    mockAction.mockClear();
+    createInspectionAction.mockClear();
 
     const { container } = render(<NewInspectionForm />);
     const tipoCliente = screen.getByLabelText("Tipo de cliente") as HTMLSelectElement;
@@ -47,9 +50,68 @@ describe("NewInspectionForm", () => {
     const form = container.querySelector("form") as HTMLFormElement;
     fireEvent.submit(form);
 
-    await vi.waitFor(() => expect(mockAction).toHaveBeenCalled());
+    await waitFor(() => expect(createInspectionAction).toHaveBeenCalled());
 
-    const formData = mockAction.mock.calls[0][1] as FormData;
+    const formData = createInspectionAction.mock.calls[0][1] as FormData;
     expect(formData.get("objetivo")).toBe("venda");
+  });
+
+  it("shows only the active tab's fields, keeping the others mounted", () => {
+    render(<NewInspectionForm />);
+
+    expect(screen.getByLabelText("Nome do solicitante")).toBeVisible();
+    expect(screen.queryByLabelText("Matrícula")).not.toBeVisible();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Identificação" }));
+
+    expect(screen.getByLabelText("Matrícula")).toBeVisible();
+    expect(screen.queryByLabelText("Nome do solicitante")).not.toBeVisible();
+  });
+
+  it("keeps a previously typed value on a hidden tab after switching away and back", () => {
+    render(<NewInspectionForm />);
+
+    fireEvent.click(screen.getByRole("tab", { name: "Identificação" }));
+    fireEvent.change(screen.getByLabelText("Matrícula"), { target: { value: "AA-00-BB" } });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Cliente" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Identificação" }));
+
+    expect((screen.getByLabelText("Matrícula") as HTMLInputElement).value).toBe("AA-00-BB");
+  });
+
+  it("keeps a typed value after the server returns a validation error (regression: React resets uncontrolled fields after a Server Action)", async () => {
+    createInspectionAction.mockResolvedValueOnce({
+      status: "error",
+      message: "Matrícula é obrigatória",
+      field: "matricula",
+    });
+
+    const { container } = render(<NewInspectionForm />);
+    fireEvent.click(screen.getByRole("tab", { name: "Identificação" }));
+    fireEvent.change(screen.getByLabelText("Marca"), { target: { value: "Toyota" } });
+
+    const form = container.querySelector("form") as HTMLFormElement;
+    fireEvent.submit(form);
+
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Matrícula é obrigatória"));
+
+    expect((screen.getByLabelText("Marca") as HTMLInputElement).value).toBe("Toyota");
+  });
+
+  it("switches to the tab containing the field the server reported as invalid", async () => {
+    createInspectionAction.mockResolvedValueOnce({
+      status: "error",
+      message: "Informe o combustível",
+      field: "combustivel",
+    });
+
+    const { container } = render(<NewInspectionForm />);
+    // active tab starts as "cliente"; the erroring field lives in "especificacoes"
+    const form = container.querySelector("form") as HTMLFormElement;
+    fireEvent.submit(form);
+
+    await waitFor(() => expect(screen.getByLabelText("Combustível")).toBeVisible());
+    expect(screen.queryByLabelText("Nome do solicitante")).not.toBeVisible();
   });
 });

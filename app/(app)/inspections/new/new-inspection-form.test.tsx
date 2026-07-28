@@ -99,6 +99,31 @@ describe("NewInspectionForm", () => {
     expect((screen.getByLabelText("Marca") as HTMLInputElement).value).toBe("Toyota");
   });
 
+  it("does not advance from the Cliente tab when nomeSolicitante is empty, advances once filled", () => {
+    render(<NewInspectionForm />);
+
+    const nextButton = screen.getByRole("button", { name: "Próximo" });
+    fireEvent.click(nextButton);
+
+    expect(screen.getByLabelText("Nome do solicitante")).toBeVisible();
+    expect(screen.queryByLabelText("Matrícula")).not.toBeVisible();
+
+    fireEvent.change(screen.getByLabelText("Nome do solicitante"), { target: { value: "Cliente Teste" } });
+    fireEvent.click(nextButton);
+
+    expect(screen.getByLabelText("Matrícula")).toBeVisible();
+  });
+
+  it("shows a submit button labeled Guardar only on the last tab (Equipamentos)", () => {
+    render(<NewInspectionForm />);
+
+    fireEvent.change(screen.getByLabelText("Nome do solicitante"), { target: { value: "Cliente Teste" } });
+    fireEvent.click(screen.getByRole("tab", { name: "Equipamentos" }));
+
+    const saveButton = screen.getByRole("button", { name: "Guardar" });
+    expect(saveButton).toHaveAttribute("type", "submit");
+  });
+
   it("switches to the tab containing the field the server reported as invalid", async () => {
     createInspectionAction.mockResolvedValueOnce({
       status: "error",

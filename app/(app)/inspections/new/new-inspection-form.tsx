@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import {
   resolveObjetivo,
   tipoClienteValues,
@@ -47,6 +47,7 @@ export function NewInspectionForm() {
   const [potenciaCv, setPotenciaCv] = useState("");
   const [torqueNm, setTorqueNm] = useState("");
   const [state, formAction] = useActionState(createInspectionAction, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (state.status !== "error") return;
@@ -65,8 +66,24 @@ export function NewInspectionForm() {
     setEmail(contact.email ?? "");
   }
 
+  function handleNext() {
+    // Scoped to the active panel rather than formRef.current.reportValidity() on the
+    // whole form: required fields on other (hidden) tabs shouldn't block navigation.
+    // Real browsers already exclude `hidden` elements from constraint validation, but
+    // scoping explicitly here keeps behavior identical under jsdom (which doesn't).
+    const activePanel = formRef.current?.querySelector('[role="tabpanel"]:not([hidden])');
+    const invalidField = activePanel?.querySelector<HTMLInputElement | HTMLSelectElement>(":invalid");
+    if (invalidField) {
+      invalidField.reportValidity();
+      return;
+    }
+    const currentIndex = TAB_IDS.indexOf(activeTab);
+    const nextTab = TAB_IDS[currentIndex + 1];
+    if (nextTab) setActiveTab(nextTab);
+  }
+
   return (
-    <form action={formAction} className="stack">
+    <form ref={formRef} action={formAction} className="stack">
       <div className="form-tabs" role="tablist">
         {TAB_IDS.map((tab) => (
           <button
@@ -420,9 +437,15 @@ export function NewInspectionForm() {
           {state.message}
         </p>
       )}
-      <button type="submit" className="btn btn-primary">
-        Guardar
-      </button>
+      {activeTab === TAB_IDS[TAB_IDS.length - 1] ? (
+        <button type="submit" className="btn btn-primary">
+          Guardar
+        </button>
+      ) : (
+        <button type="button" className="btn btn-primary" onClick={handleNext}>
+          Próximo
+        </button>
+      )}
     </form>
   );
 }

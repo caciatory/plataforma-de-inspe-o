@@ -53,11 +53,21 @@ function buildPhotoPath(inspectionId: string, equipamentoId: string, filename: s
   return `${inspectionId}/${equipamentoId}/${Date.now()}-${safeName}`;
 }
 
+// Fix 4 (final-review): only an entry with a DB-valid condição and a non-blank
+// nome may reach create_inspection — an invalid row here would abort the
+// whole transaction on the `condicao in ('bom','atencao')` check constraint,
+// with no indication of which of up to 41 items was at fault. Only reachable
+// if native HTML validation is bypassed; dropping matches "unanswered item
+// isn't persisted", same as if the técnico never touched it.
+function isEquipamentoValido(e: EquipamentoParsed): boolean {
+  return (e.condicao === "bom" || e.condicao === "atencao") && e.nome_equipamento.trim() !== "";
+}
+
 export async function createInspectionAction(
   _prevState: CreateInspectionState,
   formData: FormData
 ): Promise<CreateInspectionState> {
-  const equipamentos = parseEquipamentos(formData);
+  const equipamentos = parseEquipamentos(formData).filter(isEquipamentoValido);
   const raw = Object.fromEntries(formData.entries());
   const parsed = inspectionFormSchema.safeParse(raw);
 
@@ -103,6 +113,9 @@ export async function createInspectionAction(
     p_inspecoes_periodicas_ipo_data: v.inspecoesPeriodicasIpoData || null,
     p_situacao_fiscal_regular: v.situacaoFiscalRegular,
     p_situacao_fiscal_observacoes: v.situacaoFiscalObservacoes || null,
+    // `equipamentos` was already filtered to isEquipamentoValido() above, so
+    // ordem here stays index-aligned with the equipamento_inspecao rows the
+    // RPC creates — uploadPendingEquipamentoFotos below relies on that.
     p_equipamentos: equipamentos.map((e, ordem) => ({
       ordem,
       categoria: e.categoria,
@@ -150,7 +163,7 @@ async function uploadPendingEquipamentoFotos(
     const equipamentoId = equipRows?.find((r) => r.ordem === ordem)?.id;
     if (!equipamentoId) continue;
 
-    for (const foto of [equip.foto1, equip.foto2]) {
+    for (const [fotoOrdem, foto] of [equip.foto1, equip.foto2].entries()) {
       if (!foto) continue;
       // Falha de upload/insert não bloqueia a criação da inspeção (já existe e é o dado
       // principal) — nem um erro retornado (uploadError/insertError) nem uma exceção real
@@ -163,9 +176,12 @@ async function uploadPendingEquipamentoFotos(
           continue;
         }
         const { data: publicUrl } = supabase.storage.from("fotos-inspecao").getPublicUrl(path);
-        const { error: insertError } = await supabase
-          .from("equipamento_fotos")
-          .insert({ inspection_id: inspectionId, equipamento_inspecao_id: equipamentoId, url: publicUrl.publicUrl });
+        const { error: insertError } = await supabase.from("equipamento_fotos").insert({
+          inspection_id: inspectionId,
+          equipamento_inspecao_id: equipamentoId,
+          url: publicUrl.publicUrl,
+          ordem: fotoOrdem,
+        });
         if (insertError) {
           console.error("insert de equipamento_fotos falhou", insertError);
         }

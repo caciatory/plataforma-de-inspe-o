@@ -26,7 +26,15 @@ const TAB_LABELS: Record<TabId, string> = {
   equipamentos: "Equipamentos",
 };
 
-export function NewInspectionForm() {
+export function NewInspectionForm({
+  sugestoesPorCategoria = {},
+}: {
+  // Fix 2 (final-review): custom "Outros Equipamentos" items entered by any
+  // técnico become suggestions for everyone (§4.2/§5 of the design spec) —
+  // seeded here as the initial value of personalizadosPorCategoria, reusing
+  // the exact rendering path itensPersonalizados already has.
+  sugestoesPorCategoria?: Record<string, string[]>;
+} = {}) {
   const [activeTab, setActiveTab] = useState<TabId>("cliente");
   const [tipoCliente, setTipoCliente] = useState<TipoCliente>("particular");
   const [objetivo, setObjetivo] = useState<Objetivo>("compra");
@@ -58,7 +66,8 @@ export function NewInspectionForm() {
   const [inspecoesPeriodicasIpoData, setInspecoesPeriodicasIpoData] = useState("");
   const [situacaoFiscalRegular, setSituacaoFiscalRegular] = useState(false);
   const [situacaoFiscalObservacoes, setSituacaoFiscalObservacoes] = useState("");
-  const [personalizadosPorCategoria, setPersonalizadosPorCategoria] = useState<Record<string, string[]>>({});
+  const [personalizadosPorCategoria, setPersonalizadosPorCategoria] =
+    useState<Record<string, string[]>>(sugestoesPorCategoria);
   const [categoriaAbrindoDialog, setCategoriaAbrindoDialog] = useState<{ id: string; label: string } | null>(null);
   const [state, formAction] = useActionState(createInspectionAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
@@ -548,7 +557,17 @@ export function NewInspectionForm() {
         ))}
       </div>
 
-      <dialog ref={personalizadoDialogRef} className="dialog-panel">
+      <dialog
+        ref={personalizadoDialogRef}
+        className="dialog-panel"
+        // Fix 5 (final-review): Escape/backdrop dismissal doesn't go through
+        // onCancel/onConfirm, so without this categoriaAbrindoDialog never
+        // resets on those paths, leaving stale dialog state for next open.
+        // The manual resets below stay too — jsdom's <dialog> polyfill (see
+        // vitest.setup.ts) doesn't dispatch a close event, so this handler
+        // alone isn't exercised by the existing reset-between-openings test.
+        onClose={() => setCategoriaAbrindoDialog(null)}
+      >
         {categoriaAbrindoDialog && (
           <EquipamentoPersonalizadoDialog
             categoriaLabel={categoriaAbrindoDialog.label}
@@ -556,7 +575,7 @@ export function NewInspectionForm() {
               personalizadoDialogRef.current?.close();
               setCategoriaAbrindoDialog(null);
             }}
-            onConfirm={(nome, _condicao) => {
+            onConfirm={(nome) => {
               setPersonalizadosPorCategoria((prev) => ({
                 ...prev,
                 [categoriaAbrindoDialog.id]: [...(prev[categoriaAbrindoDialog.id] ?? []), nome],

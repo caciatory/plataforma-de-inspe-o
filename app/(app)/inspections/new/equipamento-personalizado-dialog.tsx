@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef } from "react";
 
 export function EquipamentoPersonalizadoDialog({
   categoriaLabel,
@@ -8,15 +8,17 @@ export function EquipamentoPersonalizadoDialog({
   onCancel,
 }: {
   categoriaLabel: string;
-  onConfirm: (nome: string, condicao: "bom" | "atencao") => void;
+  onConfirm: (nome: string) => void;
   onCancel: () => void;
 }) {
-  const [nome, setNome] = useState("");
-  const [condicao, setCondicao] = useState<"" | "bom" | "atencao">("");
+  const nomeRef = useRef<HTMLInputElement>(null);
 
   function handleConfirm() {
-    if (!nome.trim() || condicao === "") return;
-    onConfirm(nome.trim(), condicao);
+    const input = nomeRef.current;
+    // Fix 3 (final-review): native "preencha este campo" feedback instead of
+    // silently doing nothing when nome is blank.
+    if (!input || !input.reportValidity()) return;
+    onConfirm(input.value.trim());
   }
 
   return (
@@ -26,22 +28,7 @@ export function EquipamentoPersonalizadoDialog({
         <label htmlFor="personalizadoNome" className="label">
           Nome do equipamento
         </label>
-        <input
-          id="personalizadoNome"
-          className="input"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-        />
-      </div>
-      <div className="equip-item__condicao">
-        <label>
-          <input type="radio" name="personalizadoCondicao" checked={condicao === "bom"} onChange={() => setCondicao("bom")} aria-label="✓ Bom" />
-          ✓ Bom
-        </label>
-        <label>
-          <input type="radio" name="personalizadoCondicao" checked={condicao === "atencao"} onChange={() => setCondicao("atencao")} aria-label="⚠️ Atenção" />
-          ⚠️ Atenção
-        </label>
+        <input id="personalizadoNome" className="input" ref={nomeRef} required />
       </div>
       <div className="stack-row">
         <button type="button" className="btn btn-secondary" onClick={onCancel}>

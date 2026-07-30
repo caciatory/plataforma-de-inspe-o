@@ -190,8 +190,96 @@ describe("createInspectionAction", () => {
     );
     expect(storageUpload).toHaveBeenCalledTimes(1);
     expect(equipamentoFotosInsert).toHaveBeenCalledWith(
-      expect.objectContaining({ equipamento_inspecao_id: "equip-id-0", inspection_id: "11111111-1111-1111-1111-111111111111" })
+      expect.objectContaining({
+        equipamento_inspecao_id: "equip-id-0",
+        inspection_id: "11111111-1111-1111-1111-111111111111",
+        // Fix 6 (final-review): ordem within the item's [foto1, foto2] pair.
+        ordem: 0,
+      })
     );
+  });
+
+  it("Fix 6: writes ordem=1 for foto2 when both photos are present", async () => {
+    rpc.mockResolvedValue({ data: "55555555-5555-5555-5555-555555555555", error: null });
+    const { createInspectionAction } = await import("./actions");
+
+    const formData = new FormData();
+    formData.set("tipoCliente", "particular");
+    formData.set("objetivo", "compra");
+    formData.set("nomeSolicitante", "Cliente Teste");
+    formData.set("matricula", "AA-00-BB");
+    formData.set("marca", "Toyota");
+    formData.set("modelo", "Corolla");
+    formData.set("quilometragem", "45000");
+    formData.set("equip__seguranca--0__selecionado", "on");
+    formData.set("equip__seguranca--0__categoria", "seguranca");
+    formData.set("equip__seguranca--0__nome", "Sistema ABS/ESP");
+    formData.set("equip__seguranca--0__personalizado", "0");
+    formData.set("equip__seguranca--0__condicao", "atencao");
+    formData.set("equip__seguranca--0__foto1", new File(["x"], "foto1.jpg", { type: "image/jpeg" }));
+    formData.set("equip__seguranca--0__foto2", new File(["y"], "foto2.jpg", { type: "image/jpeg" }));
+
+    await expect(createInspectionAction({ status: "idle" }, formData)).rejects.toThrow(
+      "REDIRECT:/inspections/55555555-5555-5555-5555-555555555555"
+    );
+
+    expect(equipamentoFotosInsert).toHaveBeenCalledTimes(2);
+    expect(equipamentoFotosInsert).toHaveBeenNthCalledWith(1, expect.objectContaining({ ordem: 0 }));
+    expect(equipamentoFotosInsert).toHaveBeenNthCalledWith(2, expect.objectContaining({ ordem: 1 }));
+  });
+
+  it("Fix 1: does not choke on a multi-MB photo (regression for the 1MB Server Action body limit)", async () => {
+    rpc.mockResolvedValue({ data: "66666666-6666-6666-6666-666666666666", error: null });
+    const { createInspectionAction } = await import("./actions");
+
+    const bigBytes = new Uint8Array(3 * 1024 * 1024); // ~3MB, well past Next's 1MB default
+    const formData = new FormData();
+    formData.set("tipoCliente", "particular");
+    formData.set("objetivo", "compra");
+    formData.set("nomeSolicitante", "Cliente Teste");
+    formData.set("matricula", "AA-00-BB");
+    formData.set("marca", "Toyota");
+    formData.set("modelo", "Corolla");
+    formData.set("quilometragem", "45000");
+    formData.set("equip__seguranca--0__selecionado", "on");
+    formData.set("equip__seguranca--0__categoria", "seguranca");
+    formData.set("equip__seguranca--0__nome", "Sistema ABS/ESP");
+    formData.set("equip__seguranca--0__personalizado", "0");
+    formData.set("equip__seguranca--0__condicao", "atencao");
+    formData.set("equip__seguranca--0__foto1", new File([bigBytes], "foto-grande.png", { type: "image/png" }));
+
+    await expect(createInspectionAction({ status: "idle" }, formData)).rejects.toThrow(
+      "REDIRECT:/inspections/66666666-6666-6666-6666-666666666666"
+    );
+
+    expect(storageUpload).toHaveBeenCalledTimes(1);
+    const uploadedFile = (storageUpload.mock.calls[0] as unknown as [string, File])[1];
+    expect(uploadedFile.size).toBe(bigBytes.length);
+  });
+
+  it("Fix 4: drops an equip__ row with an invalid condição before calling the RPC (guard bypassed)", async () => {
+    rpc.mockResolvedValue({ data: "77777777-7777-7777-7777-777777777777", error: null });
+    const { createInspectionAction } = await import("./actions");
+
+    const formData = new FormData();
+    formData.set("tipoCliente", "particular");
+    formData.set("objetivo", "compra");
+    formData.set("nomeSolicitante", "Cliente Teste");
+    formData.set("matricula", "AA-00-BB");
+    formData.set("marca", "Toyota");
+    formData.set("modelo", "Corolla");
+    formData.set("quilometragem", "45000");
+    // selecionado, mas sem condição válida (ex.: validação nativa contornada)
+    formData.set("equip__seguranca--0__selecionado", "on");
+    formData.set("equip__seguranca--0__categoria", "seguranca");
+    formData.set("equip__seguranca--0__nome", "Sistema ABS/ESP");
+    formData.set("equip__seguranca--0__personalizado", "0");
+
+    await expect(createInspectionAction({ status: "idle" }, formData)).rejects.toThrow(
+      "REDIRECT:/inspections/77777777-7777-7777-7777-777777777777"
+    );
+
+    expect(rpc).toHaveBeenCalledWith("create_inspection", expect.objectContaining({ p_equipamentos: [] }));
   });
 
   it("ignores equip__ rows whose selecionado checkbox is unchecked", async () => {

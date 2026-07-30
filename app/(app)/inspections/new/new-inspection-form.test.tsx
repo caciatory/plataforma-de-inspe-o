@@ -210,13 +210,17 @@ describe("NewInspectionForm", () => {
     fireEvent.click(addButtons[0]); // abre o dialog da 1ª categoria (Áudio e Multimédia)
 
     fireEvent.change(dialogScope.getByLabelText("Nome do equipamento"), { target: { value: "Bagageira de teto" } });
-    fireEvent.click(dialogScope.getByLabelText("⚠️ Atenção"));
     fireEvent.click(dialogScope.getByRole("button", { name: "Cancelar" }));
 
     fireEvent.click(addButtons[0]); // reabre a mesma categoria
 
     expect((dialogScope.getByLabelText("Nome do equipamento") as HTMLInputElement).value).toBe("");
-    expect((dialogScope.getByLabelText("⚠️ Atenção") as HTMLInputElement).checked).toBe(false);
-    expect((dialogScope.getByLabelText("✓ Bom") as HTMLInputElement).checked).toBe(false);
+  });
+
+  it("seeds Outros Equipamentos-style suggestions from sugestoesPorCategoria as selectable items (Fix 2)", () => {
+    render(<NewInspectionForm sugestoesPorCategoria={{ seguranca: ["Bagageira de teto"] }} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Equipamentos" }));
+
+    expect(screen.getByLabelText("Bagageira de teto")).toBeInTheDocument();
   });
 });

@@ -1,7 +1,7 @@
 // app/(app)/inspections/[id]/checklist/[groupId]/[itemId]/item-medicao-form.tsx
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { saveMeasurementAction, type SaveMeasurementState } from "./actions";
 import { PhotoManager, type Photo } from "./photo-manager";
 
@@ -10,31 +10,34 @@ const initialState: SaveMeasurementState = { status: "idle" };
 export function ItemMedicaoForm({
   inspectionId,
   itemTemplateId,
-  nextUrl,
   qtdPontos,
   unidadeMedicao,
   initialValores,
   initialObservacao,
   initialPhotos,
+  onSuccess,
 }: {
   inspectionId: string;
   itemTemplateId: string;
-  nextUrl: string;
   qtdPontos: number;
   unidadeMedicao: string | null;
   initialValores: number[];
   initialObservacao: string | null;
   initialPhotos: Photo[];
+  onSuccess?: () => void;
 }) {
   const [state, formAction] = useActionState(saveMeasurementAction, initialState);
   const pontos = Array.from({ length: qtdPontos }, (_, i) => i);
   const legend = unidadeMedicao ? `Medição (${unidadeMedicao})` : "Medição";
 
+  useEffect(() => {
+    if (state.status === "success") onSuccess?.();
+  }, [state, onSuccess]);
+
   return (
     <form action={formAction} className="stack">
       <input type="hidden" name="inspectionId" value={inspectionId} />
       <input type="hidden" name="itemTemplateId" value={itemTemplateId} />
-      <input type="hidden" name="nextUrl" value={nextUrl} />
 
       <fieldset className="panel form-fieldset">
         <legend className="form-fieldset__legend">{legend}</legend>

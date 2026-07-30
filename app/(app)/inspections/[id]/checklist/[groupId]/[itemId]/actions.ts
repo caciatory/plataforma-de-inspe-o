@@ -1,10 +1,9 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export type SaveEscolhaState = { status: "idle" } | { status: "error"; message: string };
-export type SaveMeasurementState = { status: "idle" } | { status: "error"; message: string };
+export type SaveMeasurementState = { status: "idle" } | { status: "error"; message: string } | { status: "success" };
 
 function friendlyDbError(error: { code?: string; message?: string }, exigeFotoMessage: string): string {
   if (error.code === "23514") return exigeFotoMessage;
@@ -17,7 +16,6 @@ export async function saveEscolhaAction(
 ): Promise<SaveEscolhaState> {
   const inspectionId = formData.get("inspectionId") as string;
   const itemTemplateId = formData.get("itemTemplateId") as string;
-  const nextUrl = formData.get("nextUrl") as string;
   const opcaoId = formData.get("opcao_id") as string;
   const observacao = (formData.get("observacao") as string) || null;
 
@@ -61,7 +59,7 @@ export async function saveEscolhaAction(
     };
   }
 
-  redirect(nextUrl);
+  return { status: "idle" };
 }
 
 export async function attachPhotoAction(
@@ -117,7 +115,6 @@ export async function saveMeasurementAction(
 ): Promise<SaveMeasurementState> {
   const inspectionId = formData.get("inspectionId") as string;
   const itemTemplateId = formData.get("itemTemplateId") as string;
-  const nextUrl = formData.get("nextUrl") as string;
   const valores = formData.getAll("valor").map(Number);
   const observacao = (formData.get("observacao") as string) || null;
 
@@ -141,7 +138,7 @@ export async function saveMeasurementAction(
     };
   }
 
-  redirect(nextUrl);
+  return { status: "success" };
 }
 
 export type BatchItem = { itemTemplateId: string; opcaoId: string; observacao: string | null };
@@ -207,7 +204,6 @@ export async function saveTextoAction(
 ): Promise<SaveTextoState> {
   const inspectionId = formData.get("inspectionId") as string;
   const itemTemplateId = formData.get("itemTemplateId") as string;
-  const nextUrl = formData.get("nextUrl") as string;
   const respostaTexto = ((formData.get("resposta_texto") as string) || "").trim();
   const observacao = (formData.get("observacao") as string) || null;
 
@@ -239,7 +235,7 @@ export async function saveTextoAction(
     };
   }
 
-  redirect(nextUrl);
+  return { status: "idle" };
 }
 
 export type SaveDataState = { status: "idle" } | { status: "error"; message: string };
@@ -250,7 +246,6 @@ export async function saveDataAction(
 ): Promise<SaveDataState> {
   const inspectionId = formData.get("inspectionId") as string;
   const itemTemplateId = formData.get("itemTemplateId") as string;
-  const nextUrl = formData.get("nextUrl") as string;
   const respostaData = (formData.get("resposta_data") as string) || "";
   const observacao = (formData.get("observacao") as string) || null;
 
@@ -277,5 +272,5 @@ export async function saveDataAction(
     };
   }
 
-  redirect(nextUrl);
+  return { status: "idle" };
 }

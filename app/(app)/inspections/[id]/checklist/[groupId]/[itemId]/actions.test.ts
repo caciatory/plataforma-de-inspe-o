@@ -34,11 +34,6 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({ from, rpc }),
 }));
 
-const redirect = vi.fn((path: string) => {
-  throw new Error(`REDIRECT:${path}`);
-});
-vi.mock("next/navigation", () => ({ redirect }));
-
 beforeEach(() => {
   from.mockClear();
   upsert.mockClear();
@@ -58,7 +53,6 @@ beforeEach(() => {
   opcoesQuery.maybeSingle.mockReset();
   opcoesQuery.in.mockReset();
   rpc.mockReset();
-  redirect.mockClear();
 });
 
 describe("saveEscolhaAction", () => {
@@ -67,7 +61,6 @@ describe("saveEscolhaAction", () => {
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
-    formData.set("nextUrl", "/inspections/insp-1/checklist/group-1/item-2");
 
     const result = await saveEscolhaAction({ status: "idle" }, formData);
 
@@ -82,7 +75,6 @@ describe("saveEscolhaAction", () => {
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
-    formData.set("nextUrl", "/x");
     formData.set("opcao_id", "opt-de-outro-conjunto");
 
     const result = await saveEscolhaAction({ status: "idle" }, formData);
@@ -91,7 +83,7 @@ describe("saveEscolhaAction", () => {
     expect(upsert).not.toHaveBeenCalled();
   });
 
-  it("upserts the response and redirects to nextUrl on success", async () => {
+  it("upserts the response and returns idle on success", async () => {
     templateQuery.single.mockResolvedValue({ data: { conjunto_opcao_id: "conj-1" }, error: null });
     opcoesQuery.maybeSingle.mockResolvedValue({ data: { id: "opt-medio" }, error: null });
     upsertQuery.single.mockResolvedValue({ data: { id: "resp-1" }, error: null });
@@ -99,14 +91,12 @@ describe("saveEscolhaAction", () => {
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
-    formData.set("nextUrl", "/inspections/insp-1/checklist/group-1/item-2");
     formData.set("opcao_id", "opt-medio");
     formData.set("observacao", "Desgaste leve");
 
-    await expect(saveEscolhaAction({ status: "idle" }, formData)).rejects.toThrow(
-      "REDIRECT:/inspections/insp-1/checklist/group-1/item-2"
-    );
+    const result = await saveEscolhaAction({ status: "idle" }, formData);
 
+    expect(result).toEqual({ status: "idle" });
     expect(upsert).toHaveBeenCalledWith(
       { inspection_id: "insp-1", item_template_id: "item-1", opcao_id: "opt-medio", observacao: "Desgaste leve" },
       { onConflict: "inspection_id,item_template_id" }
@@ -121,7 +111,6 @@ describe("saveEscolhaAction", () => {
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
-    formData.set("nextUrl", "/x");
     formData.set("opcao_id", "opt-ruim");
 
     const result = await saveEscolhaAction({ status: "idle" }, formData);
@@ -188,7 +177,6 @@ describe("saveMeasurementAction", () => {
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
-    formData.set("nextUrl", "/x");
     formData.append("valor", "100");
     formData.append("valor", "abc");
 
@@ -198,22 +186,20 @@ describe("saveMeasurementAction", () => {
     expect(rpc).not.toHaveBeenCalled();
   });
 
-  it("calls the RPC with numeric values and redirects on success", async () => {
+  it("calls the RPC with numeric values and returns success", async () => {
     rpc.mockResolvedValue({ data: [{ item_response_id: "resp-1", resultado: "ok" }], error: null });
     const { saveMeasurementAction } = await import("./actions");
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
-    formData.set("nextUrl", "/inspections/insp-1/checklist/group-1/item-2");
     formData.append("valor", "100");
     formData.append("valor", "110");
     formData.append("valor", "120");
     formData.set("observacao", "Desgaste leve");
 
-    await expect(saveMeasurementAction({ status: "idle" }, formData)).rejects.toThrow(
-      "REDIRECT:/inspections/insp-1/checklist/group-1/item-2"
-    );
+    const result = await saveMeasurementAction({ status: "idle" }, formData);
 
+    expect(result).toEqual({ status: "success" });
     expect(rpc).toHaveBeenCalledWith("save_medicao", {
       p_inspection_id: "insp-1",
       p_item_template_id: "item-1",
@@ -228,7 +214,6 @@ describe("saveMeasurementAction", () => {
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
-    formData.set("nextUrl", "/x");
     formData.append("valor", "300");
     formData.append("valor", "300");
     formData.append("valor", "300");
@@ -334,7 +319,6 @@ describe("saveTextoAction", () => {
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
-    formData.set("nextUrl", "/x");
 
     const result = await saveTextoAction({ status: "idle" }, formData);
 
@@ -342,20 +326,18 @@ describe("saveTextoAction", () => {
     expect(upsert).not.toHaveBeenCalled();
   });
 
-  it("upserts resposta_texto and redirects to nextUrl on success", async () => {
+  it("upserts resposta_texto and returns idle on success", async () => {
     upsertQuery.single.mockResolvedValue({ data: { id: "resp-1" }, error: null });
     const { saveTextoAction } = await import("./actions");
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
-    formData.set("nextUrl", "/inspections/insp-1/checklist/group-1?sub=motor");
     formData.set("resposta_texto", "Chassi OK, sem avarias visíveis");
     formData.set("observacao", "Verificado às 10h");
 
-    await expect(saveTextoAction({ status: "idle" }, formData)).rejects.toThrow(
-      "REDIRECT:/inspections/insp-1/checklist/group-1?sub=motor"
-    );
+    const result = await saveTextoAction({ status: "idle" }, formData);
 
+    expect(result).toEqual({ status: "idle" });
     expect(upsert).toHaveBeenCalledWith(
       {
         inspection_id: "insp-1",
@@ -373,7 +355,6 @@ describe("saveTextoAction", () => {
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
-    formData.set("nextUrl", "/x");
     formData.set("resposta_texto", "Texto qualquer");
 
     const result = await saveTextoAction({ status: "idle" }, formData);
@@ -391,7 +372,6 @@ describe("saveDataAction", () => {
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
-    formData.set("nextUrl", "/x");
 
     const result = await saveDataAction({ status: "idle" }, formData);
 
@@ -404,7 +384,6 @@ describe("saveDataAction", () => {
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
-    formData.set("nextUrl", "/x");
     formData.set("resposta_data", "21/07/2026");
 
     const result = await saveDataAction({ status: "idle" }, formData);
@@ -413,20 +392,18 @@ describe("saveDataAction", () => {
     expect(upsert).not.toHaveBeenCalled();
   });
 
-  it("upserts resposta_data and redirects to nextUrl on success", async () => {
+  it("upserts resposta_data and returns idle on success", async () => {
     upsertQuery.single.mockResolvedValue({ data: { id: "resp-1" }, error: null });
     const { saveDataAction } = await import("./actions");
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
-    formData.set("nextUrl", "/inspections/insp-1/checklist/group-1?sub=motor");
     formData.set("resposta_data", "2026-07-21");
     formData.set("observacao", "");
 
-    await expect(saveDataAction({ status: "idle" }, formData)).rejects.toThrow(
-      "REDIRECT:/inspections/insp-1/checklist/group-1?sub=motor"
-    );
+    const result = await saveDataAction({ status: "idle" }, formData);
 
+    expect(result).toEqual({ status: "idle" });
     expect(upsert).toHaveBeenCalledWith(
       { inspection_id: "insp-1", item_template_id: "item-1", resposta_data: "2026-07-21", observacao: null },
       { onConflict: "inspection_id,item_template_id" }
@@ -439,7 +416,6 @@ describe("saveDataAction", () => {
     const formData = new FormData();
     formData.set("inspectionId", "insp-1");
     formData.set("itemTemplateId", "item-1");
-    formData.set("nextUrl", "/x");
     formData.set("resposta_data", "2026-07-21");
 
     const result = await saveDataAction({ status: "idle" }, formData);

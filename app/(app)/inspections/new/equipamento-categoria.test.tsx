@@ -17,6 +17,12 @@ function renderCategoria(itensPersonalizados: string[] = []) {
 }
 
 describe("EquipamentoCategoria", () => {
+  it("starts the category accordion closed", () => {
+    const { container } = renderCategoria();
+    const details = container.querySelector("details");
+    expect(details?.open).toBe(false);
+  });
+
   it("renders the category as a collapsible section with its predefined items", () => {
     renderCategoria();
     expect(screen.getByText("Segurança")).toBeInTheDocument();
@@ -98,5 +104,70 @@ describe("EquipamentoCategoria", () => {
     fireEvent.click(checkbox);
     expect(condicaoBom.required).toBe(false);
     expect(condicaoAtencao.required).toBe(false);
+  });
+
+  it("compacts the item on blur after choosing condição Bom", () => {
+    renderCategoria();
+    fireEvent.click(screen.getByText("Segurança")); // abre o acordeão da categoria
+    fireEvent.click(screen.getByLabelText("Sistema ABS/ESP"));
+    fireEvent.click(screen.getByLabelText("✓ Bom (Sistema ABS/ESP)"));
+
+    const item = screen.getByLabelText("Sistema ABS/ESP").closest("li") as HTMLLIElement;
+    fireEvent.blur(item, { relatedTarget: null });
+
+    expect(screen.getByLabelText("Sistema ABS/ESP")).not.toBeVisible();
+    expect(screen.getByText("Sistema ABS/ESP — ✓ Bom")).toBeVisible();
+  });
+
+  it("compacts the item on blur after choosing condição Atenção", () => {
+    renderCategoria();
+    fireEvent.click(screen.getByText("Segurança")); // abre o acordeão da categoria
+    fireEvent.click(screen.getByLabelText("Sistema ABS/ESP"));
+    fireEvent.click(screen.getByLabelText("⚠️ Atenção (Sistema ABS/ESP)"));
+    fireEvent.change(screen.getByLabelText("Comentário (Sistema ABS/ESP)"), {
+      target: { value: "Ruído no arranque" },
+    });
+
+    const item = screen.getByLabelText("Sistema ABS/ESP").closest("li") as HTMLLIElement;
+    fireEvent.blur(item, { relatedTarget: null });
+
+    expect(screen.getByText("Sistema ABS/ESP — ⚠️ Atenção")).toBeVisible();
+  });
+
+  it("does not compact when focus moves between fields inside the same item", () => {
+    renderCategoria();
+    fireEvent.click(screen.getByText("Segurança")); // abre o acordeão da categoria
+    fireEvent.click(screen.getByLabelText("Sistema ABS/ESP"));
+    fireEvent.click(screen.getByLabelText("✓ Bom (Sistema ABS/ESP)"));
+
+    const item = screen.getByLabelText("Sistema ABS/ESP").closest("li") as HTMLLIElement;
+    const condicaoBom = screen.getByLabelText("✓ Bom (Sistema ABS/ESP)");
+    fireEvent.blur(item, { relatedTarget: condicaoBom });
+
+    expect(screen.getByLabelText("Sistema ABS/ESP")).toBeVisible();
+  });
+
+  it("does not compact a selected item before a condição is chosen", () => {
+    renderCategoria();
+    fireEvent.click(screen.getByText("Segurança")); // abre o acordeão da categoria
+    const item = screen.getByLabelText("Sistema ABS/ESP").closest("li") as HTMLLIElement;
+    fireEvent.click(screen.getByLabelText("Sistema ABS/ESP"));
+    fireEvent.blur(item, { relatedTarget: null });
+
+    expect(screen.getByLabelText("Sistema ABS/ESP")).toBeVisible();
+  });
+
+  it("reopens a compacted item when its summary is clicked", () => {
+    renderCategoria();
+    fireEvent.click(screen.getByText("Segurança")); // abre o acordeão da categoria
+    fireEvent.click(screen.getByLabelText("Sistema ABS/ESP"));
+    fireEvent.click(screen.getByLabelText("✓ Bom (Sistema ABS/ESP)"));
+    const item = screen.getByLabelText("Sistema ABS/ESP").closest("li") as HTMLLIElement;
+    fireEvent.blur(item, { relatedTarget: null });
+
+    fireEvent.click(screen.getByText("Sistema ABS/ESP — ✓ Bom"));
+
+    expect(screen.getByLabelText("Sistema ABS/ESP")).toBeVisible();
+    expect(screen.queryByText("Sistema ABS/ESP — ✓ Bom")).not.toBeInTheDocument();
   });
 });

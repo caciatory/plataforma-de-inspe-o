@@ -731,6 +731,19 @@ textarea.input {
   gap: var(--space-4);
 }
 
+.equip-item__resumo {
+  display: block;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: var(--space-1) 0;
+  font-family: var(--font-family-body);
+  font-size: inherit;
+  color: inherit;
+}
+
 /* Sibling ("aplicar aos demais") checklist inside classificação form */
 
 .sibling-list {

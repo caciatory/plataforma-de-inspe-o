@@ -79,7 +79,6 @@ export default async function ChecklistItemPage({
         <ItemMedicaoForm
           inspectionId={id}
           itemTemplateId={itemId}
-          nextUrl={nextUrl}
           qtdPontos={item.qtd_pontos_medicao as number}
           unidadeMedicao={item.unidade_medicao}
           initialValores={valores}

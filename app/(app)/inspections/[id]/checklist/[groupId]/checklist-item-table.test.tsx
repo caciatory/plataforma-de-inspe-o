@@ -12,8 +12,11 @@ vi.mock("./[itemId]/actions", () => ({
 }));
 
 vi.mock("./[itemId]/item-medicao-form", () => ({
-  ItemMedicaoForm: ({ itemTemplateId }: { itemTemplateId: string }) => (
-    <div data-testid="item-medicao-form">Medição de {itemTemplateId}</div>
+  ItemMedicaoForm: ({ itemTemplateId, onSuccess }: { itemTemplateId: string; onSuccess?: () => void }) => (
+    <div data-testid="item-medicao-form">
+      Medição de {itemTemplateId}
+      <button onClick={() => onSuccess?.()}>Simular sucesso</button>
+    </div>
   ),
 }));
 
@@ -29,10 +32,14 @@ vi.mock("./[itemId]/photo-manager", () => ({
   ),
 }));
 
+const refresh = vi.fn();
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }) }));
+
 beforeEach(() => {
   saveEscolhaAction.mockReset();
   saveTextoAction.mockReset();
   saveDataAction.mockReset();
+  refresh.mockClear();
 });
 
 const escolhaItem: TableItem = {
@@ -89,7 +96,6 @@ describe("ChecklistItemTable", () => {
         photos={[]}
         medicaoResultados={[]}
         medicaoValores={[]}
-        pageUrl="/x"
       />
     );
 
@@ -109,7 +115,6 @@ describe("ChecklistItemTable", () => {
         photos={[]}
         medicaoResultados={[]}
         medicaoValores={[]}
-        pageUrl="/x"
       />
     );
 
@@ -131,7 +136,6 @@ describe("ChecklistItemTable", () => {
         photos={[]}
         medicaoResultados={[]}
         medicaoValores={[]}
-        pageUrl="/x"
       />
     );
 
@@ -169,7 +173,6 @@ describe("ChecklistItemTable", () => {
         photos={[]}
         medicaoResultados={[]}
         medicaoValores={[]}
-        pageUrl="/x"
       />
     );
 
@@ -188,7 +191,6 @@ describe("ChecklistItemTable", () => {
         photos={[]}
         medicaoResultados={[]}
         medicaoValores={[]}
-        pageUrl="/x"
       />
     );
 
@@ -214,7 +216,6 @@ describe("ChecklistItemTable", () => {
         photos={[]}
         medicaoResultados={[]}
         medicaoValores={[]}
-        pageUrl="/x"
       />
     );
 
@@ -238,7 +239,6 @@ describe("ChecklistItemTable", () => {
         photos={[]}
         medicaoResultados={[]}
         medicaoValores={[]}
-        pageUrl="/x"
       />
     );
 
@@ -266,7 +266,6 @@ describe("ChecklistItemTable", () => {
         photos={[]}
         medicaoResultados={[{ item_response_id: "resp-medicao", resultado: "critico" }]}
         medicaoValores={[{ item_response_id: "resp-medicao", valores: [310, 320, 305] }]}
-        pageUrl="/x"
       />
     );
 
@@ -295,7 +294,6 @@ describe("ChecklistItemTable", () => {
         photos={[]}
         medicaoResultados={[]}
         medicaoValores={[]}
-        pageUrl="/x"
       />
     );
 
@@ -323,7 +321,6 @@ describe("ChecklistItemTable", () => {
         photos={[]}
         medicaoResultados={[]}
         medicaoValores={[]}
-        pageUrl="/x"
       />
     );
 
@@ -355,12 +352,135 @@ describe("ChecklistItemTable", () => {
         photos={[]}
         medicaoResultados={[]}
         medicaoValores={[]}
-        pageUrl="/x"
       />
     );
 
     fireEvent.click(screen.getByRole("button", { name: /Aplicar aos itens semelhantes/ }));
 
     expect(screen.getByTestId("batch-apply-panel")).toHaveTextContent("item-escolha,item-sibling");
+  });
+
+  it("calls router.refresh() after saving an escolha option successfully", async () => {
+    saveEscolhaAction.mockResolvedValue({ status: "idle" });
+    render(
+      <ChecklistItemTable
+        inspectionId="insp-1"
+        items={[escolhaItem]}
+        allGroupItems={[]}
+        responses={[]}
+        opcoes={opcoes}
+        photos={[]}
+        medicaoResultados={[]}
+        medicaoValores={[]}
+      />
+    );
+
+    fireEvent.click(screen.getByLabelText("Bom"));
+
+    await waitFor(() => expect(saveEscolhaAction).toHaveBeenCalled());
+    await waitFor(() => expect(refresh).toHaveBeenCalledTimes(1));
+  });
+
+  it("does not call router.refresh() when saving escolha fails", async () => {
+    saveEscolhaAction.mockResolvedValue({ status: "error", message: "Falhou" });
+    render(
+      <ChecklistItemTable
+        inspectionId="insp-1"
+        items={[escolhaItem]}
+        allGroupItems={[]}
+        responses={[]}
+        opcoes={opcoes}
+        photos={[]}
+        medicaoResultados={[]}
+        medicaoValores={[]}
+      />
+    );
+
+    fireEvent.click(screen.getByLabelText("Bom"));
+
+    await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it("shows a Tentar novamente button for texto and calls router.refresh() once the retry succeeds", async () => {
+    saveTextoAction.mockResolvedValue({ status: "error", message: "Falhou" });
+    render(
+      <ChecklistItemTable
+        inspectionId="insp-1"
+        items={[textoItem]}
+        allGroupItems={[]}
+        responses={[]}
+        opcoes={[]}
+        photos={[]}
+        medicaoResultados={[]}
+        medicaoValores={[]}
+      />
+    );
+
+    const input = screen.getByRole("textbox");
+    fireEvent.change(input, { target: { value: "9BWZZZ377VT004251" } });
+    fireEvent.blur(input);
+
+    await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
+    expect(refresh).not.toHaveBeenCalled();
+
+    saveTextoAction.mockResolvedValue({ status: "idle" });
+    fireEvent.click(screen.getByRole("button", { name: "Tentar novamente" }));
+
+    await waitFor(() => expect(saveTextoAction).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(refresh).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(screen.queryByRole("alert")).not.toBeInTheDocument());
+  });
+
+  it("shows a Tentar novamente button for data and calls router.refresh() once the retry succeeds", async () => {
+    saveDataAction.mockResolvedValue({ status: "error", message: "Falhou" });
+    const { container } = render(
+      <ChecklistItemTable
+        inspectionId="insp-1"
+        items={[dataItem]}
+        allGroupItems={[]}
+        responses={[]}
+        opcoes={[]}
+        photos={[]}
+        medicaoResultados={[]}
+        medicaoValores={[]}
+      />
+    );
+
+    const input = container.querySelector('input[type="date"]') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "2026-07-21" } });
+    fireEvent.blur(input);
+
+    await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
+
+    saveDataAction.mockResolvedValue({ status: "idle" });
+    fireEvent.click(screen.getByRole("button", { name: "Tentar novamente" }));
+
+    await waitFor(() => expect(saveDataAction).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(refresh).toHaveBeenCalledTimes(1));
+  });
+
+  it("refreshes and closes the medição dialog when ItemMedicaoForm reports success", () => {
+    render(
+      <ChecklistItemTable
+        inspectionId="insp-1"
+        items={[medicaoItem]}
+        allGroupItems={[]}
+        responses={[]}
+        opcoes={[]}
+        photos={[]}
+        medicaoResultados={[]}
+        medicaoValores={[]}
+      />
+    );
+
+    const dialog = document.querySelector("dialog") as HTMLDialogElement;
+    fireEvent.click(screen.getByRole("button", { name: "Medir" }));
+    expect(dialog.open).toBe(true);
+
+    fireEvent.click(screen.getByRole("button", { name: "Simular sucesso" }));
+
+    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(dialog.open).toBe(false);
   });
 });

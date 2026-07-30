@@ -2,6 +2,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { saveEscolhaAction, saveTextoAction, saveDataAction } from "./[itemId]/actions";
 import { ItemMedicaoForm } from "./[itemId]/item-medicao-form";
 import { BatchApplyPanel, type BatchRow } from "./[itemId]/batch-apply-panel";
@@ -48,7 +49,11 @@ export function ChecklistItemTable({
   photos,
   medicaoResultados,
   medicaoValores,
-  pageUrl,
+  // ponytail: pageUrl no longer feeds a save action (Task 1 removed those redirects). It survives
+  // only as groupListUrl for FamiliaCell -> BatchApplyPanel's post-batch-apply router.push, an
+  // unrelated feature this task doesn't touch. Optional + defaulted so tests that don't exercise
+  // batch-apply can omit it.
+  pageUrl = "",
 }: {
   inspectionId: string;
   items: TableItem[];
@@ -58,7 +63,7 @@ export function ChecklistItemTable({
   photos: TablePhoto[];
   medicaoResultados: TableMedicaoResultado[];
   medicaoValores: TableMedicaoValores[];
-  pageUrl: string;
+  pageUrl?: string;
 }) {
   const responseByItemId = new Map(responses.map((r) => [r.item_template_id, r]));
   const opcaoLabelById = new Map(opcoes.map((o) => [o.id, o.label]));
@@ -99,14 +104,13 @@ export function ChecklistItemTable({
                     response={response}
                     opcoes={opcoes.filter((o) => o.conjunto_id === item.conjunto_opcao_id)}
                     photos={response ? (photosByResponseId.get(response.id) ?? []) : []}
-                    nextUrl={pageUrl}
                   />
                 )}
                 {item.tipo === "texto" && (
-                  <TextoCell inspectionId={inspectionId} item={item} response={response} nextUrl={pageUrl} />
+                  <TextoCell inspectionId={inspectionId} item={item} response={response} />
                 )}
                 {item.tipo === "data" && (
-                  <DataCell inspectionId={inspectionId} item={item} response={response} nextUrl={pageUrl} />
+                  <DataCell inspectionId={inspectionId} item={item} response={response} />
                 )}
                 {item.tipo === "medicao" && (
                   <MedicaoCell
@@ -116,7 +120,6 @@ export function ChecklistItemTable({
                     resultado={response ? (resultadoByResponseId.get(response.id) ?? null) : null}
                     initialValores={response ? (valoresByResponseId.get(response.id) ?? []) : []}
                     initialPhotos={response ? (photosByResponseId.get(response.id) ?? []) : []}
-                    nextUrl={pageUrl}
                   />
                 )}
               </td>
@@ -146,14 +149,12 @@ export function ChecklistItemTable({
 function buildEscolhaFormData(
   inspectionId: string,
   itemTemplateId: string,
-  nextUrl: string,
   opcaoId: string,
   observacao: string
 ): FormData {
   const formData = new FormData();
   formData.set("inspectionId", inspectionId);
   formData.set("itemTemplateId", itemTemplateId);
-  formData.set("nextUrl", nextUrl);
   formData.set("opcao_id", opcaoId);
   formData.set("observacao", observacao);
   return formData;
@@ -165,25 +166,28 @@ function EscolhaCell({
   response,
   opcoes,
   photos,
-  nextUrl,
 }: {
   inspectionId: string;
   item: TableItem;
   response: TableResponse | undefined;
   opcoes: TableOpcao[];
   photos: Photo[];
-  nextUrl: string;
 }) {
   const [opcaoId, setOpcaoId] = useState(response?.opcao_id ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   function save(currentOpcaoId: string) {
     setError(null);
-    const formData = buildEscolhaFormData(inspectionId, item.id, nextUrl, currentOpcaoId, response?.observacao ?? "");
+    const formData = buildEscolhaFormData(inspectionId, item.id, currentOpcaoId, response?.observacao ?? "");
     startTransition(async () => {
       const result = await saveEscolhaAction({ status: "idle" }, formData);
-      if (result.status === "error") setError(result.message);
+      if (result.status === "error") {
+        setError(result.message);
+      } else {
+        router.refresh();
+      }
     });
   }
 
@@ -230,30 +234,36 @@ function TextoCell({
   inspectionId,
   item,
   response,
-  nextUrl,
 }: {
   inspectionId: string;
   item: TableItem;
   response: TableResponse | undefined;
-  nextUrl: string;
 }) {
   const [value, setValue] = useState(response?.resposta_texto ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  function handleBlur() {
-    if (value === (response?.resposta_texto ?? "")) return;
+  function save(currentValue: string) {
     setError(null);
     const formData = new FormData();
     formData.set("inspectionId", inspectionId);
     formData.set("itemTemplateId", item.id);
-    formData.set("nextUrl", nextUrl);
-    formData.set("resposta_texto", value);
+    formData.set("resposta_texto", currentValue);
     formData.set("observacao", response?.observacao ?? "");
     startTransition(async () => {
       const result = await saveTextoAction({ status: "idle" }, formData);
-      if (result.status === "error") setError(result.message);
+      if (result.status === "error") {
+        setError(result.message);
+      } else {
+        router.refresh();
+      }
     });
+  }
+
+  function handleBlur() {
+    if (value === (response?.resposta_texto ?? "")) return;
+    save(value);
   }
 
   return (
@@ -271,6 +281,11 @@ function TextoCell({
           {error}
         </p>
       )}
+      {error && (
+        <button type="button" className="btn btn-secondary" disabled={isPending} onClick={() => save(value)}>
+          Tentar novamente
+        </button>
+      )}
     </div>
   );
 }
@@ -279,30 +294,36 @@ function DataCell({
   inspectionId,
   item,
   response,
-  nextUrl,
 }: {
   inspectionId: string;
   item: TableItem;
   response: TableResponse | undefined;
-  nextUrl: string;
 }) {
   const [value, setValue] = useState(response?.resposta_data ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  function handleBlur() {
-    if (value === (response?.resposta_data ?? "")) return;
+  function save(currentValue: string) {
     setError(null);
     const formData = new FormData();
     formData.set("inspectionId", inspectionId);
     formData.set("itemTemplateId", item.id);
-    formData.set("nextUrl", nextUrl);
-    formData.set("resposta_data", value);
+    formData.set("resposta_data", currentValue);
     formData.set("observacao", response?.observacao ?? "");
     startTransition(async () => {
       const result = await saveDataAction({ status: "idle" }, formData);
-      if (result.status === "error") setError(result.message);
+      if (result.status === "error") {
+        setError(result.message);
+      } else {
+        router.refresh();
+      }
     });
+  }
+
+  function handleBlur() {
+    if (value === (response?.resposta_data ?? "")) return;
+    save(value);
   }
 
   return (
@@ -320,6 +341,11 @@ function DataCell({
           {error}
         </p>
       )}
+      {error && (
+        <button type="button" className="btn btn-secondary" disabled={isPending} onClick={() => save(value)}>
+          Tentar novamente
+        </button>
+      )}
     </div>
   );
 }
@@ -331,7 +357,6 @@ function MedicaoCell({
   resultado,
   initialValores,
   initialPhotos,
-  nextUrl,
 }: {
   inspectionId: string;
   item: TableItem;
@@ -339,9 +364,9 @@ function MedicaoCell({
   resultado: "ok" | "atencao" | "critico" | null;
   initialValores: number[];
   initialPhotos: Photo[];
-  nextUrl: string;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const router = useRouter();
   const label = !response?.respondido
     ? "Medir"
     : resultado === "critico"
@@ -352,6 +377,11 @@ function MedicaoCell({
           ? "OK"
           : "Ver";
   const modifierClass = resultado ? ` item-table__badge--${resultado}` : "";
+
+  function handleMedicaoSaved() {
+    router.refresh();
+    dialogRef.current?.close();
+  }
 
   return (
     <>
@@ -373,12 +403,12 @@ function MedicaoCell({
         <ItemMedicaoForm
           inspectionId={inspectionId}
           itemTemplateId={item.id}
-          nextUrl={nextUrl}
           qtdPontos={item.qtd_pontos_medicao ?? 1}
           unidadeMedicao={item.unidade_medicao}
           initialValores={initialValores}
           initialObservacao={response?.observacao ?? null}
           initialPhotos={initialPhotos}
+          onSuccess={handleMedicaoSaved}
         />
       </dialog>
     </>

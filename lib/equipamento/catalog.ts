@@ -1,0 +1,75 @@
+export const EQUIPAMENTO_CATEGORIAS = [
+  {
+    id: "audio-multimedia",
+    label: "Áudio e Multimédia",
+    itens: [
+      "Android Auto / Apple CarPlay",
+      "Bluetooth (com streaming de áudio)",
+      "Ecrã Central (Touchscreen)",
+      "Entrada USB (múltiplas)",
+      "Sistema de Som (múltiplos altifalantes e subwoofer)",
+      "Volante Multifunções",
+      "Sistema de Navegação (GPS)",
+      "Comandos de Voz",
+      "Carregamento sem fio para dispositivos móveis",
+    ],
+  },
+  {
+    id: "conforto",
+    label: "Conforto",
+    itens: [
+      "Ar Condicionado / Climatização (automática e dual zone)",
+      "Direção Assistida (elétrica)",
+      'Vidros Elétricos (com função "um toque")',
+      "Espelhos Elétricos (com aquecimento e rebatimento automático)",
+      "Fecho Centralizado (com controlo remoto)",
+      "Bancos Elétricos (com memória)",
+      "Bancos Aquecidos / Ventilados",
+      "Teto de Abrir / Panorâmico",
+      "Sensor de Chuva",
+      "Sensor de Luz",
+    ],
+  },
+  {
+    id: "assistencia-conducao",
+    label: "Assistência à Condução",
+    itens: [
+      "Sensores de Estacionamento (dianteiros e traseiros)",
+      "Câmara de Ré / Câmara 360°",
+      "Cruise Control / Cruise Control Adaptativo (ACC)",
+      "Assistente de Faixa de Rodagem",
+      "Sensor de Ângulo Morto",
+      "Leitor de Placas de Trânsito",
+      "Assistente de Estacionamento Automático",
+      "Head-Up Display",
+    ],
+  },
+  {
+    id: "seguranca",
+    label: "Segurança",
+    itens: [
+      "Airbags (frontais, laterais e de cortina)",
+      "Sistema ABS/ESP",
+      "Travões (com assistência de travagem de emergência)",
+      "Cintos de Segurança (com pré-tensores e limitadores de força)",
+      "Luzes (faróis LED, luzes de condução diurna)",
+      "Sistema de Monitorização da Pressão dos Pneus",
+      "Sistema de Alerta de Colisão Frontal",
+      "Travagem Automática de Emergência",
+    ],
+  },
+  {
+    id: "outros-equipamentos",
+    label: "Outros Equipamentos",
+    itens: [
+      "Roda Sobressalente / Kit de Reparação de Pneus",
+      "Ferramentas básicas (macaco, chave de rodas)",
+      "Alarme",
+      "Sistema Start/Stop",
+      "Travão de Mão Elétrico",
+      "Sistema Isofix",
+    ],
+  },
+] as const;
+
+export type EquipamentoCategoriaId = (typeof EQUIPAMENTO_CATEGORIAS)[number]["id"];

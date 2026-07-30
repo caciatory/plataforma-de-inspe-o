@@ -148,7 +148,7 @@ describe("NewInspectionForm", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Histórico" }));
 
     expect(screen.getByLabelText("Quilometragem atual")).toBeVisible();
-    expect(screen.getByLabelText("Indícios de adulteração de quilometragem")).toBeVisible();
+    expect(screen.getByText("Indícios de adulteração de quilometragem?")).toBeVisible();
     expect(screen.getByLabelText("Número de proprietários anteriores")).toBeVisible();
 
     fireEvent.click(screen.getByRole("tab", { name: "Identificação" }));
@@ -222,5 +222,52 @@ describe("NewInspectionForm", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Equipamentos" }));
 
     expect(screen.getByLabelText("Bagageira de teto")).toBeInTheDocument();
+  });
+
+  it("renders situação fiscal as a single free-text field, not a checkbox", () => {
+    render(<NewInspectionForm />);
+    fireEvent.click(screen.getByRole("tab", { name: "Histórico" }));
+
+    const campo = screen.getByLabelText("Situação fiscal (ex.: IUC em dia)");
+    expect(campo.tagName).toBe("TEXTAREA");
+    expect(screen.queryByLabelText("Observações sobre a situação fiscal")).not.toBeInTheDocument();
+  });
+
+  it("shows the anotações field for indícios de adulteração only when 'Sim' is picked", () => {
+    render(<NewInspectionForm />);
+    fireEvent.click(screen.getByRole("tab", { name: "Histórico" }));
+
+    const anotacoes = screen.getByLabelText("Anotações / Detalhes dos indícios de adulteração");
+    expect(anotacoes).not.toBeVisible();
+
+    fireEvent.click(screen.getByLabelText("Sim (Indícios de adulteração de quilometragem?)"));
+    expect(anotacoes).toBeVisible();
+  });
+
+  it("shows the importação block only when 'Veículo importado?' is 'Sim'", () => {
+    render(<NewInspectionForm />);
+    fireEvent.click(screen.getByRole("tab", { name: "Histórico" }));
+
+    const paisOrigem = screen.getByLabelText("País de origem / importação");
+    expect(paisOrigem).not.toBeVisible();
+
+    fireEvent.click(screen.getByLabelText("Sim (Veículo importado?)"));
+    expect(paisOrigem).toBeVisible();
+    expect(screen.getByLabelText("Matrícula de origem (estrangeira)")).toBeVisible();
+    expect(screen.getByLabelText("Data de importação")).toBeVisible();
+    expect(screen.getByText("Possui Certificado de Conformidade (COC)?")).toBeVisible();
+    expect(screen.getByText("Isenção de ISV aplicada?")).toBeVisible();
+    expect(screen.getByLabelText("Número da DAV / Registo de Legalização")).toBeVisible();
+
+    fireEvent.click(screen.getByLabelText("Não (Veículo importado?)"));
+    expect(paisOrigem).not.toBeVisible();
+  });
+
+  it("renders data da primeira matrícula and valor base IUC anual as standalone fields", () => {
+    render(<NewInspectionForm />);
+    fireEvent.click(screen.getByRole("tab", { name: "Histórico" }));
+
+    expect(screen.getByLabelText("Data da primeira matrícula")).toBeVisible();
+    expect(screen.getByLabelText("Valor base IUC anual (€)")).toBeVisible();
   });
 });

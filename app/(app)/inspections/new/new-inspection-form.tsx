@@ -15,6 +15,9 @@ import { TextareaWithCounter } from "./textarea-with-counter";
 import { EquipamentoCategoria } from "./equipamento-categoria";
 import { EquipamentoPersonalizadoDialog } from "./equipamento-personalizado-dialog";
 import { EQUIPAMENTO_CATEGORIAS } from "@/lib/equipamento/catalog";
+import { SimNaoRadio } from "./sim-nao-radio";
+import { PaisOrigemSelect } from "./pais-origem-select";
+import { ValorMoedaInput } from "./valor-moeda-input";
 
 const initialState: CreateInspectionState = { status: "idle" };
 
@@ -64,8 +67,17 @@ export function NewInspectionForm({
   const [historicoManutencao, setHistoricoManutencao] = useState("");
   const [inspecoesPeriodicasIpoNotas, setInspecoesPeriodicasIpoNotas] = useState("");
   const [inspecoesPeriodicasIpoData, setInspecoesPeriodicasIpoData] = useState("");
-  const [situacaoFiscalRegular, setSituacaoFiscalRegular] = useState(false);
-  const [situacaoFiscalObservacoes, setSituacaoFiscalObservacoes] = useState("");
+  const [situacaoFiscalRegular, setSituacaoFiscalRegular] = useState("");
+  const [indiciosAdulteracaoPresentes, setIndiciosAdulteracaoPresentes] = useState<"" | "sim" | "nao">("");
+  const [veiculoImportado, setVeiculoImportado] = useState<"" | "sim" | "nao">("");
+  const [paisOrigem, setPaisOrigem] = useState("");
+  const [matriculaOrigem, setMatriculaOrigem] = useState("");
+  const [dataImportacao, setDataImportacao] = useState("");
+  const [possuiCoc, setPossuiCoc] = useState<"" | "sim" | "nao">("");
+  const [isencaoIsvAplicada, setIsencaoIsvAplicada] = useState<"" | "sim" | "nao">("");
+  const [numeroDav, setNumeroDav] = useState("");
+  const [dataPrimeiraMatricula, setDataPrimeiraMatricula] = useState("");
+  const [valorBaseIucAnual, setValorBaseIucAnual] = useState("");
   const [personalizadosPorCategoria, setPersonalizadosPorCategoria] =
     useState<Record<string, string[]>>(sugestoesPorCategoria);
   const [categoriaAbrindoDialog, setCategoriaAbrindoDialog] = useState<{ id: string; label: string } | null>(null);
@@ -350,14 +362,23 @@ export function NewInspectionForm({
               />
             </div>
 
-            <TextareaWithCounter
-              id="indiciosAdulteracaoKm"
-              name="indiciosAdulteracaoKm"
-              label="Indícios de adulteração de quilometragem"
-              value={indiciosAdulteracaoKm}
-              onChange={setIndiciosAdulteracaoKm}
-              maxSoft={500}
+            <SimNaoRadio
+              name="indiciosAdulteracaoPresentes"
+              label="Indícios de adulteração de quilometragem?"
+              value={indiciosAdulteracaoPresentes}
+              onChange={setIndiciosAdulteracaoPresentes}
             />
+
+            <div hidden={indiciosAdulteracaoPresentes !== "sim"}>
+              <TextareaWithCounter
+                id="indiciosAdulteracaoKm"
+                name="indiciosAdulteracaoKm"
+                label="Anotações / Detalhes dos indícios de adulteração"
+                value={indiciosAdulteracaoKm}
+                onChange={setIndiciosAdulteracaoKm}
+                maxSoft={500}
+              />
+            </div>
 
             <div className="field">
               <label htmlFor="numeroProprietariosAnteriores" className="label">
@@ -415,25 +436,100 @@ export function NewInspectionForm({
               />
             </div>
 
-            <div className="field">
-              <label className="label">
+            <TextareaWithCounter
+              id="situacaoFiscalRegular"
+              name="situacaoFiscalRegular"
+              label="Situação fiscal (ex.: IUC em dia)"
+              value={situacaoFiscalRegular}
+              onChange={setSituacaoFiscalRegular}
+              maxSoft={200}
+            />
+
+            <SimNaoRadio
+              name="veiculoImportado"
+              label="Veículo importado?"
+              value={veiculoImportado}
+              onChange={setVeiculoImportado}
+            />
+
+            <div className="form-grid" hidden={veiculoImportado !== "sim"}>
+              <PaisOrigemSelect id="paisOrigem" value={paisOrigem} onChange={setPaisOrigem} />
+
+              <div className="field">
+                <label htmlFor="matriculaOrigem" className="label">
+                  Matrícula de origem (estrangeira)
+                </label>
                 <input
-                  type="checkbox"
-                  name="situacaoFiscalRegular"
-                  checked={situacaoFiscalRegular}
-                  onChange={(e) => setSituacaoFiscalRegular(e.target.checked)}
-                />{" "}
-                Situação fiscal regular (ex.: IUC em dia)
-              </label>
+                  id="matriculaOrigem"
+                  name="matriculaOrigem"
+                  className="input"
+                  value={matriculaOrigem}
+                  onChange={(e) => setMatriculaOrigem(e.target.value)}
+                />
+              </div>
+
+              <div className="field">
+                <label htmlFor="dataImportacao" className="label">
+                  Data de importação
+                </label>
+                <input
+                  id="dataImportacao"
+                  name="dataImportacao"
+                  type="date"
+                  className="input"
+                  value={dataImportacao}
+                  onChange={(e) => setDataImportacao(e.target.value)}
+                />
+              </div>
+
+              <SimNaoRadio
+                name="possuiCoc"
+                label="Possui Certificado de Conformidade (COC)?"
+                value={possuiCoc}
+                onChange={setPossuiCoc}
+              />
+
+              <SimNaoRadio
+                name="isencaoIsvAplicada"
+                label="Isenção de ISV aplicada?"
+                value={isencaoIsvAplicada}
+                onChange={setIsencaoIsvAplicada}
+              />
+
+              <div className="field">
+                <label htmlFor="numeroDav" className="label">
+                  Número da DAV / Registo de Legalização
+                </label>
+                <input
+                  id="numeroDav"
+                  name="numeroDav"
+                  className="input"
+                  value={numeroDav}
+                  onChange={(e) => setNumeroDav(e.target.value)}
+                />
+              </div>
             </div>
 
-            <TextareaWithCounter
-              id="situacaoFiscalObservacoes"
-              name="situacaoFiscalObservacoes"
-              label="Observações sobre a situação fiscal"
-              value={situacaoFiscalObservacoes}
-              onChange={setSituacaoFiscalObservacoes}
-              maxSoft={500}
+            <div className="field">
+              <label htmlFor="dataPrimeiraMatricula" className="label">
+                Data da primeira matrícula
+              </label>
+              <input
+                id="dataPrimeiraMatricula"
+                name="dataPrimeiraMatricula"
+                type="date"
+                className="input"
+                value={dataPrimeiraMatricula}
+                onChange={(e) => setDataPrimeiraMatricula(e.target.value)}
+              />
+            </div>
+
+            <ValorMoedaInput
+              id="valorBaseIucAnual"
+              name="valorBaseIucAnual"
+              label="Valor base IUC anual (€)"
+              value={valorBaseIucAnual}
+              onChange={setValorBaseIucAnual}
             />
           </div>
         </fieldset>

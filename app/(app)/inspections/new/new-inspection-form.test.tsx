@@ -136,7 +136,10 @@ describe("NewInspectionForm", () => {
     const form = container.querySelector("form") as HTMLFormElement;
     fireEvent.submit(form);
 
-    await waitFor(() => expect(screen.getByLabelText("Combustível")).toBeVisible());
+    // ponytail: default waitFor timeout (1000ms) got tight once Task 6 tripled
+    // the always-mounted DOM under Equipamentos (2 photo inputs per item x 41
+    // items); bump it rather than fight the established always-mounted pattern.
+    await waitFor(() => expect(screen.getByLabelText("Combustível")).toBeVisible(), { timeout: 8000 });
     expect(screen.queryByLabelText("Nome do solicitante")).not.toBeVisible();
   });
 

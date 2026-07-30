@@ -13,6 +13,7 @@ import { StandAutocomplete, type StandContact } from "./stand-autocomplete";
 import { TAB_IDS, resolveTabForField, type TabId } from "@/lib/inspection/tabs";
 import { TextareaWithCounter } from "./textarea-with-counter";
 import { EquipamentoCategoria } from "./equipamento-categoria";
+import { EquipamentoPersonalizadoDialog } from "./equipamento-personalizado-dialog";
 import { EQUIPAMENTO_CATEGORIAS } from "@/lib/equipamento/catalog";
 
 const initialState: CreateInspectionState = { status: "idle" };
@@ -58,8 +59,10 @@ export function NewInspectionForm() {
   const [situacaoFiscalRegular, setSituacaoFiscalRegular] = useState(false);
   const [situacaoFiscalObservacoes, setSituacaoFiscalObservacoes] = useState("");
   const [personalizadosPorCategoria, setPersonalizadosPorCategoria] = useState<Record<string, string[]>>({});
+  const [categoriaAbrindoDialog, setCategoriaAbrindoDialog] = useState<{ id: string; label: string } | null>(null);
   const [state, formAction] = useActionState(createInspectionAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
+  const personalizadoDialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     if (state.status !== "error") return;
@@ -538,11 +541,28 @@ export function NewInspectionForm() {
             itensPreDefinidos={categoria.itens}
             itensPersonalizados={personalizadosPorCategoria[categoria.id] ?? []}
             onAddPersonalizado={() => {
-              /* Task 6 substitui isto por abrir o dialog */
+              setCategoriaAbrindoDialog({ id: categoria.id, label: categoria.label });
+              personalizadoDialogRef.current?.showModal();
             }}
           />
         ))}
       </div>
+
+      <dialog ref={personalizadoDialogRef} className="dialog-panel">
+        {categoriaAbrindoDialog && (
+          <EquipamentoPersonalizadoDialog
+            categoriaLabel={categoriaAbrindoDialog.label}
+            onCancel={() => personalizadoDialogRef.current?.close()}
+            onConfirm={(nome, _condicao) => {
+              setPersonalizadosPorCategoria((prev) => ({
+                ...prev,
+                [categoriaAbrindoDialog.id]: [...(prev[categoriaAbrindoDialog.id] ?? []), nome],
+              }));
+              personalizadoDialogRef.current?.close();
+            }}
+          />
+        )}
+      </dialog>
 
       {state.status === "error" && (
         <p role="alert" className="error-text">

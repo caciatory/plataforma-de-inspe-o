@@ -127,6 +127,12 @@ a {
   gap: var(--space-4);
 }
 
+.stack-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
 .panel {
   background: var(--color-surface);
   border: 1px solid var(--color-border);

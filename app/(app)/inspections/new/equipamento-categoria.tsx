@@ -80,6 +80,21 @@ function EquipamentoItem({
             placeholder="Adicionar comentário..."
           />
         </div>
+
+        <div className="equip-item__fotos" hidden={condicao !== "atencao"}>
+          <div className="field">
+            <label htmlFor={`${prefix}__foto1`} className="label">
+              {`Foto 1 (${nome})`}
+            </label>
+            <input id={`${prefix}__foto1`} name={`${prefix}__foto1`} type="file" accept="image/*" className="input" />
+          </div>
+          <div className="field">
+            <label htmlFor={`${prefix}__foto2`} className="label">
+              {`Foto 2 (${nome})`}
+            </label>
+            <input id={`${prefix}__foto2`} name={`${prefix}__foto2`} type="file" accept="image/*" className="input" />
+          </div>
+        </div>
       </div>
     </li>
   );

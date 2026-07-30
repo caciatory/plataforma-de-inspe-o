@@ -67,6 +67,16 @@ describe("EquipamentoCategoria", () => {
     expect(screen.getByLabelText("Bagageira de teto")).toBeInTheDocument();
   });
 
+  it("shows up to 2 file inputs only when condição is Atenção", () => {
+    renderCategoria();
+    fireEvent.click(screen.getByLabelText("Sistema ABS/ESP"));
+    fireEvent.click(screen.getByLabelText("⚠️ Atenção (Sistema ABS/ESP)"));
+
+    const fileInputs = screen.getAllByLabelText(/^Foto \d \(Sistema ABS\/ESP\)$/);
+    expect(fileInputs).toHaveLength(2);
+    fileInputs.forEach((input) => expect(input).toHaveAttribute("type", "file"));
+  });
+
   it("marks the condição radios required only while the item is selecionado", () => {
     // Direct check on the DOM property itself (not form-submission behavior,
     // which jsdom doesn't fully implement — see new-inspection-form.test.tsx's

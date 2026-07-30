@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { NewInspectionForm } from "./new-inspection-form";
 import type { CreateInspectionState } from "./actions";
 
@@ -194,5 +194,29 @@ describe("NewInspectionForm", () => {
     fireEvent.click(saveButton);
 
     expect(createInspectionAction).not.toHaveBeenCalled();
+  });
+
+  it("resets the personalizado dialog's fields between openings (regression: stale state after Cancelar)", () => {
+    const { container } = render(<NewInspectionForm />);
+    fireEvent.click(screen.getByRole("tab", { name: "Equipamentos" }));
+
+    // Escopado ao <dialog>: os radios "⚠️ Atenção"/"✓ Bom" existem também em
+    // cada um dos 41 itens (mesmo texto de label visível), então uma busca
+    // sem escopo por esse texto encontraria múltiplos elementos.
+    const dialog = container.querySelector("dialog") as HTMLElement;
+    const dialogScope = within(dialog);
+
+    const addButtons = screen.getAllByRole("button", { name: "+" });
+    fireEvent.click(addButtons[0]); // abre o dialog da 1ª categoria (Áudio e Multimédia)
+
+    fireEvent.change(dialogScope.getByLabelText("Nome do equipamento"), { target: { value: "Bagageira de teto" } });
+    fireEvent.click(dialogScope.getByLabelText("⚠️ Atenção"));
+    fireEvent.click(dialogScope.getByRole("button", { name: "Cancelar" }));
+
+    fireEvent.click(addButtons[0]); // reabre a mesma categoria
+
+    expect((dialogScope.getByLabelText("Nome do equipamento") as HTMLInputElement).value).toBe("");
+    expect((dialogScope.getByLabelText("⚠️ Atenção") as HTMLInputElement).checked).toBe(false);
+    expect((dialogScope.getByLabelText("✓ Bom") as HTMLInputElement).checked).toBe(false);
   });
 });

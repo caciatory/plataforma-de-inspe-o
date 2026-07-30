@@ -552,13 +552,17 @@ export function NewInspectionForm() {
         {categoriaAbrindoDialog && (
           <EquipamentoPersonalizadoDialog
             categoriaLabel={categoriaAbrindoDialog.label}
-            onCancel={() => personalizadoDialogRef.current?.close()}
+            onCancel={() => {
+              personalizadoDialogRef.current?.close();
+              setCategoriaAbrindoDialog(null);
+            }}
             onConfirm={(nome, _condicao) => {
               setPersonalizadosPorCategoria((prev) => ({
                 ...prev,
                 [categoriaAbrindoDialog.id]: [...(prev[categoriaAbrindoDialog.id] ?? []), nome],
               }));
               personalizadoDialogRef.current?.close();
+              setCategoriaAbrindoDialog(null);
             }}
           />
         )}

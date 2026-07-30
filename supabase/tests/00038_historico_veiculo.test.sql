@@ -29,8 +29,7 @@ begin
     p_historico_manutencao => 'Revisão dos 60.000km em concessionário',
     p_inspecoes_periodicas_ipo_notas => 'IPO válida',
     p_inspecoes_periodicas_ipo_data => '2027-01-15',
-    p_situacao_fiscal_regular => true,
-    p_situacao_fiscal_observacoes => 'IUC pago'
+    p_situacao_fiscal_regular => 'IUC pago'
   );
 
   select * into v_row from public.vehicle_data where inspection_id = v_id;
@@ -41,8 +40,8 @@ begin
   if v_row.numero_proprietarios_anteriores <> 2 then
     raise exception 'FALHOU: numero_proprietarios_anteriores deveria ser 2, foi %', v_row.numero_proprietarios_anteriores;
   end if;
-  if v_row.situacao_fiscal_regular is not true then
-    raise exception 'FALHOU: situacao_fiscal_regular deveria ser true';
+  if v_row.situacao_fiscal_regular <> 'IUC pago' then
+    raise exception 'FALHOU: situacao_fiscal_regular deveria ser texto livre, foi %', v_row.situacao_fiscal_regular;
   end if;
   if v_row.indicios_adulteracao_km <> 'Contador com dígitos desalinhados' then
     raise exception 'FALHOU: indicios_adulteracao_km incorreto';
@@ -51,7 +50,7 @@ begin
   raise notice 'OK: create_inspection grava os campos de historico';
 end $$;
 
--- default: situacao_fiscal_regular fica false quando omitido, resto null
+-- default: situacao_fiscal_regular fica null quando omitido, resto null
 do $$
 declare
   v_id uuid;
@@ -62,8 +61,8 @@ begin
     p_marca => 'Fiat', p_modelo => 'Punto', p_nome_solicitante => 'Cliente C', p_quilometragem => 1000
   );
   select * into v_row from public.vehicle_data where inspection_id = v_id;
-  if v_row.situacao_fiscal_regular is not false then
-    raise exception 'FALHOU: default de situacao_fiscal_regular deveria ser false';
+  if v_row.situacao_fiscal_regular is not null then
+    raise exception 'FALHOU: default de situacao_fiscal_regular deveria ser null';
   end if;
   if v_row.numero_proprietarios_anteriores is not null then
     raise exception 'FALHOU: numero_proprietarios_anteriores deveria ficar null quando omitido';

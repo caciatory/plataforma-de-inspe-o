@@ -726,6 +726,11 @@ textarea.input {
   gap: var(--space-4);
 }
 
+.sim-nao-radio {
+  display: flex;
+  gap: var(--space-4);
+}
+
 /* Sibling ("aplicar aos demais") checklist inside classificação form */
 
 .sibling-list {

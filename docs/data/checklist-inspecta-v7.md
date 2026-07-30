@@ -236,32 +236,26 @@
 | 147 | Comandos do volante – funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Se aplicável |
 | 148 | Ar condicionado – funcionamento (frio e calor) | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  |  |
 | 149 | Rádio / multimédia – funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  |  |
-| 150 | GPS / navegação integrada | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Se aplicável |
-| 151 | Bluetooth – funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Se aplicável |
 
 ### Teto
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 152 | Forro do teto – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 153 | Sinais de infiltração no teto | Sim / Não | Sim / Não |  | Manchas de humidade |
-| 154 | Teto de abrir manual – funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Se aplicável |
-| 155 | Teto de abrir elétrico – abertura/fecho | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Se aplicável |
+| 150 | Forro do teto – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 151 | Sinais de infiltração no teto | Sim / Não | Sim / Não |  | Manchas de humidade |
 
 ### Porta-bagagens
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 156 | Revestimento do porta-bagagens – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 157 | Presença do pneu suplente | Sim / Não | Sim / Não |  | Ou kit de reparação |
-| 158 | Presença do macaco e chave de rodas | Sim / Não | Sim / Não |  |  |
+| 152 | Revestimento do porta-bagagens – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
 
 ### Estado Geral
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 159 | Odores/cheiros no habitáculo | Intensidade de Odor | Ausente / Leve / Forte |  | Avaliação sensorial – tabaco, humidade, mofo, etc. |
-| 160 | Estado geral de limpeza do veículo | Estado de Limpeza | Bom / Médio / Mau |  |  |
+| 153 | Odores/cheiros no habitáculo | Intensidade de Odor | Ausente / Leve / Forte |  | Avaliação sensorial – tabaco, humidade, mofo, etc. |
+| 154 | Estado geral de limpeza do veículo | Estado de Limpeza | Bom / Médio / Mau |  |  |
 
 ## 4. Pneus e Rodas
 
@@ -269,34 +263,34 @@
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 161 | Pneu dianteiro esquerdo – estado geral | Bom / Médio / Mau | Bom / Médio / Mau |  | Marca / modelo / medida / DOT |
-| 162 | Pneu dianteiro direito – estado geral | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 163 | Pneu traseiro esquerdo – estado geral | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 164 | Pneu traseiro direito – estado geral | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 165 | Pneu suplente – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. |  | Se aplicável |
-| 166 | Pneumáticos adicionais (jogo extra) | Sim / Não | Sim / Não |  | Inverno/verão – se existirem |
-| 167 | Profundidade do piso – dianteiro esq. | Medição (mm) | Registar valor em mm (mín. legal 1,6mm) |  | Mín. legal 1,6mm |
-| 168 | Profundidade do piso – dianteiro dir. | Medição (mm) | Registar valor em mm (mín. legal 1,6mm) |  |  |
-| 169 | Profundidade do piso – traseiro esq. | Medição (mm) | Registar valor em mm (mín. legal 1,6mm) |  |  |
-| 170 | Profundidade do piso – traseiro dir. | Medição (mm) | Registar valor em mm (mín. legal 1,6mm) |  |  |
-| 171 | Desgaste irregular – dianteiro esq. | Sim / Não | Sim / Não |  | Ind. problemas suspensão |
-| 172 | Desgaste irregular – dianteiro dir. | Sim / Não | Sim / Não |  |  |
-| 173 | Desgaste irregular – traseiro esq. | Sim / Não | Sim / Não |  |  |
-| 174 | Desgaste irregular – traseiro dir. | Sim / Não | Sim / Não |  |  |
-| 175 | Cortes/bolhas – dianteiro esq. | Sim / Não | Sim / Não |  |  |
-| 176 | Cortes/bolhas – dianteiro dir. | Sim / Não | Sim / Não |  |  |
-| 177 | Cortes/bolhas – traseiro esq. | Sim / Não | Sim / Não |  |  |
-| 178 | Cortes/bolhas – traseiro dir. | Sim / Não | Sim / Não |  |  |
+| 155 | Pneu dianteiro esquerdo – estado geral | Bom / Médio / Mau | Bom / Médio / Mau |  | Marca / modelo / medida / DOT |
+| 156 | Pneu dianteiro direito – estado geral | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 157 | Pneu traseiro esquerdo – estado geral | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 158 | Pneu traseiro direito – estado geral | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 159 | Pneu suplente – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. |  | Se aplicável |
+| 160 | Pneumáticos adicionais (jogo extra) | Sim / Não | Sim / Não |  | Inverno/verão – se existirem |
+| 161 | Profundidade do piso – dianteiro esq. | Medição (mm) | Registar valor em mm (mín. legal 1,6mm) |  | Mín. legal 1,6mm |
+| 162 | Profundidade do piso – dianteiro dir. | Medição (mm) | Registar valor em mm (mín. legal 1,6mm) |  |  |
+| 163 | Profundidade do piso – traseiro esq. | Medição (mm) | Registar valor em mm (mín. legal 1,6mm) |  |  |
+| 164 | Profundidade do piso – traseiro dir. | Medição (mm) | Registar valor em mm (mín. legal 1,6mm) |  |  |
+| 165 | Desgaste irregular – dianteiro esq. | Sim / Não | Sim / Não |  | Ind. problemas suspensão |
+| 166 | Desgaste irregular – dianteiro dir. | Sim / Não | Sim / Não |  |  |
+| 167 | Desgaste irregular – traseiro esq. | Sim / Não | Sim / Não |  |  |
+| 168 | Desgaste irregular – traseiro dir. | Sim / Não | Sim / Não |  |  |
+| 169 | Cortes/bolhas – dianteiro esq. | Sim / Não | Sim / Não |  |  |
+| 170 | Cortes/bolhas – dianteiro dir. | Sim / Não | Sim / Não |  |  |
+| 171 | Cortes/bolhas – traseiro esq. | Sim / Não | Sim / Não |  |  |
+| 172 | Cortes/bolhas – traseiro dir. | Sim / Não | Sim / Não |  |  |
 
 ### Jantes
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 179 | Jante dianteira esquerda – estado | Bom / Médio / Mau | Bom / Médio / Mau |  | Riscos, amolgadelas |
-| 180 | Jante dianteira direita – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 181 | Jante traseira esquerda – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 182 | Jante traseira direita – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 183 | Corrosão nas jantes | Grau de Corrosão | Ausente / Ligeira / Moderada / Severa |  |  |
+| 173 | Jante dianteira esquerda – estado | Bom / Médio / Mau | Bom / Médio / Mau |  | Riscos, amolgadelas |
+| 174 | Jante dianteira direita – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 175 | Jante traseira esquerda – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 176 | Jante traseira direita – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 177 | Corrosão nas jantes | Grau de Corrosão | Ausente / Ligeira / Moderada / Severa |  |  |
 
 ## 5. Motor
 
@@ -304,44 +298,44 @@
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 184 | Nível do óleo do motor | Nível de Fluido | Adequado / Baixo / Muito Baixo |  |  |
-| 185 | Qualidade do óleo do motor | Estado do Fluido | Bom / Contaminado / Substituir |  | Cor e consistência |
-| 186 | Nível do líquido de arrefecimento | Nível de Fluido | Adequado / Baixo / Muito Baixo |  |  |
-| 187 | Qualidade do líquido de arrefecimento | Estado do Fluido | Bom / Contaminado / Substituir |  | Cor – verificar contaminação |
-| 188 | Nível do fluido de travões | Nível de Fluido | Adequado / Baixo / Muito Baixo |  |  |
-| 189 | Teste do fluido de travões | Medição (%) | Registar valor em % de humidade |  | Humidade – recomendar subst. se >3% |
-| 190 | Nível do fluido de direção assistida | Nível de Fluido | Adequado / Baixo / Muito Baixo |  | Se aplicável |
-| 191 | Nível do líquido da caixa automática | Nível de Fluido | Adequado / Baixo / Muito Baixo |  | Se acessível / aplicável |
-| 192 | Nível do líquido do diferencial | Nível de Fluido | Adequado / Baixo / Muito Baixo |  | AWD/4x4 – se acessível |
-| 193 | Nível do líquido limpa para-brisas | Nível de Fluido | Adequado / Baixo / Muito Baixo |  |  |
+| 178 | Nível do óleo do motor | Nível de Fluido | Adequado / Baixo / Muito Baixo |  |  |
+| 179 | Qualidade do óleo do motor | Estado do Fluido | Bom / Contaminado / Substituir |  | Cor e consistência |
+| 180 | Nível do líquido de arrefecimento | Nível de Fluido | Adequado / Baixo / Muito Baixo |  |  |
+| 181 | Qualidade do líquido de arrefecimento | Estado do Fluido | Bom / Contaminado / Substituir |  | Cor – verificar contaminação |
+| 182 | Nível do fluido de travões | Nível de Fluido | Adequado / Baixo / Muito Baixo |  |  |
+| 183 | Teste do fluido de travões | Medição (%) | Registar valor em % de humidade |  | Humidade – recomendar subst. se >3% |
+| 184 | Nível do fluido de direção assistida | Nível de Fluido | Adequado / Baixo / Muito Baixo |  | Se aplicável |
+| 185 | Nível do líquido da caixa automática | Nível de Fluido | Adequado / Baixo / Muito Baixo |  | Se acessível / aplicável |
+| 186 | Nível do líquido do diferencial | Nível de Fluido | Adequado / Baixo / Muito Baixo |  | AWD/4x4 – se acessível |
+| 187 | Nível do líquido limpa para-brisas | Nível de Fluido | Adequado / Baixo / Muito Baixo |  |  |
 
 ### Componentes
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 194 | Diagnóstico eletrónico (OBD) – luzes avisadoras | Códigos de Erro Ativos | Nenhum / Indicar códigos (Observações) |  | Sem códigos de erro activos |
-| 195 | Estanquicidade geral do motor | Sim / Não | Sim / Não |  | Fugas visíveis de qualquer fluido |
-| 196 | Sistema de arrefecimento – estado | Bom / Médio / Mau | Bom / Médio / Mau |  | Radiador, mangueiras, pressão |
-| 197 | Estado da correia de distribuição | Bom / Médio / Mau | Bom / Médio / Mau |  | Verificar kms/data última troca |
-| 198 | Estado da correia do alternador | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 199 | Estado das mangueiras do motor | Bom / Médio / Mau | Bom / Médio / Mau |  | Fissuras, folgas |
-| 200 | Fugas de óleo visíveis | Sim / Não | Sim / Não |  |  |
-| 201 | Fugas de líquido de arrefecimento | Sim / Não | Sim / Não |  |  |
-| 202 | Estado da bateria | Bom / Médio / Mau | Bom / Médio / Mau |  | Corrosão nos terminais |
-| 203 | Alternador – tensão de carga | Medição (V) | Registar valor em Volts (ref. 13,8–14,4V) |  | ~13,8–14,4V com motor ligado |
-| 204 | Estado do filtro de ar | Bom / Médio / Mau | Bom / Médio / Mau |  | Visível sem desmontagem |
-| 205 | Sistema de escape – estado e fugas | Bom / Médio / Mau | Bom / Médio / Mau |  | Fugas, ruídos, fixações, corrosão |
-| 206 | Fumo no escape – cor e quantidade | Cor da Emissão | Ausente / Azul (óleo) / Branco (água) / Preto (combustível) |  | Azul=óleo / Branco=água / Preto=comb. |
-| 207 | Caixa de velocidades – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 208 | Embraiagem – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. (automática) |  | Manual; N/A se automática |
-| 209 | Velas de ignição – verificação visual | Bom / Médio / Mau | Bom / Médio / Mau |  | Se acessível sem desmontagem |
-| 210 | Cabos e fiação visíveis – estado | Bom / Médio / Mau | Bom / Médio / Mau |  | Isolamento, conexões |
-| 211 | Fixações e apoios do motor (coxins) – estado e folgas | Bom / Médio / Mau | Bom / Médio / Mau |  | Verificar fissuras e folgas na borracha |
-| 212 | Reservatório e canalizações de combustível – estanquicidade | Sim / Não | Sim / Não |  | Depósito e tubagens – fugas, fissuras, corrosão |
-| 213 | Tubagens de admissão – estado e fugas | Sim / Não | Sim / Não |  | Fissuras, folgas, fugas de ar |
-| 214 | Saturação do filtro de partículas (FAP/DPF) | Nível de Saturação | Baixa / Média / Alta / N.A. (gasolina) |  | Apenas diesel – N.A. em gasolina |
-| 215 | Resguardos e tampas do motor – presença e estado | Presença e Estado | Presente (bom estado) / Presente (danificado) / Ausente |  | Verificar fixação e integridade |
-| 216 | Catalisador, FAP e silenciadores – estado individual | Bom / Médio / Mau | Bom / Médio / Mau |  | Corrosão, fixação e ruídos por secção |
+| 188 | Diagnóstico eletrónico (OBD) – luzes avisadoras | Códigos de Erro Ativos | Nenhum / Indicar códigos (Observações) |  | Sem códigos de erro activos |
+| 189 | Estanquicidade geral do motor | Sim / Não | Sim / Não |  | Fugas visíveis de qualquer fluido |
+| 190 | Sistema de arrefecimento – estado | Bom / Médio / Mau | Bom / Médio / Mau |  | Radiador, mangueiras, pressão |
+| 191 | Estado da correia de distribuição | Bom / Médio / Mau | Bom / Médio / Mau |  | Verificar kms/data última troca |
+| 192 | Estado da correia do alternador | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 193 | Estado das mangueiras do motor | Bom / Médio / Mau | Bom / Médio / Mau |  | Fissuras, folgas |
+| 194 | Fugas de óleo visíveis | Sim / Não | Sim / Não |  |  |
+| 195 | Fugas de líquido de arrefecimento | Sim / Não | Sim / Não |  |  |
+| 196 | Estado da bateria | Bom / Médio / Mau | Bom / Médio / Mau |  | Corrosão nos terminais |
+| 197 | Alternador – tensão de carga | Medição (V) | Registar valor em Volts (ref. 13,8–14,4V) |  | ~13,8–14,4V com motor ligado |
+| 198 | Estado do filtro de ar | Bom / Médio / Mau | Bom / Médio / Mau |  | Visível sem desmontagem |
+| 199 | Sistema de escape – estado e fugas | Bom / Médio / Mau | Bom / Médio / Mau |  | Fugas, ruídos, fixações, corrosão |
+| 200 | Fumo no escape – cor e quantidade | Cor da Emissão | Ausente / Azul (óleo) / Branco (água) / Preto (combustível) |  | Azul=óleo / Branco=água / Preto=comb. |
+| 201 | Caixa de velocidades – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 202 | Embraiagem – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. (automática) |  | Manual; N/A se automática |
+| 203 | Velas de ignição – verificação visual | Bom / Médio / Mau | Bom / Médio / Mau |  | Se acessível sem desmontagem |
+| 204 | Cabos e fiação visíveis – estado | Bom / Médio / Mau | Bom / Médio / Mau |  | Isolamento, conexões |
+| 205 | Fixações e apoios do motor (coxins) – estado e folgas | Bom / Médio / Mau | Bom / Médio / Mau |  | Verificar fissuras e folgas na borracha |
+| 206 | Reservatório e canalizações de combustível – estanquicidade | Sim / Não | Sim / Não |  | Depósito e tubagens – fugas, fissuras, corrosão |
+| 207 | Tubagens de admissão – estado e fugas | Sim / Não | Sim / Não |  | Fissuras, folgas, fugas de ar |
+| 208 | Saturação do filtro de partículas (FAP/DPF) | Nível de Saturação | Baixa / Média / Alta / N.A. (gasolina) |  | Apenas diesel – N.A. em gasolina |
+| 209 | Resguardos e tampas do motor – presença e estado | Presença e Estado | Presente (bom estado) / Presente (danificado) / Ausente |  | Verificar fixação e integridade |
+| 210 | Catalisador, FAP e silenciadores – estado individual | Bom / Médio / Mau | Bom / Médio / Mau |  | Corrosão, fixação e ruídos por secção |
 
 ## 6. Chassis e Estrutura
 
@@ -349,12 +343,12 @@
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 217 | Sinais de reparação de colisão – longarinas | Sim / Não | Sim / Não |  | Soldas, reforços, massa |
-| 218 | Sinais de reparação de colisão – travessas | Sim / Não | Sim / Não |  |  |
-| 219 | Deformação do chassis visível | Sim / Não | Sim / Não |  |  |
-| 220 | Proteção inferior (underbody) – estado | Bom / Médio / Mau | Bom / Médio / Mau |  | Danos, corrosão, fixações |
-| 221 | Pontos de ancoragem dos cintos – integridade | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 222 | Passaruedas – estado e fixação | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 211 | Sinais de reparação de colisão – longarinas | Sim / Não | Sim / Não |  | Soldas, reforços, massa |
+| 212 | Sinais de reparação de colisão – travessas | Sim / Não | Sim / Não |  |  |
+| 213 | Deformação do chassis visível | Sim / Não | Sim / Não |  |  |
+| 214 | Proteção inferior (underbody) – estado | Bom / Médio / Mau | Bom / Médio / Mau |  | Danos, corrosão, fixações |
+| 215 | Pontos de ancoragem dos cintos – integridade | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 216 | Passaruedas – estado e fixação | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
 
 ## 7. Travagem e Suspensão
 
@@ -362,39 +356,39 @@
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 223 | Pastilhas dianteiras – desgaste | Nível de Desgaste | Bom (>50%) / Médio (20–50%) / Substituir (<20%) |  |  |
-| 224 | Pastilhas traseiras – desgaste | Nível de Desgaste | Bom (>50%) / Médio (20–50%) / Substituir (<20%) |  |  |
-| 225 | Disco dianteiro esquerdo – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. (se tambor) |  |  |
-| 226 | Disco dianteiro direito – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. (se tambor) |  |  |
-| 227 | Disco traseiro esquerdo – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. (se tambor) |  | Se disco; tambor = N/A |
-| 228 | Disco traseiro direito – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. (se tambor) |  |  |
-| 229 | Tambores traseiros – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. (se disco) |  | Se aplicável |
-| 230 | Pinças de travão – estado e fugas | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 231 | Tubagem de travão – fugas visíveis | Sim / Não | Sim / Não |  |  |
-| 232 | Travão de mão – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
+| 217 | Pastilhas dianteiras – desgaste | Nível de Desgaste | Bom (>50%) / Médio (20–50%) / Substituir (<20%) |  |  |
+| 218 | Pastilhas traseiras – desgaste | Nível de Desgaste | Bom (>50%) / Médio (20–50%) / Substituir (<20%) |  |  |
+| 219 | Disco dianteiro esquerdo – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. (se tambor) |  |  |
+| 220 | Disco dianteiro direito – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. (se tambor) |  |  |
+| 221 | Disco traseiro esquerdo – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. (se tambor) |  | Se disco; tambor = N/A |
+| 222 | Disco traseiro direito – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. (se tambor) |  |  |
+| 223 | Tambores traseiros – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. (se disco) |  | Se aplicável |
+| 224 | Pinças de travão – estado e fugas | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 225 | Tubagem de travão – fugas visíveis | Sim / Não | Sim / Não |  |  |
+| 226 | Travão de mão – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
 
 ### Suspensão
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 233 | Amortecedor dianteiro esquerdo – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 234 | Amortecedor dianteiro direito – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 235 | Amortecedor traseiro esquerdo – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 236 | Amortecedor traseiro direito – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 237 | Mola dianteira esquerda – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 238 | Mola dianteira direita – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 239 | Mola traseira esquerda – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 240 | Mola traseira direita – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 241 | Direção e suspensão – estado geral | Bom / Médio / Mau | Bom / Médio / Mau |  | Folgas, braços, rótulas |
-| 242 | Ruídos na suspensão (estática) | Sim / Não | Sim / Não |  |  |
-| 243 | Barras estabilizadoras – folgas e fixação | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 244 | Sistema de suspensão pneumática/hidráulica – funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Se aplicável |
+| 227 | Amortecedor dianteiro esquerdo – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 228 | Amortecedor dianteiro direito – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 229 | Amortecedor traseiro esquerdo – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 230 | Amortecedor traseiro direito – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 231 | Mola dianteira esquerda – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 232 | Mola dianteira direita – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 233 | Mola traseira esquerda – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 234 | Mola traseira direita – estado | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 235 | Direção e suspensão – estado geral | Bom / Médio / Mau | Bom / Médio / Mau |  | Folgas, braços, rótulas |
+| 236 | Ruídos na suspensão (estática) | Sim / Não | Sim / Não |  |  |
+| 237 | Barras estabilizadoras – folgas e fixação | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 238 | Sistema de suspensão pneumática/hidráulica – funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Se aplicável |
 
 ### Transmissão
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 245 | Semi-eixos, transmissões e guarda-pós (CV boots) – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. |  | Rasgões e fugas de massa lubrificante |
+| 239 | Semi-eixos, transmissões e guarda-pós (CV boots) – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. |  | Rasgões e fugas de massa lubrificante |
 
 ## 8. Elétrico
 
@@ -402,16 +396,11 @@
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 246 | Tomada OBD – funcional | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
-| 247 | Fusíveis – presença e estado visual | Bom / Médio / Mau | Bom / Médio / Mau |  | Caixa de fusíveis |
-| 248 | Estado dos cabos visíveis | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 249 | Fecho centralizado – funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  |  |
-| 250 | Alarme antifurto – funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Se aplicável |
-| 251 | Sistema Start/Stop – funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Se aplicável |
-| 252 | Travão de mão elétrico – funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Se aplicável |
-| 253 | Sistema ISOFIX – presença | Sim / Não | Sim / Não |  |  |
-| 254 | Motor de arranque – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
-| 255 | Motoventilador / termoventilador – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
+| 240 | Tomada OBD – funcional | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
+| 241 | Fusíveis – presença e estado visual | Bom / Médio / Mau | Bom / Médio / Mau |  | Caixa de fusíveis |
+| 242 | Estado dos cabos visíveis | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 243 | Motor de arranque – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
+| 244 | Motoventilador / termoventilador – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
 
 ## 9. Teste de Condução
 
@@ -419,103 +408,53 @@
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 256 | Resposta do motor (aceleração) | Bom / Médio / Mau | Bom / Médio / Mau |  | Apenas particulares |
-| 257 | Funcionamento da caixa de velocidades | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 258 | Funcionamento da embraiagem | Bom / Médio / Mau | Bom / Médio / Mau |  | Manual |
-| 259 | Vibração ao acelerar | Sim / Não | Sim / Não |  |  |
-| 260 | Ruídos anormais ao acelerar | Sim / Não | Sim / Não |  |  |
+| 245 | Resposta do motor (aceleração) | Bom / Médio / Mau | Bom / Médio / Mau |  | Apenas particulares |
+| 246 | Funcionamento da caixa de velocidades | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 247 | Funcionamento da embraiagem | Bom / Médio / Mau | Bom / Médio / Mau |  | Manual |
+| 248 | Vibração ao acelerar | Sim / Não | Sim / Não |  |  |
+| 249 | Ruídos anormais ao acelerar | Sim / Não | Sim / Não |  |  |
 
 ### Direção
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 261 | Resposta da direção assistida | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 262 | Alinhamento – desvio em linha reta | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 263 | Vibrações no volante | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 250 | Resposta da direção assistida | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 251 | Alinhamento – desvio em linha reta | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 252 | Vibrações no volante | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
 
 ### Travagem
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 264 | Eficiência do sistema de travagem | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 265 | Vibração ao travar | Sim / Não | Sim / Não |  |  |
-| 266 | Ruídos anormais ao travar | Sim / Não | Sim / Não |  |  |
+| 253 | Eficiência do sistema de travagem | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 254 | Vibração ao travar | Sim / Não | Sim / Não |  |  |
+| 255 | Ruídos anormais ao travar | Sim / Não | Sim / Não |  |  |
 
 ### Comportamento
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 267 | Estabilidade em linha reta | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 268 | Estabilidade em curvas | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 269 | Temperatura do motor após condução | Temperatura Após Condução | Normal / Elevada |  |  |
-| 270 | Fugas após estacionamento | Sim / Não | Sim / Não |  | Verificar chão após 5 min |
+| 256 | Estabilidade em linha reta | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 257 | Estabilidade em curvas | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 258 | Temperatura do motor após condução | Temperatura Após Condução | Normal / Elevada |  |  |
+| 259 | Fugas após estacionamento | Sim / Não | Sim / Não |  | Verificar chão após 5 min |
 
 ## 10. Equipamentos
-
-### Multimédia
-
-| # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
-|---|---|---|---|---|---|
-| 271 | Android Auto / Apple CarPlay | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 272 | Ecrã central touchscreen | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 273 | Entrada USB – funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 274 | Sistema de som completo | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  |  |
-| 275 | Volante multifunções | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 276 | Comandos de voz | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 277 | Carregamento sem fios | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-
-### Conforto
-
-| # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
-|---|---|---|---|---|---|
-| 278 | Ar condicionado automático (clima) | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 279 | Vidros elétricos com um toque | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 280 | Retrovisores elétricos c/ rebatimento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 281 | Bancos elétricos | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 282 | Bancos aquecidos / ventilados | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 283 | Sensor de chuva | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 284 | Sensor de luz automático | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-
-### ADAS
-
-| # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
-|---|---|---|---|---|---|
-| 285 | Sensores estacionamento dianteiros | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 286 | Sensores estacionamento traseiros | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 287 | Câmara de ré / 360° | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 288 | Cruise control | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 289 | Cruise control adaptativo (ACC) | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 290 | Assistente de faixa (Lane Assist) | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 291 | Sensor de ângulo morto (BSD) | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 292 | Leitor de sinais de trânsito | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 293 | Assistente de estacionamento auto | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 294 | Head-Up Display (HUD) | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-
-### Segurança
-
-| # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
-|---|---|---|---|---|---|
-| 295 | Airbags frontais – luz painel OK | Luz de Aviso (Segurança) | Apaga após arranque / Permanece acesa / N.A. |  | Luz apaga após arranque |
-| 296 | Airbags laterais – luz painel OK | Luz de Aviso (Segurança) | Apaga após arranque / Permanece acesa / N.A. |  | N/A se não tem |
-| 297 | Airbags de cortina – luz painel OK | Luz de Aviso (Segurança) | Apaga após arranque / Permanece acesa / N.A. |  | N/A se não tem |
-| 298 | ABS / ESP – luz painel OK | Luz de Aviso (Segurança) | Apaga após arranque / Permanece acesa / N.A. |  |  |
-| 299 | Travagem auto emergência (AEB) | Luz de Aviso (Segurança) | Apaga após arranque / Permanece acesa / N.A. |  | N/A se não tem |
-| 300 | Monitor pressão pneus (TPMS) | Luz de Aviso (Segurança) | Apaga após arranque / Permanece acesa / N.A. |  | N/A se não tem |
 
 ### Acessórios e Itens Obrigatórios
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 301 | Triângulo de pré-sinalização e colete retrorreflector | Presença e Conformidade | Completo / Incompleto / Ausente |  | Itens obrigatórios por lei em Portugal |
-| 302 | Chaves da viatura (1ª e 2ª chave) e chave de segredo das jantes | Completude de Chaves | Completo (1ª, 2ª e segredo jantes) / Incompleto / Nenhuma chave |  | Presença e funcionamento |
-| 303 | Caixa de primeiros socorros | Sim / Não / N.A. | Sim / Não / N.A. |  | Presença e validade |
-| 304 | Manuais de utilização do veículo | Sim / Não | Sim / Não |  |  |
-| 305 | Antena – presença e estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. |  |  |
-| 306 | Palas de sol – funcionamento e estado | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
-| 307 | Porta-luvas e compartimentos interiores – funcionamento e estado | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
-| 308 | Sistema SOS / eCall e assistência remota da marca | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Se aplicável |
-| 309 | Dispositivo de engate de reboque | Sim / Não / N.A. | Sim / Não / N.A. |  | Se aplicável |
-| 310 | Alcoolímetro anti-arranque | Sim / Não / N.A. | Sim / Não / N.A. |  | Se aplicável |
+| 260 | Triângulo de pré-sinalização e colete retrorreflector | Presença e Conformidade | Completo / Incompleto / Ausente |  | Itens obrigatórios por lei em Portugal |
+| 261 | Chaves da viatura (1ª e 2ª chave) e chave de segredo das jantes | Completude de Chaves | Completo (1ª, 2ª e segredo jantes) / Incompleto / Nenhuma chave |  | Presença e funcionamento |
+| 262 | Caixa de primeiros socorros | Sim / Não / N.A. | Sim / Não / N.A. |  | Presença e validade |
+| 263 | Manuais de utilização do veículo | Sim / Não | Sim / Não |  |  |
+| 264 | Antena – presença e estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. |  |  |
+| 265 | Palas de sol – funcionamento e estado | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
+| 266 | Porta-luvas e compartimentos interiores – funcionamento e estado | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
+| 267 | Sistema SOS / eCall e assistência remota da marca | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Se aplicável |
+| 268 | Dispositivo de engate de reboque | Sim / Não / N.A. | Sim / Não / N.A. |  | Se aplicável |
+| 269 | Alcoolímetro anti-arranque | Sim / Não / N.A. | Sim / Não / N.A. |  | Se aplicável |
 
 ## 11. Teto Solar
 
@@ -523,12 +462,12 @@
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 311 | Vidro do teto solar – estado | Bom / Médio / Mau | Bom / Médio / Mau |  | N/A se não tem |
-| 312 | Abertura e fecho do teto solar | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 313 | Inclinação do teto solar | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 314 | Sinais de infiltração de água | Sim / Não / N.A. | Sim / Não / N.A. |  | N/A se não tem |
-| 315 | Vedação do teto solar | Bom / Médio / Mau | Bom / Médio / Mau |  | N/A se não tem |
-| 316 | Cortina interna – funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
+| 270 | Vidro do teto solar – estado | Bom / Médio / Mau | Bom / Médio / Mau |  | N/A se não tem |
+| 271 | Abertura e fecho do teto solar | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
+| 272 | Inclinação do teto solar | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
+| 273 | Sinais de infiltração de água | Sim / Não / N.A. | Sim / Não / N.A. |  | N/A se não tem |
+| 274 | Vedação do teto solar | Bom / Médio / Mau | Bom / Médio / Mau |  | N/A se não tem |
+| 275 | Cortina interna – funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
 
 ## 12. Capota Conversível
 
@@ -536,15 +475,15 @@
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 317 | Estado geral da capota | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. |  | N/A se não tem |
-| 318 | Abertura elétrica/manual | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 319 | Fecho elétrico/manual | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 320 | Rasgos/furos na lona | Sim / Não / N.A. | Sim / Não / N.A. |  | N/A se não tem |
-| 321 | Infiltrações pela capota | Sim / Não / N.A. | Sim / Não / N.A. |  | N/A se não tem |
-| 322 | Borrachas de vedação – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. |  | N/A se não tem |
-| 323 | Estrutura metálica – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. |  | N/A se não tem |
-| 324 | Travamento da capota | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
-| 325 | Ruídos anormais na operação | Sim / Não / N.A. | Sim / Não / N.A. |  | N/A se não tem |
+| 276 | Estado geral da capota | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. |  | N/A se não tem |
+| 277 | Abertura elétrica/manual | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
+| 278 | Fecho elétrico/manual | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
+| 279 | Rasgos/furos na lona | Sim / Não / N.A. | Sim / Não / N.A. |  | N/A se não tem |
+| 280 | Infiltrações pela capota | Sim / Não / N.A. | Sim / Não / N.A. |  | N/A se não tem |
+| 281 | Borrachas de vedação – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. |  | N/A se não tem |
+| 282 | Estrutura metálica – estado | Bom / Médio / Mau / N.A. | Bom / Médio / Mau / N.A. |  | N/A se não tem |
+| 283 | Travamento da capota | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | N/A se não tem |
+| 284 | Ruídos anormais na operação | Sim / Não / N.A. | Sim / Não / N.A. |  | N/A se não tem |
 
 ## 13. Motoriz. Especial (F2)
 
@@ -552,68 +491,68 @@
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 326 | Estado geral da bateria de alta tensão | Bom / Médio / Mau | Bom / Médio / Mau |  | Visual + alertas painel |
-| 327 | Degradação da bateria – capacidade real vs. nominal (%) | Medição (%) | Registar valor em % (capacidade/autonomia) |  | Scanner BEV |
-| 328 | Número de ciclos de carga | Texto Livre (nº) | Registar número de ciclos |  | Scanner BEV |
-| 329 | Estado do sistema de gestão de bateria (BMS) | Bom / Médio / Mau | Bom / Médio / Mau |  | Scanner BEV |
-| 330 | Temperatura da bateria – sistema aquecimento/arrefecimento | Temperatura Após Condução | Normal / Elevada |  | Scanner BEV |
-| 331 | Alertas ou células danificadas na bateria | Sim / Não | Sim / Não |  | Painel + scanner |
+| 285 | Estado geral da bateria de alta tensão | Bom / Médio / Mau | Bom / Médio / Mau |  | Visual + alertas painel |
+| 286 | Degradação da bateria – capacidade real vs. nominal (%) | Medição (%) | Registar valor em % (capacidade/autonomia) |  | Scanner BEV |
+| 287 | Número de ciclos de carga | Texto Livre (nº) | Registar número de ciclos |  | Scanner BEV |
+| 288 | Estado do sistema de gestão de bateria (BMS) | Bom / Médio / Mau | Bom / Médio / Mau |  | Scanner BEV |
+| 289 | Temperatura da bateria – sistema aquecimento/arrefecimento | Temperatura Após Condução | Normal / Elevada |  | Scanner BEV |
+| 290 | Alertas ou células danificadas na bateria | Sim / Não | Sim / Não |  | Painel + scanner |
 
 ### Carregamento
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 332 | Porto carregamento AC (Tipo 2) – estado e funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Teste físico |
-| 333 | Porto carregamento DC (CCS/CHAdeMO) – estado e funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Se aplicável |
-| 334 | Cabo de carregamento – presença e estado | Presença e Estado | Presente (bom estado) / Presente (danificado) / Ausente |  |  |
-| 335 | Sistema de carregamento – teste real (ligar à tomada) | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
+| 291 | Porto carregamento AC (Tipo 2) – estado e funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Teste físico |
+| 292 | Porto carregamento DC (CCS/CHAdeMO) – estado e funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | Se aplicável |
+| 293 | Cabo de carregamento – presença e estado | Presença e Estado | Presente (bom estado) / Presente (danificado) / Ausente |  |  |
+| 294 | Sistema de carregamento – teste real (ligar à tomada) | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
 
 ### Sistema BEV
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 336 | Autonomia estimada atual (% bateria e kms indicados) | Texto Livre | Registar % bateria e kms indicados |  | Painel |
-| 337 | Sistema de inversor – sem alertas activos | Sim / Não | Sim / Não |  | Scanner BEV |
-| 338 | Modo recuperação de energia (regeneração) – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  | Teste em movimento |
-| 339 | Sistema som artificial para peões (AVAS) – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
-| 340 | Cabos de alta tensão visíveis – isolamento e estado | Bom / Médio / Mau | Bom / Médio / Mau |  | Visual – NÃO tocar |
-| 341 | Aquecimento/arrefecimento cabine (sistema elétrico) | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
+| 295 | Autonomia estimada atual (% bateria e kms indicados) | Texto Livre | Registar % bateria e kms indicados |  | Painel |
+| 296 | Sistema de inversor – sem alertas activos | Sim / Não | Sim / Não |  | Scanner BEV |
+| 297 | Modo recuperação de energia (regeneração) – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  | Teste em movimento |
+| 298 | Sistema som artificial para peões (AVAS) – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
+| 299 | Cabos de alta tensão visíveis – isolamento e estado | Bom / Médio / Mau | Bom / Médio / Mau |  | Visual – NÃO tocar |
+| 300 | Aquecimento/arrefecimento cabine (sistema elétrico) | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
 
 ### Bateria HEV
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 342 | Estado da bateria de tração híbrida | Bom / Médio / Mau | Bom / Médio / Mau |  | Scanner OBD + módulo |
-| 343 | Funcionamento transição motor elétrico – motor térmico | Funciona / Não Funciona | Funciona / Não Funciona |  | Teste em movimento |
-| 344 | Modo elétrico puro – funcionamento e autonomia (PHEV) | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | PHEV apenas |
+| 301 | Estado da bateria de tração híbrida | Bom / Médio / Mau | Bom / Médio / Mau |  | Scanner OBD + módulo |
+| 302 | Funcionamento transição motor elétrico – motor térmico | Funciona / Não Funciona | Funciona / Não Funciona |  | Teste em movimento |
+| 303 | Modo elétrico puro – funcionamento e autonomia (PHEV) | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | PHEV apenas |
 
 ### Carregamento
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 345 | Porto de carregamento externo (PHEV) – estado e funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | PHEV apenas |
+| 304 | Porto de carregamento externo (PHEV) – estado e funcionamento | Funciona / Não Funciona / N.A. | Funciona / Não Funciona / N.A. |  | PHEV apenas |
 
 ### Sistema HEV
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 346 | Sistema de regeneração em travagem – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  | Teste em movimento |
-| 347 | Arranque automático do motor térmico – correto | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
-| 348 | Sistema de paragem automática (EV mode) – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
-| 349 | Alertas do sistema híbrido no painel | Sim / Não | Sim / Não |  |  |
-| 350 | Estado geral da bateria 12V auxiliar | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
-| 351 | Itens motor térmico aplicam-se – ver Secção 5 | Ver Categoria 5 | Aplicar classificação da Secção 5 (Motor) |  | Ver cat. 5 |
+| 305 | Sistema de regeneração em travagem – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  | Teste em movimento |
+| 306 | Arranque automático do motor térmico – correto | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
+| 307 | Sistema de paragem automática (EV mode) – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
+| 308 | Alertas do sistema híbrido no painel | Sim / Não | Sim / Não |  |  |
+| 309 | Estado geral da bateria 12V auxiliar | Bom / Médio / Mau | Bom / Médio / Mau |  |  |
+| 310 | Itens motor térmico aplicam-se – ver Secção 5 | Ver Categoria 5 | Aplicar classificação da Secção 5 (Motor) |  | Ver cat. 5 |
 
 ### GPL
 
 | # | Item de Verificação | Tipo de Resposta | Opções de Resposta | Regra de Preenchimento | Observações |
 |---|---|---|---|---|---|
-| 352 | Depósito GPL – certificação e data de validade | Data | Registar data de validade (DD/MM/AAAA) | Deixar em branco / indicar N.A. se não aplicável | Doc. obrigatória |
-| 353 | Válvula de segurança do depósito – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  | Visual |
-| 354 | Tubagens e ligações GPL – fugas (detetor de gás) | Sim / Não | Sim / Não |  | Detetor portátil ~50€ |
-| 355 | Kit de conversão GPL – marca, homologação e documentação | Sim / Não | Sim / Não |  | Doc. obrigatória |
-| 356 | Vaporizador / redutor de pressão – estado | Bom / Médio / Mau | Bom / Médio / Mau |  | Visual |
-| 357 | Injetores GPL – estado e funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
-| 358 | Comutador GPL/Gasolina no interior – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
-| 359 | Sistema de arranque – arranca em gasolina primeiro | Sim / Não | Sim / Não |  | Verificação funcional |
-| 360 | Certificação IPO para GPL – válida? | Data | Registar data de validade (DD/MM/AAAA) | Deixar em branco / indicar N.A. se não aplicável | Doc. obrigatória |
+| 311 | Depósito GPL – certificação e data de validade | Data | Registar data de validade (DD/MM/AAAA) | Deixar em branco / indicar N.A. se não aplicável | Doc. obrigatória |
+| 312 | Válvula de segurança do depósito – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  | Visual |
+| 313 | Tubagens e ligações GPL – fugas (detetor de gás) | Sim / Não | Sim / Não |  | Detetor portátil ~50€ |
+| 314 | Kit de conversão GPL – marca, homologação e documentação | Sim / Não | Sim / Não |  | Doc. obrigatória |
+| 315 | Vaporizador / redutor de pressão – estado | Bom / Médio / Mau | Bom / Médio / Mau |  | Visual |
+| 316 | Injetores GPL – estado e funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
+| 317 | Comutador GPL/Gasolina no interior – funcionamento | Funciona / Não Funciona | Funciona / Não Funciona |  |  |
+| 318 | Sistema de arranque – arranca em gasolina primeiro | Sim / Não | Sim / Não |  | Verificação funcional |
+| 319 | Certificação IPO para GPL – válida? | Data | Registar data de validade (DD/MM/AAAA) | Deixar em branco / indicar N.A. se não aplicável | Doc. obrigatória |

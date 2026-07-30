@@ -30,8 +30,8 @@ declare v_count int;
 declare v_grupo13 int;
 begin
   select count(*) into v_count from public.checklist_item_templates;
-  if v_count <> 359 then
-    raise exception 'FALHOU: esperava 359 itens, achei % (item #351 e nota, nao deveria ter sido seedado)', v_count;
+  if v_count <> 318 then
+    raise exception 'FALHOU: esperava 318 itens, achei % (item #351 e nota, nao deveria ter sido seedado)', v_count;
   end if;
 
   select count(*) into v_grupo13 from public.checklist_item_templates cit
@@ -40,7 +40,7 @@ begin
   if v_grupo13 <> 34 then
     raise exception 'FALHOU: grupo 13 deveria ter 34 itens (35 linhas - item #351 excluido), achei %', v_grupo13;
   end if;
-  raise notice 'OK: 359 itens no total, grupo 13 com 34 (item #351 excluido)';
+  raise notice 'OK: 318 itens no total, grupo 13 com 34 (item #351 excluido)';
 end $$;
 
 do $$

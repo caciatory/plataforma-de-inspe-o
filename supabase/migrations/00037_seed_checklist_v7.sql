@@ -4,18 +4,22 @@
 -- docs/data/checklist-inspecta-v7.md. Nao editar a mao -- reexecute
 -- o script se o .md mudar.
 
--- Limpa o seed antigo (320 itens/12 grupos) e os conjuntos de opcoes
--- orfaos da Peca 1a (estado_4, so' existia pro backfill temporario).
--- checklist_item_responses e dado de resposta de teste (sem inspecoes
--- reais ainda) que referencia checklist_item_templates sem ON DELETE
--- proprio -- bloqueia o delete de templates abaixo se nao for limpo
--- primeiro; a limpeza cascateia pra medicoes/photos via o ON DELETE
--- CASCADE que ja existe a partir de checklist_item_responses.
+-- Limpa o seed antigo (grupos/itens) e os conjuntos de opcoes antes
+-- de reinserir. checklist_item_responses e dado de resposta de
+-- teste (sem inspecoes reais ainda) que referencia
+-- checklist_item_templates sem ON DELETE proprio -- bloqueia o
+-- delete de templates abaixo se nao for limpo primeiro; a limpeza
+-- cascateia pra medicoes/photos via o ON DELETE CASCADE que ja
+-- existe a partir de checklist_item_responses. O delete de
+-- conjuntos_opcao sem filtro (idempotencia do reseed: a 1a
+-- aplicacao deste script nao pegou esse caso pq a tabela ainda nao
+-- tinha os conjuntos do v7) e seguro pq checklist_item_templates
+-- -- unica outra tabela que referencia conjuntos_opcao -- ja foi
+-- limpa na linha acima, e opcoes.conjunto_id tem ON DELETE CASCADE.
 delete from public.checklist_item_responses;
 delete from public.checklist_item_templates;
 delete from public.checklist_group_templates;
-delete from public.opcoes where conjunto_id in (select id from public.conjuntos_opcao where nome = 'estado_4');
-delete from public.conjuntos_opcao where nome = 'estado_4';
+delete from public.conjuntos_opcao;
 
 insert into public.checklist_group_templates (ordem, nome, ativo) values
   (1, 'Identificação e Documentação', true),
@@ -273,15 +277,9 @@ insert into public.checklist_item_templates (group_id, subcategoria, nome, tipo,
   ((select id from public.checklist_group_templates where ordem = 3), 'Painel', 'Comandos do volante – funcionamento', 'escolha', null, false, 'Se aplicável', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 3), 'Painel', 'Ar condicionado – funcionamento (frio e calor)', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 3), 'Painel', 'Rádio / multimédia – funcionamento', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 3), 'Painel', 'GPS / navegação integrada', 'escolha', null, false, 'Se aplicável', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 3), 'Painel', 'Bluetooth – funcionamento', 'escolha', null, false, 'Se aplicável', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 3), 'Teto', 'Forro do teto – estado', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'estado_3'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 3), 'Teto', 'Sinais de infiltração no teto', 'escolha', null, false, 'Manchas de humidade', (select id from public.conjuntos_opcao where nome = 'sim_nao_problema'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 3), 'Teto', 'Teto de abrir manual – funcionamento', 'escolha', null, false, 'Se aplicável', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 3), 'Teto', 'Teto de abrir elétrico – abertura/fecho', 'escolha', null, false, 'Se aplicável', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 3), 'Porta-bagagens', 'Revestimento do porta-bagagens – estado', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'estado_3'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 3), 'Porta-bagagens', 'Presença do pneu suplente', 'escolha', null, false, 'Ou kit de reparação', (select id from public.conjuntos_opcao where nome = 'sim_nao_presenca'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 3), 'Porta-bagagens', 'Presença do macaco e chave de rodas', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'sim_nao_presenca'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 3), 'Estado Geral', 'Odores/cheiros no habitáculo', 'escolha', null, false, 'Avaliação sensorial – tabaco, humidade, mofo, etc.', (select id from public.conjuntos_opcao where nome = 'intensidade_odor'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 3), 'Estado Geral', 'Estado geral de limpeza do veículo', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'estado_3'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 4), 'Pneus', 'Pneu dianteiro esquerdo – estado geral', 'escolha', null, false, 'Marca / modelo / medida / DOT', (select id from public.conjuntos_opcao where nome = 'estado_3'), null, null, null, null, null, 'pneus-pneu-dianteiro-estado-geral'),
@@ -372,11 +370,6 @@ insert into public.checklist_item_templates (group_id, subcategoria, nome, tipo,
   ((select id from public.checklist_group_templates where ordem = 8), 'Elétrico', 'Tomada OBD – funcional', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'funciona_2'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 8), 'Elétrico', 'Fusíveis – presença e estado visual', 'escolha', null, false, 'Caixa de fusíveis', (select id from public.conjuntos_opcao where nome = 'estado_3'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 8), 'Elétrico', 'Estado dos cabos visíveis', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'estado_3'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 8), 'Elétrico', 'Fecho centralizado – funcionamento', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 8), 'Elétrico', 'Alarme antifurto – funcionamento', 'escolha', null, false, 'Se aplicável', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 8), 'Elétrico', 'Sistema Start/Stop – funcionamento', 'escolha', null, false, 'Se aplicável', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 8), 'Elétrico', 'Travão de mão elétrico – funcionamento', 'escolha', null, false, 'Se aplicável', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 8), 'Elétrico', 'Sistema ISOFIX – presença', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'sim_nao_presenca'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 8), 'Elétrico', 'Motor de arranque – funcionamento', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'funciona_2'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 8), 'Elétrico', 'Motoventilador / termoventilador – funcionamento', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'funciona_2'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 9), 'Motor', 'Resposta do motor (aceleração)', 'escolha', null, false, 'Apenas particulares', (select id from public.conjuntos_opcao where nome = 'estado_3'), null, null, null, null, null, null),
@@ -394,36 +387,6 @@ insert into public.checklist_item_templates (group_id, subcategoria, nome, tipo,
   ((select id from public.checklist_group_templates where ordem = 9), 'Comportamento', 'Estabilidade em curvas', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'estado_3'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 9), 'Comportamento', 'Temperatura do motor após condução', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'temperatura_apos_conducao'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 9), 'Comportamento', 'Fugas após estacionamento', 'escolha', null, false, 'Verificar chão após 5 min', (select id from public.conjuntos_opcao where nome = 'sim_nao_problema'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Multimédia', 'Android Auto / Apple CarPlay', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Multimédia', 'Ecrã central touchscreen', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Multimédia', 'Entrada USB – funcionamento', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Multimédia', 'Sistema de som completo', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Multimédia', 'Volante multifunções', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Multimédia', 'Comandos de voz', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Multimédia', 'Carregamento sem fios', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Conforto', 'Ar condicionado automático (clima)', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Conforto', 'Vidros elétricos com um toque', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Conforto', 'Retrovisores elétricos c/ rebatimento', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Conforto', 'Bancos elétricos', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Conforto', 'Bancos aquecidos / ventilados', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Conforto', 'Sensor de chuva', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Conforto', 'Sensor de luz automático', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'ADAS', 'Sensores estacionamento dianteiros', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'ADAS', 'Sensores estacionamento traseiros', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'ADAS', 'Câmara de ré / 360°', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'ADAS', 'Cruise control', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'ADAS', 'Cruise control adaptativo (ACC)', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'ADAS', 'Assistente de faixa (Lane Assist)', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'ADAS', 'Sensor de ângulo morto (BSD)', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'ADAS', 'Leitor de sinais de trânsito', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'ADAS', 'Assistente de estacionamento auto', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'ADAS', 'Head-Up Display (HUD)', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'funciona_2_na'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Segurança', 'Airbags frontais – luz painel OK', 'escolha', null, false, 'Luz apaga após arranque', (select id from public.conjuntos_opcao where nome = 'luz_aviso_seguranca'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Segurança', 'Airbags laterais – luz painel OK', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'luz_aviso_seguranca'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Segurança', 'Airbags de cortina – luz painel OK', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'luz_aviso_seguranca'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Segurança', 'ABS / ESP – luz painel OK', 'escolha', null, false, null, (select id from public.conjuntos_opcao where nome = 'luz_aviso_seguranca'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Segurança', 'Travagem auto emergência (AEB)', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'luz_aviso_seguranca'), null, null, null, null, null, null),
-  ((select id from public.checklist_group_templates where ordem = 10), 'Segurança', 'Monitor pressão pneus (TPMS)', 'escolha', null, false, 'N/A se não tem', (select id from public.conjuntos_opcao where nome = 'luz_aviso_seguranca'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 10), 'Acessórios e Itens Obrigatórios', 'Triângulo de pré-sinalização e colete retrorreflector', 'escolha', null, false, 'Itens obrigatórios por lei em Portugal', (select id from public.conjuntos_opcao where nome = 'presenca_conformidade'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 10), 'Acessórios e Itens Obrigatórios', 'Chaves da viatura (1ª e 2ª chave) e chave de segredo das jantes', 'escolha', null, false, 'Presença e funcionamento', (select id from public.conjuntos_opcao where nome = 'completude_chaves'), null, null, null, null, null, null),
   ((select id from public.checklist_group_templates where ordem = 10), 'Acessórios e Itens Obrigatórios', 'Caixa de primeiros socorros', 'escolha', null, false, 'Presença e validade', (select id from public.conjuntos_opcao where nome = 'sim_nao_presenca_na'), null, null, null, null, null, null),

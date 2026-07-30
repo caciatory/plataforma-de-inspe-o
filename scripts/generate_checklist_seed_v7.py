@@ -22,7 +22,7 @@ SUBCAT_RE = re.compile(r"^### (.+)$")
 ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|(.*)\|$")
 GRUPOS_INATIVOS = {13}  # Motoriz. Especial (F2) — Fase 9, fora do v1.0
 
-ITEM_NOTA_EXCLUIDA = 351  # "Itens motor termico aplicam-se - ver Seccao 5": nota, nao e' item de verificacao
+ITEM_NOTA_EXCLUIDA = 310  # "Itens motor termico aplicam-se - ver Seccao 5": nota, nao e' item de verificacao
 
 TIPO_MAP: dict[str, tuple[str, str | None]] = {
     "Texto Livre": ("texto", None),
@@ -277,18 +277,22 @@ def build(rows: list[dict]) -> str:
         "-- docs/data/checklist-inspecta-v7.md. Nao editar a mao -- reexecute",
         "-- o script se o .md mudar.",
         "",
-        "-- Limpa o seed antigo (320 itens/12 grupos) e os conjuntos de opcoes",
-        "-- orfaos da Peca 1a (estado_4, so' existia pro backfill temporario).",
-        "-- checklist_item_responses e dado de resposta de teste (sem inspecoes",
-        "-- reais ainda) que referencia checklist_item_templates sem ON DELETE",
-        "-- proprio -- bloqueia o delete de templates abaixo se nao for limpo",
-        "-- primeiro; a limpeza cascateia pra medicoes/photos via o ON DELETE",
-        "-- CASCADE que ja existe a partir de checklist_item_responses.",
+        "-- Limpa o seed antigo (grupos/itens) e os conjuntos de opcoes antes",
+        "-- de reinserir. checklist_item_responses e dado de resposta de",
+        "-- teste (sem inspecoes reais ainda) que referencia",
+        "-- checklist_item_templates sem ON DELETE proprio -- bloqueia o",
+        "-- delete de templates abaixo se nao for limpo primeiro; a limpeza",
+        "-- cascateia pra medicoes/photos via o ON DELETE CASCADE que ja",
+        "-- existe a partir de checklist_item_responses. O delete de",
+        "-- conjuntos_opcao sem filtro (idempotencia do reseed: a 1a",
+        "-- aplicacao deste script nao pegou esse caso pq a tabela ainda nao",
+        "-- tinha os conjuntos do v7) e seguro pq checklist_item_templates",
+        "-- -- unica outra tabela que referencia conjuntos_opcao -- ja foi",
+        "-- limpa na linha acima, e opcoes.conjunto_id tem ON DELETE CASCADE.",
         "delete from public.checklist_item_responses;",
         "delete from public.checklist_item_templates;",
         "delete from public.checklist_group_templates;",
-        "delete from public.opcoes where conjunto_id in (select id from public.conjuntos_opcao where nome = 'estado_4');",
-        "delete from public.conjuntos_opcao where nome = 'estado_4';",
+        "delete from public.conjuntos_opcao;",
         "",
         "insert into public.checklist_group_templates (ordem, nome, ativo) values",
     ]

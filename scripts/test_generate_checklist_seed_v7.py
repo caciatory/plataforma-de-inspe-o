@@ -20,8 +20,8 @@ from generate_checklist_seed_v7 import (
 
 def test_parse_360_rows_13_grupos():
     rows = parse_markdown(SRC)
-    assert len(rows) == 360, f"esperava 360 linhas, achei {len(rows)}"
-    assert [r["num"] for r in rows] == list(range(1, 361))
+    assert len(rows) == 319, f"esperava 319 linhas, achei {len(rows)}"
+    assert [r["num"] for r in rows] == list(range(1, 320))
     grupos = sorted({r["grupo_ordem"] for r in rows})
     assert grupos == list(range(1, 14)), f"esperava grupos 1..13, achei {grupos}"
 
@@ -35,12 +35,12 @@ def test_todos_rotulos_mapeados():
 
 def test_contagem_por_tipo_e_exclusao_351():
     rows = [r for r in parse_markdown(SRC) if r["num"] != ITEM_NOTA_EXCLUIDA]
-    assert len(rows) == 359
+    assert len(rows) == 318
     tipo_count = Counter()
     for r in rows:
         tipo, _ = resolve_tipo(r)
         tipo_count[tipo] += 1
-    assert tipo_count == Counter(texto=20, escolha=315, data=4, medicao=20), dict(tipo_count)
+    assert tipo_count == Counter(texto=20, escolha=274, data=4, medicao=20), dict(tipo_count)
 
 
 def test_sim_nao_problema_so_cita_itens_reais():
@@ -61,7 +61,7 @@ def test_conjuntos_usados_tem_opcoes_e_exige_foto():
         tipo, extra = resolve_tipo(r)
         if tipo == "escolha":
             usados.add(extra)
-    assert len(usados) == 22, f"esperava 22 conjuntos usados, achei {len(usados)}: {sorted(usados)}"
+    assert len(usados) == 21, f"esperava 21 conjuntos usados, achei {len(usados)}: {sorted(usados)}"
     assert not (usados - set(CONJUNTO_OPCOES)), "conjunto usado sem opcoes definidas"
     assert not (usados - set(EXIGE_FOTO)), "conjunto usado sem exige_foto definido"
     for c in usados:

@@ -12,6 +12,8 @@ import { createInspectionAction, type CreateInspectionState } from "./actions";
 import { StandAutocomplete, type StandContact } from "./stand-autocomplete";
 import { TAB_IDS, resolveTabForField, type TabId } from "@/lib/inspection/tabs";
 import { TextareaWithCounter } from "./textarea-with-counter";
+import { EquipamentoCategoria } from "./equipamento-categoria";
+import { EQUIPAMENTO_CATEGORIAS } from "@/lib/equipamento/catalog";
 
 const initialState: CreateInspectionState = { status: "idle" };
 
@@ -55,6 +57,7 @@ export function NewInspectionForm() {
   const [inspecoesPeriodicasIpoData, setInspecoesPeriodicasIpoData] = useState("");
   const [situacaoFiscalRegular, setSituacaoFiscalRegular] = useState(false);
   const [situacaoFiscalObservacoes, setSituacaoFiscalObservacoes] = useState("");
+  const [personalizadosPorCategoria, setPersonalizadosPorCategoria] = useState<Record<string, string[]>>({});
   const [state, formAction] = useActionState(createInspectionAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -527,7 +530,18 @@ export function NewInspectionForm() {
       </div>
 
       <div className="form-tabs__panel" role="tabpanel" hidden={activeTab !== "equipamentos"}>
-        <p className="hint">Nenhum dado ainda.</p>
+        {EQUIPAMENTO_CATEGORIAS.map((categoria) => (
+          <EquipamentoCategoria
+            key={categoria.id}
+            categoriaId={categoria.id}
+            label={categoria.label}
+            itensPreDefinidos={categoria.itens}
+            itensPersonalizados={personalizadosPorCategoria[categoria.id] ?? []}
+            onAddPersonalizado={() => {
+              /* Task 6 substitui isto por abrir o dialog */
+            }}
+          />
+        ))}
       </div>
 
       {state.status === "error" && (

@@ -151,4 +151,28 @@ describe("NewInspectionForm", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Identificação" }));
     expect(screen.queryByLabelText("Quilometragem")).not.toBeInTheDocument();
   });
+
+  it("blocks advancing past Equipamentos when a selected item has no condição set", () => {
+    // Regression note: the plan's original assertion spied on
+    // HTMLInputElement.prototype.reportValidity and expected it to be called
+    // on submit. jsdom (v25, verified via its HTMLFormElement-impl source)
+    // blocks the native "submit" event for an invalid form via its internal
+    // requestSubmit() -> reportValidity() -> checkValidity() path, but that
+    // internal path never calls the individual invalid control's own public
+    // .reportValidity() the way real browsers do — so the spy is never hit
+    // even though the required-radio validation is genuinely enforced. We
+    // assert the actually-observable effect instead: the server action never
+    // runs when a selected item's condição radio (required) is left unset.
+    createInspectionAction.mockClear();
+    render(<NewInspectionForm />);
+    fireEvent.change(screen.getByLabelText("Nome do solicitante"), { target: { value: "Cliente Teste" } });
+    fireEvent.click(screen.getByRole("tab", { name: "Equipamentos" }));
+
+    fireEvent.click(screen.getByLabelText("Sistema ABS/ESP"));
+
+    const saveButton = screen.getByRole("button", { name: "Guardar" });
+    fireEvent.click(saveButton);
+
+    expect(createInspectionAction).not.toHaveBeenCalled();
+  });
 });

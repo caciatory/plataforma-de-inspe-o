@@ -15,6 +15,7 @@ export function resolveObjetivo(tipoCliente: TipoCliente, objetivo: Objetivo): O
 // undefined, not "". Preprocess "" -> undefined so blanks stay null downstream.
 const optionalInt = z.preprocess((v) => (v === "" ? undefined : v), z.coerce.number().int().optional());
 const optionalNumber = z.preprocess((v) => (v === "" ? undefined : v), z.coerce.number().optional());
+const optionalNonNegativeInt = z.preprocess((v) => (v === "" ? undefined : v), z.coerce.number().int().min(0).optional());
 
 // Same footgun as above, but for a required field: blank must fail with
 // "obrigatória", not silently become 0. Preprocess "" -> undefined so the
@@ -50,6 +51,14 @@ export const inspectionFormSchema = z
     tracao: z.string().optional(),
     potenciaCv: optionalInt,
     torqueNm: optionalNumber,
+    indiciosAdulteracaoKm: z.string().optional(),
+    numeroProprietariosAnteriores: optionalNonNegativeInt,
+    registoAcidentesAnteriores: z.string().optional(),
+    historicoManutencao: z.string().optional(),
+    inspecoesPeriodicasIpoNotas: z.string().optional(),
+    inspecoesPeriodicasIpoData: z.string().optional(),
+    situacaoFiscalRegular: z.preprocess((v) => v === "on" || v === "true", z.boolean()),
+    situacaoFiscalObservacoes: z.string().optional(),
   })
   .refine((data) => data.tipoCliente !== "stand" || data.objetivo === "venda", {
     message: "Objetivo deve ser 'venda' quando o tipo de cliente é stand",

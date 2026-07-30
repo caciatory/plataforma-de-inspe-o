@@ -26,7 +26,6 @@ describe("resolveTabForField", () => {
     expect(resolveTabForField("anoModelo")).toBe("identificacao");
     expect(resolveTabForField("cor")).toBe("identificacao");
     expect(resolveTabForField("vin")).toBe("identificacao");
-    expect(resolveTabForField("quilometragem")).toBe("identificacao");
   });
 
   it("maps every Especificações field to the especificacoes tab", () => {
@@ -37,6 +36,25 @@ describe("resolveTabForField", () => {
     expect(resolveTabForField("tracao")).toBe("especificacoes");
     expect(resolveTabForField("potenciaCv")).toBe("especificacoes");
     expect(resolveTabForField("torqueNm")).toBe("especificacoes");
+  });
+
+  it("maps quilometragem to historico, not identificacao", () => {
+    expect(resolveTabForField("quilometragem")).toBe("historico");
+  });
+
+  it("maps every historico field to the historico tab", () => {
+    for (const field of [
+      "indiciosAdulteracaoKm",
+      "numeroProprietariosAnteriores",
+      "registoAcidentesAnteriores",
+      "historicoManutencao",
+      "inspecoesPeriodicasIpoNotas",
+      "inspecoesPeriodicasIpoData",
+      "situacaoFiscalRegular",
+      "situacaoFiscalObservacoes",
+    ]) {
+      expect(resolveTabForField(field)).toBe("historico");
+    }
   });
 
   it("returns null for a field with no known tab", () => {

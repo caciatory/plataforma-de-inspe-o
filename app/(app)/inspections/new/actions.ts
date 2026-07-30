@@ -48,6 +48,14 @@ export async function createInspectionAction(
     p_contacto: v.contacto || null,
     p_email: v.email || null,
     p_responsavel_presente: v.responsavelPresente || null,
+    p_indicios_adulteracao_km: v.indiciosAdulteracaoKm || null,
+    p_numero_proprietarios_anteriores: v.numeroProprietariosAnteriores ?? null,
+    p_registo_acidentes_anteriores: v.registoAcidentesAnteriores || null,
+    p_historico_manutencao: v.historicoManutencao || null,
+    p_inspecoes_periodicas_ipo_notas: v.inspecoesPeriodicasIpoNotas || null,
+    p_inspecoes_periodicas_ipo_data: v.inspecoesPeriodicasIpoData || null,
+    p_situacao_fiscal_regular: v.situacaoFiscalRegular,
+    p_situacao_fiscal_observacoes: v.situacaoFiscalObservacoes || null,
   });
 
   if (error) {

@@ -17,7 +17,6 @@ const FIELD_TO_TAB: Record<string, TabId> = {
   anoModelo: "identificacao",
   cor: "identificacao",
   vin: "identificacao",
-  quilometragem: "identificacao",
   numeroMotor: "especificacoes",
   numeroPortas: "especificacoes",
   combustivel: "especificacoes",
@@ -25,6 +24,15 @@ const FIELD_TO_TAB: Record<string, TabId> = {
   tracao: "especificacoes",
   potenciaCv: "especificacoes",
   torqueNm: "especificacoes",
+  quilometragem: "historico",
+  indiciosAdulteracaoKm: "historico",
+  numeroProprietariosAnteriores: "historico",
+  registoAcidentesAnteriores: "historico",
+  historicoManutencao: "historico",
+  inspecoesPeriodicasIpoNotas: "historico",
+  inspecoesPeriodicasIpoData: "historico",
+  situacaoFiscalRegular: "historico",
+  situacaoFiscalObservacoes: "historico",
 };
 
 export function resolveTabForField(field: string | undefined): TabId | null {

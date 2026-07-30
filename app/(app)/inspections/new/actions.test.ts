@@ -78,6 +78,8 @@ describe("createInspectionAction", () => {
     formData.set("marca", "Toyota");
     formData.set("modelo", "Corolla");
     formData.set("quilometragem", "45000");
+    formData.set("numeroProprietariosAnteriores", "3");
+    formData.set("situacaoFiscalRegular", "on");
 
     await expect(createInspectionAction({ status: "idle" }, formData)).rejects.toThrow(
       "REDIRECT:/inspections/11111111-1111-1111-1111-111111111111"
@@ -93,6 +95,8 @@ describe("createInspectionAction", () => {
         p_modelo: "Corolla",
         p_nome_solicitante: "Cliente Teste",
         p_quilometragem: 45000,
+        p_numero_proprietarios_anteriores: 3,
+        p_situacao_fiscal_regular: true,
       })
     );
   });

@@ -11,6 +11,7 @@ import {
 import { createInspectionAction, type CreateInspectionState } from "./actions";
 import { StandAutocomplete, type StandContact } from "./stand-autocomplete";
 import { TAB_IDS, resolveTabForField, type TabId } from "@/lib/inspection/tabs";
+import { TextareaWithCounter } from "./textarea-with-counter";
 
 const initialState: CreateInspectionState = { status: "idle" };
 
@@ -46,6 +47,14 @@ export function NewInspectionForm() {
   const [tracao, setTracao] = useState("");
   const [potenciaCv, setPotenciaCv] = useState("");
   const [torqueNm, setTorqueNm] = useState("");
+  const [indiciosAdulteracaoKm, setIndiciosAdulteracaoKm] = useState("");
+  const [numeroProprietariosAnteriores, setNumeroProprietariosAnteriores] = useState("");
+  const [registoAcidentesAnteriores, setRegistoAcidentesAnteriores] = useState("");
+  const [historicoManutencao, setHistoricoManutencao] = useState("");
+  const [inspecoesPeriodicasIpoNotas, setInspecoesPeriodicasIpoNotas] = useState("");
+  const [inspecoesPeriodicasIpoData, setInspecoesPeriodicasIpoData] = useState("");
+  const [situacaoFiscalRegular, setSituacaoFiscalRegular] = useState(false);
+  const [situacaoFiscalObservacoes, setSituacaoFiscalObservacoes] = useState("");
   const [state, formAction] = useActionState(createInspectionAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -249,22 +258,6 @@ export function NewInspectionForm() {
             </div>
 
             <div className="field">
-              <label htmlFor="quilometragem" className="label">
-                Quilometragem
-              </label>
-              <input
-                id="quilometragem"
-                name="quilometragem"
-                type="number"
-                className="input"
-                required
-                min={0}
-                value={quilometragem}
-                onChange={(e) => setQuilometragem(e.target.value)}
-              />
-            </div>
-
-            <div className="field">
               <label htmlFor="versaoTrim" className="label">
                 Versão
               </label>
@@ -323,7 +316,112 @@ export function NewInspectionForm() {
       </div>
 
       <div className="form-tabs__panel" role="tabpanel" hidden={activeTab !== "historico"}>
-        <p className="hint">Nenhum dado ainda.</p>
+        <fieldset className="panel form-fieldset">
+          <legend className="form-fieldset__legend">Histórico</legend>
+          <div className="form-grid">
+            <div className="field">
+              <label htmlFor="quilometragem" className="label">
+                Quilometragem atual
+              </label>
+              <input
+                id="quilometragem"
+                name="quilometragem"
+                type="number"
+                className="input"
+                required
+                min={0}
+                value={quilometragem}
+                onChange={(e) => setQuilometragem(e.target.value)}
+              />
+            </div>
+
+            <TextareaWithCounter
+              id="indiciosAdulteracaoKm"
+              name="indiciosAdulteracaoKm"
+              label="Indícios de adulteração de quilometragem"
+              value={indiciosAdulteracaoKm}
+              onChange={setIndiciosAdulteracaoKm}
+              maxSoft={500}
+            />
+
+            <div className="field">
+              <label htmlFor="numeroProprietariosAnteriores" className="label">
+                Número de proprietários anteriores
+              </label>
+              <input
+                id="numeroProprietariosAnteriores"
+                name="numeroProprietariosAnteriores"
+                type="number"
+                className="input"
+                min={0}
+                value={numeroProprietariosAnteriores}
+                onChange={(e) => setNumeroProprietariosAnteriores(e.target.value)}
+              />
+            </div>
+
+            <TextareaWithCounter
+              id="registoAcidentesAnteriores"
+              name="registoAcidentesAnteriores"
+              label="Registo de acidentes anteriores"
+              value={registoAcidentesAnteriores}
+              onChange={setRegistoAcidentesAnteriores}
+              maxSoft={500}
+            />
+
+            <TextareaWithCounter
+              id="historicoManutencao"
+              name="historicoManutencao"
+              label="Histórico de manutenção"
+              value={historicoManutencao}
+              onChange={setHistoricoManutencao}
+              maxSoft={500}
+            />
+
+            <TextareaWithCounter
+              id="inspecoesPeriodicasIpoNotas"
+              name="inspecoesPeriodicasIpoNotas"
+              label="Inspeções periódicas (IPO) — notas"
+              value={inspecoesPeriodicasIpoNotas}
+              onChange={setInspecoesPeriodicasIpoNotas}
+              maxSoft={500}
+            />
+
+            <div className="field">
+              <label htmlFor="inspecoesPeriodicasIpoData" className="label">
+                Data da última IPO
+              </label>
+              <input
+                id="inspecoesPeriodicasIpoData"
+                name="inspecoesPeriodicasIpoData"
+                type="date"
+                className="input"
+                value={inspecoesPeriodicasIpoData}
+                onChange={(e) => setInspecoesPeriodicasIpoData(e.target.value)}
+              />
+            </div>
+
+            <div className="field">
+              <label className="label">
+                <input
+                  type="checkbox"
+                  name="situacaoFiscalRegular"
+                  checked={situacaoFiscalRegular}
+                  onChange={(e) => setSituacaoFiscalRegular(e.target.checked)}
+                />{" "}
+                Situação fiscal regular (ex.: IUC em dia)
+              </label>
+            </div>
+
+            <TextareaWithCounter
+              id="situacaoFiscalObservacoes"
+              name="situacaoFiscalObservacoes"
+              label="Observações sobre a situação fiscal"
+              value={situacaoFiscalObservacoes}
+              onChange={setSituacaoFiscalObservacoes}
+              maxSoft={500}
+            />
+          </div>
+        </fieldset>
       </div>
 
       <div className="form-tabs__panel" role="tabpanel" hidden={activeTab !== "especificacoes"}>

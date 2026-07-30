@@ -139,4 +139,16 @@ describe("NewInspectionForm", () => {
     await waitFor(() => expect(screen.getByLabelText("Combustível")).toBeVisible());
     expect(screen.queryByLabelText("Nome do solicitante")).not.toBeVisible();
   });
+
+  it("shows the Histórico fields, including quilometragem moved from Identificação", () => {
+    render(<NewInspectionForm />);
+    fireEvent.click(screen.getByRole("tab", { name: "Histórico" }));
+
+    expect(screen.getByLabelText("Quilometragem atual")).toBeVisible();
+    expect(screen.getByLabelText("Indícios de adulteração de quilometragem")).toBeVisible();
+    expect(screen.getByLabelText("Número de proprietários anteriores")).toBeVisible();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Identificação" }));
+    expect(screen.queryByLabelText("Quilometragem")).not.toBeInTheDocument();
+  });
 });

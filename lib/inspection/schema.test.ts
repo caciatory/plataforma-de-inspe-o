@@ -84,4 +84,23 @@ describe("inspectionFormSchema", () => {
     const result = inspectionFormSchema.safeParse({ ...base, quilometragem: "-1" });
     expect(result.success).toBe(false);
   });
+
+  it("rejects a negative numeroProprietariosAnteriores", () => {
+    const result = inspectionFormSchema.safeParse({
+      ...base,
+      numeroProprietariosAnteriores: "-1",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts historico fields left blank", () => {
+    const result = inspectionFormSchema.safeParse(base);
+    expect(result.success).toBe(true);
+  });
+
+  it("coerces situacaoFiscalRegular checkbox value 'on' to true", () => {
+    const result = inspectionFormSchema.safeParse({ ...base, situacaoFiscalRegular: "on" });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.situacaoFiscalRegular).toBe(true);
+  });
 });

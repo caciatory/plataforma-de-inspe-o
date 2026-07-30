@@ -163,11 +163,28 @@ describe("NewInspectionForm", () => {
     // even though the required-radio validation is genuinely enforced. We
     // assert the actually-observable effect instead: the server action never
     // runs when a selected item's condição radio (required) is left unset.
+    //
+    // Isolation note (fix round 1): every other required field (matrícula,
+    // marca, modelo, quilometragem — on other, hidden tabs) is filled in
+    // below. jsdom does not exclude `hidden` elements from native constraint
+    // validation the way real browsers do (see the comment on handleNext
+    // above), so without this the test would pass even if the condição
+    // radio's `required` were removed entirely — those other empty required
+    // fields would block the submit on their own. See also the direct,
+    // form-submission-independent check in equipamento-categoria.test.tsx.
     createInspectionAction.mockClear();
     render(<NewInspectionForm />);
     fireEvent.change(screen.getByLabelText("Nome do solicitante"), { target: { value: "Cliente Teste" } });
-    fireEvent.click(screen.getByRole("tab", { name: "Equipamentos" }));
 
+    fireEvent.click(screen.getByRole("tab", { name: "Identificação" }));
+    fireEvent.change(screen.getByLabelText("Matrícula"), { target: { value: "AA-00-BB" } });
+    fireEvent.change(screen.getByLabelText("Marca"), { target: { value: "Toyota" } });
+    fireEvent.change(screen.getByLabelText("Modelo"), { target: { value: "Corolla" } });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Histórico" }));
+    fireEvent.change(screen.getByLabelText("Quilometragem atual"), { target: { value: "50000" } });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Equipamentos" }));
     fireEvent.click(screen.getByLabelText("Sistema ABS/ESP"));
 
     const saveButton = screen.getByRole("button", { name: "Guardar" });

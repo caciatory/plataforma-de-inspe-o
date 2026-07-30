@@ -66,13 +66,6 @@ export function groupItemsBySubcategoria(
   return order.map((subcategoria) => ({ subcategoria, items: bucket.get(subcategoria)! }));
 }
 
-export function findNextItemId(subcategorias: SubcategoriaGroup[], currentItemId: string): string | null {
-  const flat = subcategorias.flatMap((bucket) => bucket.items);
-  const index = flat.findIndex((item) => item.id === currentItemId);
-  if (index === -1 || index === flat.length - 1) return null;
-  return flat[index + 1].id;
-}
-
 export type ItemGroupSubcategoria = { id: string; group_id: string; subcategoria: string | null };
 export type SubcategoriaProgress = { subcategoria: string | null; pendentes: number; total: number };
 export type GroupSubcategoriaProgress = { id: string; subcategorias: SubcategoriaProgress[] };

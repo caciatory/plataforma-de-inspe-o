@@ -32,7 +32,12 @@ export function ItemMedicaoForm({
 
   useEffect(() => {
     if (state.status === "success") onSuccess?.();
-  }, [state, onSuccess]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onSuccess's identity
+    // changes every render (new closure in MedicaoCell); state only changes when
+    // useActionState gets a new action result, so depending on it alone is what
+    // makes this fire exactly once per successful save instead of looping on
+    // every re-render router.refresh() itself triggers.
+  }, [state]);
 
   return (
     <form action={formAction} className="stack">

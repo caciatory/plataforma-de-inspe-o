@@ -935,6 +935,13 @@ textarea.input {
   display: none;
 }
 
+/* Same cascade-origin issue as .form-tabs__panel[hidden] above: .form-grid
+   sets display:grid, so without this rule a hidden .form-grid (e.g. the
+   importação block in new-inspection-form.tsx) stays visible. */
+.form-grid[hidden] {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition-duration: 0.01ms !important;

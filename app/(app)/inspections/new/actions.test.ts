@@ -203,6 +203,77 @@ describe("createInspectionAction", () => {
     );
   });
 
+  it("Fix (final-review): drops indiciosAdulteracaoKm when indiciosAdulteracaoPresentes was switched back to 'não' (stale FormData, gate off)", async () => {
+    rpc.mockResolvedValue({ data: "aaaaaaaa-1111-1111-1111-111111111111", error: null });
+    const { createInspectionAction } = await import("./actions");
+
+    const formData = new FormData();
+    formData.set("tipoCliente", "particular");
+    formData.set("objetivo", "compra");
+    formData.set("nomeSolicitante", "Cliente Teste");
+    formData.set("matricula", "AA-00-BB");
+    formData.set("marca", "Toyota");
+    formData.set("modelo", "Corolla");
+    formData.set("quilometragem", "45000");
+    // técnico preencheu o campo, depois mudou de ideia — o textarea continua
+    // montado (só hidden) e o valor antigo continua no FormData.
+    formData.set("indiciosAdulteracaoKm", "Contador com dígitos desalinhados");
+    formData.set("indiciosAdulteracaoPresentes", "nao");
+
+    await expect(createInspectionAction({ status: "idle" }, formData)).rejects.toThrow(
+      "REDIRECT:/inspections/aaaaaaaa-1111-1111-1111-111111111111"
+    );
+
+    expect(rpc).toHaveBeenCalledWith(
+      "create_inspection",
+      expect.objectContaining({
+        p_indicios_adulteracao_presentes: false,
+        p_indicios_adulteracao_km: null,
+      })
+    );
+  });
+
+  it("Fix (final-review): drops all 6 importação fields when veiculoImportado was switched back to 'não' (stale FormData, gate off)", async () => {
+    rpc.mockResolvedValue({ data: "bbbbbbbb-2222-2222-2222-222222222222", error: null });
+    const { createInspectionAction } = await import("./actions");
+
+    const formData = new FormData();
+    formData.set("tipoCliente", "particular");
+    formData.set("objetivo", "compra");
+    formData.set("nomeSolicitante", "Cliente Teste");
+    formData.set("matricula", "AA-00-BB");
+    formData.set("marca", "Toyota");
+    formData.set("modelo", "Corolla");
+    formData.set("quilometragem", "45000");
+    // técnico preencheu o bloco de importação, depois mudou "Veículo
+    // importado?" pra "não" — o bloco continua montado (só hidden) e os
+    // valores antigos continuam no FormData.
+    formData.set("veiculoImportado", "nao");
+    formData.set("paisOrigem", "Alemanha");
+    formData.set("matriculaOrigem", "M-AB 1234");
+    formData.set("dataImportacao", "2024-03-10");
+    formData.set("possuiCoc", "sim");
+    formData.set("isencaoIsvAplicada", "nao");
+    formData.set("numeroDav", "DAV-2024-000123");
+
+    await expect(createInspectionAction({ status: "idle" }, formData)).rejects.toThrow(
+      "REDIRECT:/inspections/bbbbbbbb-2222-2222-2222-222222222222"
+    );
+
+    expect(rpc).toHaveBeenCalledWith(
+      "create_inspection",
+      expect.objectContaining({
+        p_veiculo_importado: false,
+        p_pais_origem: null,
+        p_matricula_origem: null,
+        p_data_importacao: null,
+        p_possui_coc: null,
+        p_isencao_isv_aplicada: null,
+        p_numero_dav: null,
+      })
+    );
+  });
+
   it("returns an error when the RPC fails", async () => {
     rpc.mockResolvedValue({ data: null, error: { message: "db error" } });
     const { createInspectionAction } = await import("./actions");

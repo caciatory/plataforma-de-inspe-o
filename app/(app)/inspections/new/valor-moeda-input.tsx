@@ -28,7 +28,10 @@ export function ValorMoedaInput({
       <label htmlFor={id} className="label">
         {label}
       </label>
-      <input type="hidden" name={name} value={value} />
+      {/* Zod's z.coerce.number() is plain Number(), which chokes on the pt-PT
+          comma decimal this field displays and accepts while typing — submit
+          the dot-decimal form so the schema actually parses it. */}
+      <input type="hidden" name={name} value={value.replace(",", ".")} />
       <input
         id={id}
         className="input"

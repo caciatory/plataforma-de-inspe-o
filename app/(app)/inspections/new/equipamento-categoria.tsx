@@ -52,7 +52,7 @@ function EquipamentoItem({
     if (condicao !== "") setExpandido(false);
   }
 
-  const compactado = !expandido && condicao !== "";
+  const compactado = !expandido && selecionado && condicao !== "";
 
   return (
     <li className={`equip-item${selecionado ? " equip-item--selecionado" : ""}`} onBlur={handleItemBlur}>

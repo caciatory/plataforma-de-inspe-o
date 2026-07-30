@@ -105,7 +105,10 @@ export async function createInspectionAction(
     p_contacto: v.contacto || null,
     p_email: v.email || null,
     p_responsavel_presente: v.responsavelPresente || null,
-    p_indicios_adulteracao_km: v.indiciosAdulteracaoKm || null,
+    // ponytail: same stale-field pattern as equip__comentario above — `hidden`
+    // doesn't clear FormData/React state, so a técnico who fills the field then
+    // flips the gate back to "não" would otherwise still submit the old value.
+    p_indicios_adulteracao_km: v.indiciosAdulteracaoPresentes === "sim" ? v.indiciosAdulteracaoKm || null : null,
     p_numero_proprietarios_anteriores: v.numeroProprietariosAnteriores ?? null,
     p_registo_acidentes_anteriores: v.registoAcidentesAnteriores || null,
     p_historico_manutencao: v.historicoManutencao || null,
@@ -125,12 +128,16 @@ export async function createInspectionAction(
     })),
     p_indicios_adulteracao_presentes: v.indiciosAdulteracaoPresentes === "sim",
     p_veiculo_importado: v.veiculoImportado === "sim",
-    p_pais_origem: v.paisOrigem || null,
-    p_matricula_origem: v.matriculaOrigem || null,
-    p_data_importacao: v.dataImportacao || null,
-    p_possui_coc: v.possuiCoc === undefined ? null : v.possuiCoc === "sim",
-    p_isencao_isv_aplicada: v.isencaoIsvAplicada === undefined ? null : v.isencaoIsvAplicada === "sim",
-    p_numero_dav: v.numeroDav || null,
+    // Same stale-field pattern: the importação block stays mounted (only
+    // `hidden`) when veiculoImportado flips back to "não", so drop all 6
+    // fields unless the gate is actually "sim".
+    p_pais_origem: v.veiculoImportado === "sim" ? v.paisOrigem || null : null,
+    p_matricula_origem: v.veiculoImportado === "sim" ? v.matriculaOrigem || null : null,
+    p_data_importacao: v.veiculoImportado === "sim" ? v.dataImportacao || null : null,
+    p_possui_coc: v.veiculoImportado === "sim" ? (v.possuiCoc === undefined ? null : v.possuiCoc === "sim") : null,
+    p_isencao_isv_aplicada:
+      v.veiculoImportado === "sim" ? (v.isencaoIsvAplicada === undefined ? null : v.isencaoIsvAplicada === "sim") : null,
+    p_numero_dav: v.veiculoImportado === "sim" ? v.numeroDav || null : null,
     p_data_primeira_matricula: v.dataPrimeiraMatricula || null,
     p_valor_base_iuc_anual: v.valorBaseIucAnual ?? null,
   });

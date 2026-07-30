@@ -38,4 +38,12 @@ describe("ValorMoedaInput", () => {
     const hidden = container.querySelector('input[type="hidden"][name="valorBaseIucAnual"]') as HTMLInputElement;
     expect(hidden.value).toBe("145.5");
   });
+
+  it("Fix (final-review): submits a dot decimal even when the raw value still has a comma (z.coerce.number() rejects '145,50')", () => {
+    const { container } = render(
+      <ValorMoedaInput id="valorBaseIucAnual" name="valorBaseIucAnual" label="Valor base IUC anual (€)" value="145,50" onChange={() => {}} />
+    );
+    const hidden = container.querySelector('input[type="hidden"][name="valorBaseIucAnual"]') as HTMLInputElement;
+    expect(hidden.value).toBe("145.50");
+  });
 });

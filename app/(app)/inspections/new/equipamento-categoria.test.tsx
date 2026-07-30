@@ -205,6 +205,26 @@ describe("EquipamentoCategoria", () => {
     expect(screen.getByText("✓ 1/3 verificados")).toBeInTheDocument();
   });
 
+  it("Fix (final-review): does not show a compacted resumo for an item that was unchecked after being compacted", () => {
+    renderCategoria();
+    fireEvent.click(screen.getByText("Segurança")); // abre o acordeão da categoria
+    const checkbox = screen.getByLabelText("Sistema ABS/ESP") as HTMLInputElement;
+    fireEvent.click(checkbox);
+    fireEvent.click(screen.getByLabelText("✓ Bom (Sistema ABS/ESP)"));
+
+    let item = screen.getByLabelText("Sistema ABS/ESP").closest("li") as HTMLLIElement;
+    fireEvent.blur(item, { relatedTarget: null }); // compacta
+
+    fireEvent.click(screen.getByText("Sistema ABS/ESP — ✓ Bom")); // reabre pelo resumo
+    fireEvent.click(checkbox); // desmarca (condição interna continua "bom")
+
+    item = screen.getByLabelText("Sistema ABS/ESP").closest("li") as HTMLLIElement;
+    fireEvent.blur(item, { relatedTarget: null });
+
+    expect(screen.queryByText("Sistema ABS/ESP — ✓ Bom")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Sistema ABS/ESP")).toBeVisible();
+  });
+
   it("re-counts the item in the badge after unchecking and rechecking with a condição already set", () => {
     renderCategoria();
     const checkbox = screen.getByLabelText("Sistema ABS/ESP") as HTMLInputElement;

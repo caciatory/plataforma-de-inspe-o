@@ -20,7 +20,7 @@ const equipamentoInspecaoQuery = {
     error: null,
   })),
 };
-const equipamentoFotosInsert = vi.fn(async () => ({ error: null }));
+const equipamentoFotosInsert = vi.fn(async (): Promise<{ error: { message: string } | null }> => ({ error: null }));
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({
@@ -214,6 +214,65 @@ describe("createInspectionAction", () => {
     await expect(createInspectionAction({ status: "idle" }, formData)).rejects.toThrow(/REDIRECT/);
 
     expect(rpc).toHaveBeenCalledWith("create_inspection", expect.objectContaining({ p_equipamentos: [] }));
+  });
+
+  it("still redirects when the photo upload throws (not just returns an error) — the inspection already exists and must not appear to fail", async () => {
+    rpc.mockResolvedValue({ data: "33333333-3333-3333-3333-333333333333", error: null });
+    storageUpload.mockRejectedValueOnce(new Error("network down"));
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { createInspectionAction } = await import("./actions");
+
+    const formData = new FormData();
+    formData.set("tipoCliente", "particular");
+    formData.set("objetivo", "compra");
+    formData.set("nomeSolicitante", "Cliente Teste");
+    formData.set("matricula", "AA-00-BB");
+    formData.set("marca", "Toyota");
+    formData.set("modelo", "Corolla");
+    formData.set("quilometragem", "45000");
+    formData.set("equip__seguranca--0__selecionado", "on");
+    formData.set("equip__seguranca--0__categoria", "seguranca");
+    formData.set("equip__seguranca--0__nome", "Sistema ABS/ESP");
+    formData.set("equip__seguranca--0__personalizado", "0");
+    formData.set("equip__seguranca--0__condicao", "atencao");
+    formData.set("equip__seguranca--0__foto1", new File(["x"], "foto.jpg", { type: "image/jpeg" }));
+
+    await expect(createInspectionAction({ status: "idle" }, formData)).rejects.toThrow(
+      "REDIRECT:/inspections/33333333-3333-3333-3333-333333333333"
+    );
+
+    expect(consoleError).toHaveBeenCalled();
+    expect(equipamentoFotosInsert).not.toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
+  it("still redirects and logs when the equipamento_fotos insert returns an error", async () => {
+    rpc.mockResolvedValue({ data: "44444444-4444-4444-4444-444444444444", error: null });
+    equipamentoFotosInsert.mockResolvedValueOnce({ error: { message: "RLS denied" } });
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { createInspectionAction } = await import("./actions");
+
+    const formData = new FormData();
+    formData.set("tipoCliente", "particular");
+    formData.set("objetivo", "compra");
+    formData.set("nomeSolicitante", "Cliente Teste");
+    formData.set("matricula", "AA-00-BB");
+    formData.set("marca", "Toyota");
+    formData.set("modelo", "Corolla");
+    formData.set("quilometragem", "45000");
+    formData.set("equip__seguranca--0__selecionado", "on");
+    formData.set("equip__seguranca--0__categoria", "seguranca");
+    formData.set("equip__seguranca--0__nome", "Sistema ABS/ESP");
+    formData.set("equip__seguranca--0__personalizado", "0");
+    formData.set("equip__seguranca--0__condicao", "atencao");
+    formData.set("equip__seguranca--0__foto1", new File(["x"], "foto.jpg", { type: "image/jpeg" }));
+
+    await expect(createInspectionAction({ status: "idle" }, formData)).rejects.toThrow(
+      "REDIRECT:/inspections/44444444-4444-4444-4444-444444444444"
+    );
+
+    expect(consoleError).toHaveBeenCalledWith("insert de equipamento_fotos falhou", { message: "RLS denied" });
+    consoleError.mockRestore();
   });
 });
 

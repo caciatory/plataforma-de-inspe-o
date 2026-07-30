@@ -120,20 +120,42 @@ export async function createInspectionAction(
 
   const equipamentosComFoto = equipamentos.filter((e) => e.foto1 || e.foto2);
   if (equipamentosComFoto.length > 0) {
-    const { data: equipRows } = await supabase
-      .from("equipamento_inspecao")
-      .select("id, ordem")
-      .eq("inspection_id", inspectionId)
-      .order("ordem", { ascending: true });
+    // A inspeção principal já foi criada com sucesso (RPC acima) — nada neste bloco deve
+    // impedir o redirect final. Qualquer exceção (não só um {error} retornado) cai em
+    // console.error para investigação, igual ao resto do arquivo.
+    try {
+      await uploadPendingEquipamentoFotos(supabase, inspectionId, equipamentos);
+    } catch (err) {
+      console.error("erro inesperado ao carregar equipamento_inspecao para upload de fotos", err);
+    }
+  }
 
-    for (let ordem = 0; ordem < equipamentos.length; ordem++) {
-      const equip = equipamentos[ordem];
-      if (!equip.foto1 && !equip.foto2) continue;
-      const equipamentoId = equipRows?.find((r) => r.ordem === ordem)?.id;
-      if (!equipamentoId) continue;
+  redirect(`/inspections/${inspectionId}`);
+}
 
-      for (const foto of [equip.foto1, equip.foto2]) {
-        if (!foto) continue;
+async function uploadPendingEquipamentoFotos(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  inspectionId: string,
+  equipamentos: EquipamentoParsed[]
+): Promise<void> {
+  const { data: equipRows } = await supabase
+    .from("equipamento_inspecao")
+    .select("id, ordem")
+    .eq("inspection_id", inspectionId)
+    .order("ordem", { ascending: true });
+
+  for (let ordem = 0; ordem < equipamentos.length; ordem++) {
+    const equip = equipamentos[ordem];
+    if (!equip.foto1 && !equip.foto2) continue;
+    const equipamentoId = equipRows?.find((r) => r.ordem === ordem)?.id;
+    if (!equipamentoId) continue;
+
+    for (const foto of [equip.foto1, equip.foto2]) {
+      if (!foto) continue;
+      // Falha de upload/insert não bloqueia a criação da inspeção (já existe e é o dado
+      // principal) — nem um erro retornado (uploadError/insertError) nem uma exceção real
+      // (ex: falha de rede) devem impedir o redirect final; tudo cai em console.error.
+      try {
         const path = buildPhotoPath(inspectionId, equipamentoId, foto.name);
         const { error: uploadError } = await supabase.storage.from("fotos-inspecao").upload(path, foto);
         if (uploadError) {
@@ -141,14 +163,17 @@ export async function createInspectionAction(
           continue;
         }
         const { data: publicUrl } = supabase.storage.from("fotos-inspecao").getPublicUrl(path);
-        await supabase
+        const { error: insertError } = await supabase
           .from("equipamento_fotos")
           .insert({ inspection_id: inspectionId, equipamento_inspecao_id: equipamentoId, url: publicUrl.publicUrl });
+        if (insertError) {
+          console.error("insert de equipamento_fotos falhou", insertError);
+        }
+      } catch (err) {
+        console.error("erro inesperado ao processar foto de equipamento", err);
       }
     }
   }
-
-  redirect(`/inspections/${inspectionId}`);
 }
 
 export async function searchStandContactsAction(query: string): Promise<StandContact[]> {

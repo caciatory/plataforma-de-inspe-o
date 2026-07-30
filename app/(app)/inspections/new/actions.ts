@@ -7,10 +7,57 @@ import type { StandContact } from "./stand-autocomplete";
 
 export type CreateInspectionState = { status: "idle" } | { status: "error"; message: string; field?: string };
 
+type EquipamentoParsed = {
+  key: string;
+  categoria: string;
+  nome_equipamento: string;
+  condicao: string;
+  comentario: string | null;
+  personalizado: boolean;
+  foto1: File | null;
+  foto2: File | null;
+};
+
+function parseEquipamentos(formData: FormData): EquipamentoParsed[] {
+  const keys = new Set<string>();
+  for (const name of formData.keys()) {
+    const match = name.match(/^equip__(.+)__selecionado$/);
+    if (match) keys.add(match[1]);
+  }
+
+  const result: EquipamentoParsed[] = [];
+  for (const key of keys) {
+    const prefix = `equip__${key}`;
+    const foto1 = formData.get(`${prefix}__foto1`);
+    const foto2 = formData.get(`${prefix}__foto2`);
+    const condicao = String(formData.get(`${prefix}__condicao`) ?? "");
+    result.push({
+      key,
+      categoria: String(formData.get(`${prefix}__categoria`) ?? ""),
+      nome_equipamento: String(formData.get(`${prefix}__nome`) ?? ""),
+      condicao,
+      // ponytail: the comentário textarea in equipamento-categoria.tsx stays mounted (only
+      // hidden) and never clears when condição flips back to "bom", so FormData can carry a
+      // stale comentário here — drop it unless condição is actually "atencao".
+      comentario: condicao === "atencao" ? (formData.get(`${prefix}__comentario`) as string) || null : null,
+      personalizado: formData.get(`${prefix}__personalizado`) === "1",
+      foto1: foto1 instanceof File && foto1.size > 0 ? foto1 : null,
+      foto2: foto2 instanceof File && foto2.size > 0 ? foto2 : null,
+    });
+  }
+  return result;
+}
+
+function buildPhotoPath(inspectionId: string, equipamentoId: string, filename: string): string {
+  const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
+  return `${inspectionId}/${equipamentoId}/${Date.now()}-${safeName}`;
+}
+
 export async function createInspectionAction(
   _prevState: CreateInspectionState,
   formData: FormData
 ): Promise<CreateInspectionState> {
+  const equipamentos = parseEquipamentos(formData);
   const raw = Object.fromEntries(formData.entries());
   const parsed = inspectionFormSchema.safeParse(raw);
 
@@ -56,11 +103,49 @@ export async function createInspectionAction(
     p_inspecoes_periodicas_ipo_data: v.inspecoesPeriodicasIpoData || null,
     p_situacao_fiscal_regular: v.situacaoFiscalRegular,
     p_situacao_fiscal_observacoes: v.situacaoFiscalObservacoes || null,
+    p_equipamentos: equipamentos.map((e, ordem) => ({
+      ordem,
+      categoria: e.categoria,
+      nome_equipamento: e.nome_equipamento,
+      condicao: e.condicao,
+      comentario: e.comentario,
+      personalizado: e.personalizado,
+    })),
   });
 
   if (error) {
     console.error("create_inspection failed", error);
     return { status: "error", message: "Não foi possível guardar a inspeção. Tente novamente." };
+  }
+
+  const equipamentosComFoto = equipamentos.filter((e) => e.foto1 || e.foto2);
+  if (equipamentosComFoto.length > 0) {
+    const { data: equipRows } = await supabase
+      .from("equipamento_inspecao")
+      .select("id, ordem")
+      .eq("inspection_id", inspectionId)
+      .order("ordem", { ascending: true });
+
+    for (let ordem = 0; ordem < equipamentos.length; ordem++) {
+      const equip = equipamentos[ordem];
+      if (!equip.foto1 && !equip.foto2) continue;
+      const equipamentoId = equipRows?.find((r) => r.ordem === ordem)?.id;
+      if (!equipamentoId) continue;
+
+      for (const foto of [equip.foto1, equip.foto2]) {
+        if (!foto) continue;
+        const path = buildPhotoPath(inspectionId, equipamentoId, foto.name);
+        const { error: uploadError } = await supabase.storage.from("fotos-inspecao").upload(path, foto);
+        if (uploadError) {
+          console.error("upload de foto de equipamento falhou", uploadError);
+          continue;
+        }
+        const { data: publicUrl } = supabase.storage.from("fotos-inspecao").getPublicUrl(path);
+        await supabase
+          .from("equipamento_fotos")
+          .insert({ inspection_id: inspectionId, equipamento_inspecao_id: equipamentoId, url: publicUrl.publicUrl });
+      }
+    }
   }
 
   redirect(`/inspections/${inspectionId}`);

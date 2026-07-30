@@ -106,7 +106,7 @@ describe("createInspectionAction", () => {
     formData.set("modelo", "Corolla");
     formData.set("quilometragem", "45000");
     formData.set("numeroProprietariosAnteriores", "3");
-    formData.set("situacaoFiscalRegular", "on");
+    formData.set("situacaoFiscalRegular", "IUC em dia");
 
     await expect(createInspectionAction({ status: "idle" }, formData)).rejects.toThrow(
       "REDIRECT:/inspections/11111111-1111-1111-1111-111111111111"
@@ -123,7 +123,7 @@ describe("createInspectionAction", () => {
         p_nome_solicitante: "Cliente Teste",
         p_quilometragem: 45000,
         p_numero_proprietarios_anteriores: 3,
-        p_situacao_fiscal_regular: true,
+        p_situacao_fiscal_regular: "IUC em dia",
       })
     );
   });

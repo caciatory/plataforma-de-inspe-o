@@ -32,7 +32,16 @@ const FIELD_TO_TAB: Record<string, TabId> = {
   inspecoesPeriodicasIpoNotas: "historico",
   inspecoesPeriodicasIpoData: "historico",
   situacaoFiscalRegular: "historico",
-  situacaoFiscalObservacoes: "historico",
+  indiciosAdulteracaoPresentes: "historico",
+  veiculoImportado: "historico",
+  paisOrigem: "historico",
+  matriculaOrigem: "historico",
+  dataImportacao: "historico",
+  possuiCoc: "historico",
+  isencaoIsvAplicada: "historico",
+  numeroDav: "historico",
+  dataPrimeiraMatricula: "historico",
+  valorBaseIucAnual: "historico",
 };
 
 export function resolveTabForField(field: string | undefined): TabId | null {

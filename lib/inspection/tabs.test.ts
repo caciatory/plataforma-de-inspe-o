@@ -45,13 +45,22 @@ describe("resolveTabForField", () => {
   it("maps every historico field to the historico tab", () => {
     for (const field of [
       "indiciosAdulteracaoKm",
+      "indiciosAdulteracaoPresentes",
       "numeroProprietariosAnteriores",
       "registoAcidentesAnteriores",
       "historicoManutencao",
       "inspecoesPeriodicasIpoNotas",
       "inspecoesPeriodicasIpoData",
       "situacaoFiscalRegular",
-      "situacaoFiscalObservacoes",
+      "veiculoImportado",
+      "paisOrigem",
+      "matriculaOrigem",
+      "dataImportacao",
+      "possuiCoc",
+      "isencaoIsvAplicada",
+      "numeroDav",
+      "dataPrimeiraMatricula",
+      "valorBaseIucAnual",
     ]) {
       expect(resolveTabForField(field)).toBe("historico");
     }

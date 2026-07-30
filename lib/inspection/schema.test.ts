@@ -98,9 +98,53 @@ describe("inspectionFormSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("coerces situacaoFiscalRegular checkbox value 'on' to true", () => {
-    const result = inspectionFormSchema.safeParse({ ...base, situacaoFiscalRegular: "on" });
+  it("accepts situacaoFiscalRegular as free text", () => {
+    const result = inspectionFormSchema.safeParse({ ...base, situacaoFiscalRegular: "IUC pago até 2026" });
     expect(result.success).toBe(true);
-    if (result.success) expect(result.data.situacaoFiscalRegular).toBe(true);
+    if (result.success) expect(result.data.situacaoFiscalRegular).toBe("IUC pago até 2026");
+  });
+
+  it("accepts the importação block left blank", () => {
+    const result = inspectionFormSchema.safeParse(base);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.veiculoImportado).toBeUndefined();
+      expect(result.data.paisOrigem).toBeUndefined();
+    }
+  });
+
+  it("accepts a full importação block", () => {
+    const result = inspectionFormSchema.safeParse({
+      ...base,
+      veiculoImportado: "sim",
+      paisOrigem: "Alemanha",
+      matriculaOrigem: "M-AB 1234",
+      dataImportacao: "2024-03-10",
+      possuiCoc: "sim",
+      isencaoIsvAplicada: "nao",
+      numeroDav: "DAV-2024-000123",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.veiculoImportado).toBe("sim");
+      expect(result.data.possuiCoc).toBe("sim");
+    }
+  });
+
+  it("coerces a blank valorBaseIucAnual to undefined instead of 0", () => {
+    const result = inspectionFormSchema.safeParse({ ...base, valorBaseIucAnual: "" });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.valorBaseIucAnual).toBeUndefined();
+  });
+
+  it("accepts a numeric valorBaseIucAnual", () => {
+    const result = inspectionFormSchema.safeParse({ ...base, valorBaseIucAnual: "145.50" });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.valorBaseIucAnual).toBe(145.5);
+  });
+
+  it("accepts indiciosAdulteracaoPresentes left blank", () => {
+    const result = inspectionFormSchema.safeParse(base);
+    expect(result.success).toBe(true);
   });
 });

@@ -112,7 +112,6 @@ export async function createInspectionAction(
     p_inspecoes_periodicas_ipo_notas: v.inspecoesPeriodicasIpoNotas || null,
     p_inspecoes_periodicas_ipo_data: v.inspecoesPeriodicasIpoData || null,
     p_situacao_fiscal_regular: v.situacaoFiscalRegular,
-    p_situacao_fiscal_observacoes: v.situacaoFiscalObservacoes || null,
     // `equipamentos` was already filtered to isEquipamentoValido() above, so
     // ordem here stays index-aligned with the equipamento_inspecao rows the
     // RPC creates — uploadPendingEquipamentoFotos below relies on that.

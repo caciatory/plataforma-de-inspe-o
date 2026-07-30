@@ -111,7 +111,7 @@ export async function createInspectionAction(
     p_historico_manutencao: v.historicoManutencao || null,
     p_inspecoes_periodicas_ipo_notas: v.inspecoesPeriodicasIpoNotas || null,
     p_inspecoes_periodicas_ipo_data: v.inspecoesPeriodicasIpoData || null,
-    p_situacao_fiscal_regular: v.situacaoFiscalRegular,
+    p_situacao_fiscal_regular: v.situacaoFiscalRegular || null,
     // `equipamentos` was already filtered to isEquipamentoValido() above, so
     // ordem here stays index-aligned with the equipamento_inspecao rows the
     // RPC creates — uploadPendingEquipamentoFotos below relies on that.
@@ -123,6 +123,16 @@ export async function createInspectionAction(
       comentario: e.comentario,
       personalizado: e.personalizado,
     })),
+    p_indicios_adulteracao_presentes: v.indiciosAdulteracaoPresentes === "sim",
+    p_veiculo_importado: v.veiculoImportado === "sim",
+    p_pais_origem: v.paisOrigem || null,
+    p_matricula_origem: v.matriculaOrigem || null,
+    p_data_importacao: v.dataImportacao || null,
+    p_possui_coc: v.possuiCoc === undefined ? null : v.possuiCoc === "sim",
+    p_isencao_isv_aplicada: v.isencaoIsvAplicada === undefined ? null : v.isencaoIsvAplicada === "sim",
+    p_numero_dav: v.numeroDav || null,
+    p_data_primeira_matricula: v.dataPrimeiraMatricula || null,
+    p_valor_base_iuc_anual: v.valorBaseIucAnual ?? null,
   });
 
   if (error) {

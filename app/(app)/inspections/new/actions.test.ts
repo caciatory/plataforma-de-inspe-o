@@ -128,6 +128,81 @@ describe("createInspectionAction", () => {
     );
   });
 
+  it("maps the importação block and IUC fields to the RPC params", async () => {
+    rpc.mockResolvedValue({ data: "88888888-8888-8888-8888-888888888888", error: null });
+    const { createInspectionAction } = await import("./actions");
+
+    const formData = new FormData();
+    formData.set("tipoCliente", "particular");
+    formData.set("objetivo", "compra");
+    formData.set("nomeSolicitante", "Cliente Teste");
+    formData.set("matricula", "AA-00-BB");
+    formData.set("marca", "Toyota");
+    formData.set("modelo", "Corolla");
+    formData.set("quilometragem", "45000");
+    formData.set("indiciosAdulteracaoPresentes", "sim");
+    formData.set("indiciosAdulteracaoKm", "Contador com dígitos desalinhados");
+    formData.set("veiculoImportado", "sim");
+    formData.set("paisOrigem", "Alemanha");
+    formData.set("matriculaOrigem", "M-AB 1234");
+    formData.set("dataImportacao", "2024-03-10");
+    formData.set("possuiCoc", "sim");
+    formData.set("isencaoIsvAplicada", "nao");
+    formData.set("numeroDav", "DAV-2024-000123");
+    formData.set("dataPrimeiraMatricula", "2019-06-01");
+    formData.set("valorBaseIucAnual", "145.50");
+
+    await expect(createInspectionAction({ status: "idle" }, formData)).rejects.toThrow(
+      "REDIRECT:/inspections/88888888-8888-8888-8888-888888888888"
+    );
+
+    expect(rpc).toHaveBeenCalledWith(
+      "create_inspection",
+      expect.objectContaining({
+        p_indicios_adulteracao_presentes: true,
+        p_veiculo_importado: true,
+        p_pais_origem: "Alemanha",
+        p_matricula_origem: "M-AB 1234",
+        p_data_importacao: "2024-03-10",
+        p_possui_coc: true,
+        p_isencao_isv_aplicada: false,
+        p_numero_dav: "DAV-2024-000123",
+        p_data_primeira_matricula: "2019-06-01",
+        p_valor_base_iuc_anual: 145.5,
+      })
+    );
+  });
+
+  it("defaults the importação block to false/null when veiculoImportado isn't set", async () => {
+    rpc.mockResolvedValue({ data: "99999999-9999-9999-9999-999999999999", error: null });
+    const { createInspectionAction } = await import("./actions");
+
+    const formData = new FormData();
+    formData.set("tipoCliente", "particular");
+    formData.set("objetivo", "compra");
+    formData.set("nomeSolicitante", "Cliente Teste");
+    formData.set("matricula", "AA-00-BB");
+    formData.set("marca", "Toyota");
+    formData.set("modelo", "Corolla");
+    formData.set("quilometragem", "45000");
+
+    await expect(createInspectionAction({ status: "idle" }, formData)).rejects.toThrow(
+      "REDIRECT:/inspections/99999999-9999-9999-9999-999999999999"
+    );
+
+    expect(rpc).toHaveBeenCalledWith(
+      "create_inspection",
+      expect.objectContaining({
+        p_indicios_adulteracao_presentes: false,
+        p_veiculo_importado: false,
+        p_pais_origem: null,
+        p_possui_coc: null,
+        p_isencao_isv_aplicada: null,
+        p_valor_base_iuc_anual: null,
+      })
+    );
+  });
+
   it("returns an error when the RPC fails", async () => {
     rpc.mockResolvedValue({ data: null, error: { message: "db error" } });
     const { createInspectionAction } = await import("./actions");

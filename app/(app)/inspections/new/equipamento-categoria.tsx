@@ -14,11 +14,13 @@ function EquipamentoItem({
   nome,
   index,
   personalizado,
+  onVerificadoChange,
 }: {
   categoriaId: EquipamentoCategoriaId;
   nome: string;
   index: number;
   personalizado: boolean;
+  onVerificadoChange?: (index: number, verificado: boolean) => void;
 }) {
   const key = itemKey(categoriaId, nome, index);
   const prefix = `equip__${key}`;
@@ -29,7 +31,16 @@ function EquipamentoItem({
   function handleSelecionadoChange(e: ChangeEvent<HTMLInputElement>) {
     const checked = e.target.checked;
     setSelecionado(checked);
-    if (checked) setExpandido(true);
+    if (checked) {
+      setExpandido(true);
+    } else {
+      onVerificadoChange?.(index, false);
+    }
+  }
+
+  function handleCondicaoChange(novaCondicao: Condicao) {
+    setCondicao(novaCondicao);
+    onVerificadoChange?.(index, novaCondicao !== "");
   }
 
   // Só compacta quando o foco sai do item inteiro (não ao tabular entre
@@ -63,7 +74,7 @@ function EquipamentoItem({
                 value="bom"
                 required={selecionado}
                 checked={condicao === "bom"}
-                onChange={() => setCondicao("bom")}
+                onChange={() => handleCondicaoChange("bom")}
                 aria-label={`✓ Bom (${nome})`}
               />
               ✓ Bom
@@ -75,7 +86,7 @@ function EquipamentoItem({
                 value="atencao"
                 required={selecionado}
                 checked={condicao === "atencao"}
-                onChange={() => setCondicao("atencao")}
+                onChange={() => handleCondicaoChange("atencao")}
                 aria-label={`⚠️ Atenção (${nome})`}
               />
               ⚠️ Atenção
@@ -134,11 +145,28 @@ export function EquipamentoCategoria({
   onAddPersonalizado: () => void;
 }) {
   const todosOsItens = [...itensPreDefinidos, ...itensPersonalizados];
+  const [verificados, setVerificados] = useState<Set<number>>(new Set());
+
+  function handleVerificadoChange(index: number, verificado: boolean) {
+    setVerificados((prev) => {
+      const next = new Set(prev);
+      if (verificado) next.add(index);
+      else next.delete(index);
+      return next;
+    });
+  }
 
   return (
     <details className="equip-categoria">
       <summary className="equip-categoria__summary">
-        {label}
+        <span className="equip-categoria__titulo">
+          {label}
+          {verificados.size > 0 && (
+            <span className="equip-categoria__badge">
+              ✓ {verificados.size}/{todosOsItens.length} verificados
+            </span>
+          )}
+        </span>
         <button
           type="button"
           className="btn btn-secondary equip-categoria__add"
@@ -158,6 +186,7 @@ export function EquipamentoCategoria({
             nome={nome}
             index={index}
             personalizado={index >= itensPreDefinidos.length}
+            onVerificadoChange={handleVerificadoChange}
           />
         ))}
       </ul>

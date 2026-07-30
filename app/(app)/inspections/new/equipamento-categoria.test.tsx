@@ -170,4 +170,38 @@ describe("EquipamentoCategoria", () => {
     expect(screen.getByLabelText("Sistema ABS/ESP")).toBeVisible();
     expect(screen.queryByText("Sistema ABS/ESP — ✓ Bom")).not.toBeInTheDocument();
   });
+
+  it("shows no badge when nothing is verified", () => {
+    renderCategoria();
+    expect(screen.queryByText(/verificados/)).not.toBeInTheDocument();
+  });
+
+  it("shows a verificados/total badge that updates as items get a condição", () => {
+    renderCategoria();
+    fireEvent.click(screen.getByLabelText("Sistema ABS/ESP"));
+    fireEvent.click(screen.getByLabelText("✓ Bom (Sistema ABS/ESP)"));
+    expect(screen.getByText("✓ 1/2 verificados")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("Airbags (frontais, laterais e de cortina)"));
+    fireEvent.click(screen.getByLabelText("⚠️ Atenção (Airbags (frontais, laterais e de cortina))"));
+    expect(screen.getByText("✓ 2/2 verificados")).toBeInTheDocument();
+  });
+
+  it("removes an item from the badge count when it's unchecked", () => {
+    renderCategoria();
+    const checkbox = screen.getByLabelText("Sistema ABS/ESP") as HTMLInputElement;
+    fireEvent.click(checkbox);
+    fireEvent.click(screen.getByLabelText("✓ Bom (Sistema ABS/ESP)"));
+    expect(screen.getByText("✓ 1/2 verificados")).toBeInTheDocument();
+
+    fireEvent.click(checkbox);
+    expect(screen.queryByText(/verificados/)).not.toBeInTheDocument();
+  });
+
+  it("counts personalizado items in the badge total", () => {
+    renderCategoria(["Bagageira de teto"]);
+    fireEvent.click(screen.getByLabelText("Bagageira de teto"));
+    fireEvent.click(screen.getByLabelText("✓ Bom (Bagageira de teto)"));
+    expect(screen.getByText("✓ 1/3 verificados")).toBeInTheDocument();
+  });
 });

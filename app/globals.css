@@ -682,6 +682,19 @@ textarea.input {
   cursor: pointer;
 }
 
+.equip-categoria__titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.equip-categoria__badge {
+  font-family: var(--font-family-body);
+  font-weight: 400;
+  font-size: 0.85em;
+  color: var(--color-ink-muted);
+}
+
 .equip-categoria__add {
   min-height: 32px;
   padding: 0 var(--space-3);

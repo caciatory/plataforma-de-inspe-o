@@ -204,4 +204,18 @@ describe("EquipamentoCategoria", () => {
     fireEvent.click(screen.getByLabelText("✓ Bom (Bagageira de teto)"));
     expect(screen.getByText("✓ 1/3 verificados")).toBeInTheDocument();
   });
+
+  it("re-counts the item in the badge after unchecking and rechecking with a condição already set", () => {
+    renderCategoria();
+    const checkbox = screen.getByLabelText("Sistema ABS/ESP") as HTMLInputElement;
+    fireEvent.click(checkbox);
+    fireEvent.click(screen.getByLabelText("✓ Bom (Sistema ABS/ESP)"));
+    expect(screen.getByText("✓ 1/2 verificados")).toBeInTheDocument();
+
+    fireEvent.click(checkbox); // desmarca
+    expect(screen.queryByText(/verificados/)).not.toBeInTheDocument();
+
+    fireEvent.click(checkbox); // remarca
+    expect(screen.getByText("✓ 1/2 verificados")).toBeInTheDocument();
+  });
 });

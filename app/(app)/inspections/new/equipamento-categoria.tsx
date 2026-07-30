@@ -33,6 +33,7 @@ function EquipamentoItem({
     setSelecionado(checked);
     if (checked) {
       setExpandido(true);
+      onVerificadoChange?.(index, condicao !== "");
     } else {
       onVerificadoChange?.(index, false);
     }

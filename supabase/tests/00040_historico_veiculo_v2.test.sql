@@ -51,6 +51,21 @@ begin
   if v_row.pais_origem <> 'Alemanha' then
     raise exception 'FALHOU: pais_origem incorreto';
   end if;
+  if v_row.matricula_origem <> 'M-AB 1234' then
+    raise exception 'FALHOU: matricula_origem incorreto, foi %', v_row.matricula_origem;
+  end if;
+  if v_row.data_importacao <> '2024-03-10' then
+    raise exception 'FALHOU: data_importacao incorreta, foi %', v_row.data_importacao;
+  end if;
+  if v_row.possui_coc is not true then
+    raise exception 'FALHOU: possui_coc deveria ser true';
+  end if;
+  if v_row.isencao_isv_aplicada is not false then
+    raise exception 'FALHOU: isencao_isv_aplicada deveria ser false';
+  end if;
+  if v_row.numero_dav <> 'DAV-2024-000123' then
+    raise exception 'FALHOU: numero_dav incorreto, foi %', v_row.numero_dav;
+  end if;
   if v_row.data_primeira_matricula <> '2019-06-01' then
     raise exception 'FALHOU: data_primeira_matricula incorreta';
   end if;
@@ -81,6 +96,21 @@ begin
   end if;
   if v_row.pais_origem is not null then
     raise exception 'FALHOU: pais_origem deveria ficar null quando omitido';
+  end if;
+  if v_row.matricula_origem is not null then
+    raise exception 'FALHOU: matricula_origem deveria ficar null quando omitido';
+  end if;
+  if v_row.data_importacao is not null then
+    raise exception 'FALHOU: data_importacao deveria ficar null quando omitido';
+  end if;
+  if v_row.possui_coc is not null then
+    raise exception 'FALHOU: possui_coc deveria ficar null quando omitido';
+  end if;
+  if v_row.isencao_isv_aplicada is not null then
+    raise exception 'FALHOU: isencao_isv_aplicada deveria ficar null quando omitido';
+  end if;
+  if v_row.numero_dav is not null then
+    raise exception 'FALHOU: numero_dav deveria ficar null quando omitido';
   end if;
   if v_row.situacao_fiscal_regular is not null then
     raise exception 'FALHOU: situacao_fiscal_regular deveria ficar null quando omitido';

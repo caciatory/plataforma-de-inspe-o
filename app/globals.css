@@ -734,11 +734,7 @@ textarea.input {
   border-top: 1px solid var(--color-border);
 }
 
-.equip-item__condicao {
-  display: flex;
-  gap: var(--space-4);
-}
-
+.equip-item__condicao,
 .sim-nao-radio {
   display: flex;
   gap: var(--space-4);

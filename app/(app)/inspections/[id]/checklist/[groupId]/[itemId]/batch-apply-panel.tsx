@@ -49,7 +49,8 @@ export function BatchApplyPanel({
         const formData = buildEscolhaFormData(inspectionId, row.itemTemplateId, row.opcao_id, row.observacao);
         const result = await saveEscolhaAction({ status: "idle" }, formData);
         if (result.status === "error") {
-          setError(result.message);
+          setError(`${row.nome}: ${result.message}`);
+          router.refresh();
           return;
         }
       }

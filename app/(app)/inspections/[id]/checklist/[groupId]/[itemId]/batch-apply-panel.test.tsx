@@ -121,7 +121,7 @@ describe("BatchApplyPanel", () => {
     await waitFor(() => expect(refresh).toHaveBeenCalledTimes(1));
   });
 
-  it("stops at the first failing row without saving the rest, and does not refresh", async () => {
+  it("stops at the first failing row without saving the rest, but refreshes to reflect any rows saved before the failure", async () => {
     saveEscolhaAction
       .mockResolvedValueOnce({ status: "idle" })
       .mockResolvedValueOnce({ status: "error", message: "Não foi possível guardar." });
@@ -130,21 +130,21 @@ describe("BatchApplyPanel", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Confirmar aplicação" }));
 
-    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Não foi possível guardar."));
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(/Pneu B.*Não foi possível guardar\./));
     expect(saveEscolhaAction).toHaveBeenCalledTimes(2);
     expect(saveEscolhaAction.mock.calls.every((call) => call[1].get("itemTemplateId") !== rowC.itemTemplateId)).toBe(true);
-    expect(refresh).not.toHaveBeenCalled();
+    expect(refresh).toHaveBeenCalledTimes(1);
   });
 
-  it("shows the action's error message and does not refresh on failure", async () => {
+  it("shows the action's error message, naming the failing row", async () => {
     saveEscolhaAction.mockResolvedValue({ status: "error", message: "Não foi possível guardar." });
 
     render(<BatchApplyPanel inspectionId="insp-1" opcoes={opcoes} initialRows={[rowA]} onCancel={() => {}} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Confirmar aplicação" }));
 
-    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Não foi possível guardar."));
-    expect(refresh).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(/Pneu A.*Não foi possível guardar\./));
+    expect(refresh).toHaveBeenCalledTimes(1);
   });
 
   it("calls onCancel when Cancelar is clicked", () => {

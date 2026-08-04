@@ -58,6 +58,16 @@ const rowAlreadyAnswered = {
   isCurrent: false,
   alreadyAnsweredLabel: "Médio",
 };
+const rowC = {
+  itemTemplateId: "item-4",
+  nome: "Pneu D",
+  opcao_id: "opt-otimo",
+  observacao: "Sem avarias",
+  photos: [],
+  included: true,
+  isCurrent: false,
+  alreadyAnsweredLabel: null,
+};
 
 describe("BatchApplyPanel", () => {
   it("renders one fieldset per row, pre-filled", () => {
@@ -116,12 +126,13 @@ describe("BatchApplyPanel", () => {
       .mockResolvedValueOnce({ status: "idle" })
       .mockResolvedValueOnce({ status: "error", message: "Não foi possível guardar." });
 
-    render(<BatchApplyPanel inspectionId="insp-1" opcoes={opcoes} initialRows={[rowA, rowB]} onCancel={() => {}} />);
+    render(<BatchApplyPanel inspectionId="insp-1" opcoes={opcoes} initialRows={[rowA, rowB, rowC]} onCancel={() => {}} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Confirmar aplicação" }));
 
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Não foi possível guardar."));
     expect(saveEscolhaAction).toHaveBeenCalledTimes(2);
+    expect(saveEscolhaAction.mock.calls.every((call) => call[1].get("itemTemplateId") !== rowC.itemTemplateId)).toBe(true);
     expect(refresh).not.toHaveBeenCalled();
   });
 

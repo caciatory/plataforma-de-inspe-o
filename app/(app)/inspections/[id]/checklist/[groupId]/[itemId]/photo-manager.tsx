@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { attachPhotoAction, deletePhotoAction } from "./actions";
 
@@ -24,8 +24,15 @@ export function PhotoManager({
 }) {
   const [photos, setPhotos] = useState<Photo[]>(initialPhotos);
   const [error, setError] = useState<string | null>(null);
+  const [expandedPhoto, setExpandedPhoto] = useState<Photo | null>(null);
   const [isPending, startTransition] = useTransition();
   const inputId = `photoInput-${itemTemplateId}`;
+  const lightboxRef = useRef<HTMLDialogElement>(null);
+
+  function openPhoto(photo: Photo) {
+    setExpandedPhoto(photo);
+    lightboxRef.current?.showModal();
+  }
 
   function handleUpload(file: File) {
     setError(null);
@@ -72,45 +79,59 @@ export function PhotoManager({
 
   return (
     <div className="photo-manager">
-      <div className="field">
-        <label htmlFor={inputId} className="label">
-          Foto
-        </label>
-        <input
-          id={inputId}
-          className="photo-manager__input"
-          type="file"
-          accept="image/*"
-          disabled={isPending}
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleUpload(file);
-            e.target.value = "";
-          }}
-        />
-      </div>
+      <label htmlFor={inputId} className="photo-manager__trigger" title="Adicionar foto" aria-disabled={isPending}>
+        <span aria-hidden="true">📷</span>
+      </label>
+      <input
+        id={inputId}
+        className="sr-only"
+        type="file"
+        accept="image/*"
+        aria-label="Foto"
+        disabled={isPending}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleUpload(file);
+          e.target.value = "";
+        }}
+      />
       {isPending && <span className="hint">A processar...</span>}
       {error && (
         <p role="alert" className="error-text">
           {error}
         </p>
       )}
-      <ul className="photo-grid">
-        {photos.map((photo) => (
-          <li key={photo.id} className="photo-grid__item">
+      {photos.length > 0 && (
+        <ul className="photo-grid photo-grid--compact">
+          {photos.map((photo) => (
+            <li key={photo.id} className="photo-grid__item">
+              <button type="button" className="photo-grid__thumb-btn" onClick={() => openPhoto(photo)}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photo.url} alt="Foto anexada ao item" className="photo-grid__thumb" />
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger photo-grid__delete"
+                onClick={() => handleDelete(photo.id)}
+                disabled={isPending}
+              >
+                Excluir
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <dialog ref={lightboxRef} className="dialog-panel photo-lightbox" onClose={() => setExpandedPhoto(null)}>
+        {expandedPhoto && (
+          <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photo.url} alt="Foto anexada ao item" width={120} height={90} className="photo-grid__thumb" />
-            <button
-              type="button"
-              className="btn btn-danger photo-grid__delete"
-              onClick={() => handleDelete(photo.id)}
-              disabled={isPending}
-            >
-              Excluir
+            <img src={expandedPhoto.url} alt="Foto ampliada" className="photo-lightbox__img" />
+            <button type="button" className="btn btn-secondary" onClick={() => lightboxRef.current?.close()}>
+              Fechar
             </button>
-          </li>
-        ))}
-      </ul>
+          </>
+        )}
+      </dialog>
     </div>
   );
 }

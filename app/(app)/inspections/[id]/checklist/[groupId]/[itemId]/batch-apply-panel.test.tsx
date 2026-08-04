@@ -13,12 +13,12 @@ vi.mock("@/lib/supabase/client", () => ({
   createClient: () => ({ storage: { from: () => ({ upload: vi.fn(), getPublicUrl: vi.fn() }) } }),
 }));
 
-const push = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+const refresh = vi.fn();
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }) }));
 
 beforeEach(() => {
   applyOpcoesBatchAction.mockReset();
-  push.mockClear();
+  refresh.mockClear();
 });
 
 const opcoes = [
@@ -28,24 +28,64 @@ const opcoes = [
   { id: "opt-na", label: "N.A.", exige_foto: false, ordem: 4 },
 ];
 
-const rowA = { itemTemplateId: "item-1", nome: "Pneu A", opcao_id: "opt-otimo", observacao: "Sem avarias", photos: [] };
-const rowB = { itemTemplateId: "item-2", nome: "Pneu B", opcao_id: "opt-otimo", observacao: "Sem avarias", photos: [] };
+const rowA = {
+  itemTemplateId: "item-1",
+  nome: "Pneu A",
+  opcao_id: "opt-otimo",
+  observacao: "Sem avarias",
+  photos: [],
+  included: true,
+  isCurrent: true,
+  alreadyAnsweredLabel: null,
+};
+const rowB = {
+  itemTemplateId: "item-2",
+  nome: "Pneu B",
+  opcao_id: "opt-otimo",
+  observacao: "Sem avarias",
+  photos: [],
+  included: true,
+  isCurrent: false,
+  alreadyAnsweredLabel: null,
+};
+const rowAlreadyAnswered = {
+  itemTemplateId: "item-3",
+  nome: "Pneu C",
+  opcao_id: "opt-otimo",
+  observacao: "",
+  photos: [],
+  included: false,
+  isCurrent: false,
+  alreadyAnsweredLabel: "Médio",
+};
 
 describe("BatchApplyPanel", () => {
   it("renders one fieldset per row, pre-filled", () => {
-    render(
-      <BatchApplyPanel inspectionId="insp-1" groupListUrl="/x" opcoes={opcoes} initialRows={[rowA, rowB]} onCancel={() => {}} />
-    );
+    render(<BatchApplyPanel inspectionId="insp-1" opcoes={opcoes} initialRows={[rowA, rowB]} onCancel={() => {}} />);
 
     expect(screen.getByText("Pneu A")).toBeInTheDocument();
-    expect(screen.getByText("Pneu B")).toBeInTheDocument();
+    expect(screen.getByText(/Pneu B/)).toBeInTheDocument();
     expect(screen.getAllByDisplayValue("Sem avarias")).toHaveLength(2);
   });
 
+  it("shows already-answered siblings unchecked with their previous answer noted, and hides their fields", () => {
+    render(<BatchApplyPanel inspectionId="insp-1" opcoes={opcoes} initialRows={[rowA, rowAlreadyAnswered]} onCancel={() => {}} />);
+
+    expect(screen.getByText(/Pneu C.*já respondido: Médio/)).toBeInTheDocument();
+    expect(screen.queryByLabelText("Observação", { selector: `#observacao-${rowAlreadyAnswered.itemTemplateId}` })).not.toBeInTheDocument();
+  });
+
+  it("re-includes an already-answered sibling when its checkbox is checked, revealing its fields", () => {
+    render(<BatchApplyPanel inspectionId="insp-1" opcoes={opcoes} initialRows={[rowA, rowAlreadyAnswered]} onCancel={() => {}} />);
+
+    fireEvent.click(screen.getByRole("checkbox"));
+
+    expect(screen.getByRole("checkbox")).toBeChecked();
+    expect(screen.getAllByLabelText("Ótimo")).toHaveLength(2);
+  });
+
   it("blocks confirmation and names the row when a row whose opcao exige_foto has no photo, without calling the action", () => {
-    render(
-      <BatchApplyPanel inspectionId="insp-1" groupListUrl="/x" opcoes={opcoes} initialRows={[rowA]} onCancel={() => {}} />
-    );
+    render(<BatchApplyPanel inspectionId="insp-1" opcoes={opcoes} initialRows={[rowA]} onCancel={() => {}} />);
 
     fireEvent.click(screen.getAllByLabelText("Ruim")[0]);
     fireEvent.click(screen.getByRole("button", { name: "Confirmar aplicação" }));
@@ -54,12 +94,10 @@ describe("BatchApplyPanel", () => {
     expect(applyOpcoesBatchAction).not.toHaveBeenCalled();
   });
 
-  it("submits the batch and navigates to groupListUrl on success", async () => {
+  it("submits only included rows and refreshes the router on success", async () => {
     applyOpcoesBatchAction.mockResolvedValue({});
 
-    render(
-      <BatchApplyPanel inspectionId="insp-1" groupListUrl="/x" opcoes={opcoes} initialRows={[rowA, rowB]} onCancel={() => {}} />
-    );
+    render(<BatchApplyPanel inspectionId="insp-1" opcoes={opcoes} initialRows={[rowA, rowB, rowAlreadyAnswered]} onCancel={() => {}} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Confirmar aplicação" }));
 
@@ -69,27 +107,23 @@ describe("BatchApplyPanel", () => {
         { itemTemplateId: "item-2", opcaoId: "opt-otimo", observacao: "Sem avarias" },
       ])
     );
-    await waitFor(() => expect(push).toHaveBeenCalledWith("/x"));
+    await waitFor(() => expect(refresh).toHaveBeenCalled());
   });
 
-  it("shows the action's error message and does not navigate on failure", async () => {
+  it("shows the action's error message and does not refresh on failure", async () => {
     applyOpcoesBatchAction.mockResolvedValue({ error: "Não foi possível guardar." });
 
-    render(
-      <BatchApplyPanel inspectionId="insp-1" groupListUrl="/x" opcoes={opcoes} initialRows={[rowA]} onCancel={() => {}} />
-    );
+    render(<BatchApplyPanel inspectionId="insp-1" opcoes={opcoes} initialRows={[rowA]} onCancel={() => {}} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Confirmar aplicação" }));
 
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Não foi possível guardar."));
-    expect(push).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
   });
 
   it("calls onCancel when Cancelar is clicked", () => {
     const onCancel = vi.fn();
-    render(
-      <BatchApplyPanel inspectionId="insp-1" groupListUrl="/x" opcoes={opcoes} initialRows={[rowA]} onCancel={onCancel} />
-    );
+    render(<BatchApplyPanel inspectionId="insp-1" opcoes={opcoes} initialRows={[rowA]} onCancel={onCancel} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
 

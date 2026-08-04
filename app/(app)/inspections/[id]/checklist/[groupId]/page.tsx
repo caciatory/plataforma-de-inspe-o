@@ -137,9 +137,6 @@ export default async function ChecklistGroupPage({
     grupo_replicacao: i.grupo_replicacao,
   }));
 
-  const subParam = activeSubcategoria ?? SEM_SUBCATEGORIA_PARAM;
-  const pageUrl = `/inspections/${id}/checklist/${groupId}?sub=${encodeURIComponent(subParam)}`;
-
   return (
     <div className="stack">
       <h1>{group.nome}</h1>
@@ -155,7 +152,6 @@ export default async function ChecklistGroupPage({
         photos={photos ?? []}
         medicaoResultados={medicaoResultados ?? []}
         medicaoValores={medicaoValores ?? []}
-        pageUrl={pageUrl}
       />
     </div>
   );

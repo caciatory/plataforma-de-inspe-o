@@ -460,6 +460,99 @@ describe("ChecklistItemTable", () => {
     await waitFor(() => expect(refresh).toHaveBeenCalledTimes(1));
   });
 
+  it("resyncs the escolha pill and row state when the response prop changes externally (regression: batch-apply on a sibling never touches this item's own save(), so its local opcaoId state went stale)", () => {
+    const { rerender } = render(
+      <ChecklistItemTable
+        inspectionId="insp-1"
+        items={[escolhaItem]}
+        allGroupItems={[]}
+        responses={[]}
+        opcoes={opcoes}
+        photos={[]}
+        medicaoResultados={[]}
+        medicaoValores={[]}
+      />
+    );
+
+    const row = () => document.querySelector("tbody tr") as HTMLElement;
+    expect(row()).toHaveClass("item-table__row--pendente");
+    expect(screen.getByLabelText("Bom")).not.toBeChecked();
+
+    const batchAppliedResponse: TableResponse = {
+      id: "resp-batch",
+      item_template_id: "item-escolha",
+      opcao_id: "opt-bom",
+      resposta_texto: null,
+      resposta_data: null,
+      observacao: null,
+      respondido: true,
+    };
+    rerender(
+      <ChecklistItemTable
+        inspectionId="insp-1"
+        items={[escolhaItem]}
+        allGroupItems={[]}
+        responses={[batchAppliedResponse]}
+        opcoes={opcoes}
+        photos={[]}
+        medicaoResultados={[]}
+        medicaoValores={[]}
+      />
+    );
+
+    expect(row()).toHaveClass("item-table__row--respondido");
+    expect(screen.getByLabelText("Bom")).toBeChecked();
+  });
+
+  it("marks the row as respondido optimistically, before the save round-trip resolves", async () => {
+    let resolveSave: (value: { status: string }) => void = () => {};
+    saveEscolhaAction.mockReturnValue(new Promise((resolve) => (resolveSave = resolve)));
+    const { container } = render(
+      <ChecklistItemTable
+        inspectionId="insp-1"
+        items={[escolhaItem]}
+        allGroupItems={[]}
+        responses={[]}
+        opcoes={opcoes}
+        photos={[]}
+        medicaoResultados={[]}
+        medicaoValores={[]}
+      />
+    );
+
+    const row = container.querySelector("tbody tr") as HTMLElement;
+    expect(row).toHaveClass("item-table__row--pendente");
+
+    fireEvent.click(screen.getByLabelText("Bom"));
+
+    expect(row).toHaveClass("item-table__row--respondido");
+
+    resolveSave({ status: "idle" });
+    await waitFor(() => expect(refresh).toHaveBeenCalled());
+  });
+
+  it("rolls back the optimistic respondido state when the save fails", async () => {
+    saveEscolhaAction.mockResolvedValue({ status: "error", message: "Falhou" });
+    const { container } = render(
+      <ChecklistItemTable
+        inspectionId="insp-1"
+        items={[escolhaItem]}
+        allGroupItems={[]}
+        responses={[]}
+        opcoes={opcoes}
+        photos={[]}
+        medicaoResultados={[]}
+        medicaoValores={[]}
+      />
+    );
+
+    const row = container.querySelector("tbody tr") as HTMLElement;
+    fireEvent.click(screen.getByLabelText("Bom"));
+    expect(row).toHaveClass("item-table__row--respondido");
+
+    await waitFor(() => expect(row).toHaveClass("item-table__row--pendente"));
+  });
+
   it("refreshes and closes the medição dialog when ItemMedicaoForm reports success", () => {
     render(
       <ChecklistItemTable

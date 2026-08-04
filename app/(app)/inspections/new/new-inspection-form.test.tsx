@@ -196,6 +196,31 @@ describe("NewInspectionForm", () => {
     expect(createInspectionAction).not.toHaveBeenCalled();
   });
 
+  it("reports validity on the missing condição radio when Guardar is clicked with an incomplete equipamento selection (regression: silent no-op)", () => {
+    createInspectionAction.mockClear();
+    render(<NewInspectionForm />);
+    fireEvent.change(screen.getByLabelText("Nome do solicitante"), { target: { value: "Cliente Teste" } });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Identificação" }));
+    fireEvent.change(screen.getByLabelText("Matrícula"), { target: { value: "AA-00-BB" } });
+    fireEvent.change(screen.getByLabelText("Marca"), { target: { value: "Toyota" } });
+    fireEvent.change(screen.getByLabelText("Modelo"), { target: { value: "Corolla" } });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Histórico" }));
+    fireEvent.change(screen.getByLabelText("Quilometragem atual"), { target: { value: "50000" } });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Equipamentos" }));
+    fireEvent.click(screen.getByLabelText("Sistema ABS/ESP"));
+
+    const reportValiditySpy = vi.spyOn(HTMLInputElement.prototype, "reportValidity").mockReturnValue(false);
+
+    fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
+
+    expect(reportValiditySpy).toHaveBeenCalled();
+    expect(createInspectionAction).not.toHaveBeenCalled();
+    reportValiditySpy.mockRestore();
+  });
+
   it("resets the personalizado dialog's fields between openings (regression: stale state after Cancelar)", () => {
     const { container } = render(<NewInspectionForm />);
     fireEvent.click(screen.getByRole("tab", { name: "Equipamentos" }));

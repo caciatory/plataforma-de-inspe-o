@@ -108,6 +108,27 @@ describe("PhotoManager", () => {
     );
   });
 
+  it("opens a lightbox with the enlarged photo when its thumbnail is clicked, and closes it via the Fechar button", () => {
+    render(
+      <PhotoManager
+        inspectionId="insp-1"
+        itemTemplateId="item-1"
+        initialPhotos={[{ id: "photo-1", url: "https://example.com/a.jpg" }]}
+      />
+    );
+
+    const dialog = document.querySelector("dialog") as HTMLDialogElement;
+    expect(dialog.open).toBe(false);
+
+    fireEvent.click(screen.getByRole("img", { name: "Foto anexada ao item" }));
+
+    expect(dialog.open).toBe(true);
+    expect(screen.getByRole("img", { name: "Foto ampliada" })).toHaveAttribute("src", "https://example.com/a.jpg");
+
+    fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
+    expect(dialog.open).toBe(false);
+  });
+
   it("calls onPhotosChange with the updated list after a successful delete", async () => {
     deletePhotoAction.mockResolvedValue({});
     const onPhotosChange = vi.fn();

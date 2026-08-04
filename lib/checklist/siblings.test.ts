@@ -70,7 +70,7 @@ describe("buildBatchRows", () => {
 
   const siblings: SiblingRow[] = [
     { id: "item-2", nome: "Pneu dianteiro direito", opcao_id: null, opcao_label: null, defaultChecked: true },
-    { id: "item-3", nome: "Pneu traseiro esquerdo", opcao_id: null, opcao_label: null, defaultChecked: true },
+    { id: "item-3", nome: "Pneu traseiro esquerdo", opcao_id: "opt-medio", opcao_label: "Médio", defaultChecked: false },
   ];
 
   it("never copies the current item's photos onto sibling rows, regardless of how many it has", () => {
@@ -84,20 +84,29 @@ describe("buildBatchRows", () => {
     }
   });
 
-  it("excludes unselected siblings", () => {
+  it("returns every sibling, marking unselected ones as not included instead of dropping them", () => {
     const selected = new Set(["item-2"]);
     const result = buildBatchRows(current, siblings, selected);
 
-    expect(result.map((r) => r.itemTemplateId)).toEqual(["item-1", "item-2"]);
+    expect(result.map((r) => r.itemTemplateId)).toEqual(["item-1", "item-2", "item-3"]);
+    expect(result.find((r) => r.itemTemplateId === "item-2")!.included).toBe(true);
+    expect(result.find((r) => r.itemTemplateId === "item-3")!.included).toBe(false);
   });
 
-  it("keeps the current item's own row unchanged, including its real photos", () => {
+  it("carries the sibling's already-answered label through for unselected rows", () => {
     const result = buildBatchRows(current, siblings, new Set(["item-2"]));
 
-    expect(result[0]).toEqual(current);
+    expect(result.find((r) => r.itemTemplateId === "item-3")!.alreadyAnsweredLabel).toBe("Médio");
+    expect(result.find((r) => r.itemTemplateId === "item-2")!.alreadyAnsweredLabel).toBeNull();
   });
 
-  it("applies the current item's opcao_id and observacao to every selected sibling", () => {
+  it("keeps the current item's own row unchanged (plus included/isCurrent/alreadyAnsweredLabel), including its real photos", () => {
+    const result = buildBatchRows(current, siblings, new Set(["item-2"]));
+
+    expect(result[0]).toEqual({ ...current, included: true, isCurrent: true, alreadyAnsweredLabel: null });
+  });
+
+  it("applies the current item's opcao_id and observacao to every sibling", () => {
     const result = buildBatchRows(current, siblings, new Set(["item-2", "item-3"]));
 
     const siblingRows = result.filter((r) => r.itemTemplateId !== "item-1");

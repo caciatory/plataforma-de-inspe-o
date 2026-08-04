@@ -4,26 +4,16 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { applyOpcoesBatchAction } from "./actions";
 import { PhotoManager, type Photo } from "./photo-manager";
-import { resolveEscolhaColorModifier, type Opcao } from "@/lib/checklist/siblings";
-
-export type BatchRow = {
-  itemTemplateId: string;
-  nome: string;
-  opcao_id: string;
-  observacao: string;
-  photos: Photo[];
-};
+import { resolveEscolhaColorModifier, type BatchRow, type Opcao } from "@/lib/checklist/siblings";
 
 export function BatchApplyPanel({
   inspectionId,
-  groupListUrl,
   opcoes,
   initialRows,
   onCancel,
   onSuccess,
 }: {
   inspectionId: string;
-  groupListUrl: string;
   opcoes: Opcao[];
   initialRows: BatchRow[];
   onCancel: () => void;
@@ -41,8 +31,9 @@ export function BatchApplyPanel({
   function handleConfirm() {
     setError(null);
 
+    const includedRows = rows.filter((r) => r.included);
     const exigeFotoByOpcaoId = new Map(opcoes.map((o) => [o.id, o.exige_foto]));
-    const missingFoto = rows.filter((r) => exigeFotoByOpcaoId.get(r.opcao_id) && r.photos.length === 0);
+    const missingFoto = includedRows.filter((r) => exigeFotoByOpcaoId.get(r.opcao_id) && r.photos.length === 0);
     if (missingFoto.length > 0) {
       setError(`Anexe pelo menos 1 foto antes de confirmar: ${missingFoto.map((r) => r.nome).join(", ")}.`);
       return;
@@ -51,7 +42,7 @@ export function BatchApplyPanel({
     startTransition(async () => {
       const result = await applyOpcoesBatchAction(
         inspectionId,
-        rows.map((r) => ({
+        includedRows.map((r) => ({
           itemTemplateId: r.itemTemplateId,
           opcaoId: r.opcao_id,
           observacao: r.observacao || null,
@@ -63,7 +54,7 @@ export function BatchApplyPanel({
         return;
       }
 
-      router.push(groupListUrl);
+      router.refresh();
       onSuccess?.();
     });
   }
@@ -73,45 +64,63 @@ export function BatchApplyPanel({
       <h2>Aplicar aos selecionados</h2>
       {rows.map((row) => (
         <fieldset key={row.itemTemplateId} className="panel form-fieldset">
-          <legend className="form-fieldset__legend">{row.nome}</legend>
-
-          <div className="escolha-options">
-            {opcoes.map((o) => (
-              <label
-                key={o.id}
-                className={`escolha-option escolha-option--${resolveEscolhaColorModifier(opcoes, o.id)}`}
-              >
+          <legend className="form-fieldset__legend">
+            {row.isCurrent ? (
+              row.nome
+            ) : (
+              <label>
                 <input
-                  type="radio"
-                  name={`opcao-${row.itemTemplateId}`}
-                  value={o.id}
-                  checked={row.opcao_id === o.id}
-                  onChange={() => updateRow(row.itemTemplateId, { opcao_id: o.id })}
-                />
-                {o.label}
+                  type="checkbox"
+                  checked={row.included}
+                  onChange={(e) => updateRow(row.itemTemplateId, { included: e.target.checked })}
+                />{" "}
+                {row.nome}
+                {row.alreadyAnsweredLabel && !row.included && ` — já respondido: ${row.alreadyAnsweredLabel}`}
               </label>
-            ))}
-          </div>
+            )}
+          </legend>
 
-          <div className="field">
-            <label htmlFor={`observacao-${row.itemTemplateId}`} className="label">
-              Observação
-            </label>
-            <textarea
-              id={`observacao-${row.itemTemplateId}`}
-              className="input"
-              rows={3}
-              value={row.observacao}
-              onChange={(e) => updateRow(row.itemTemplateId, { observacao: e.target.value })}
-            />
-          </div>
+          {row.included && (
+            <>
+              <div className="escolha-options">
+                {opcoes.map((o) => (
+                  <label
+                    key={o.id}
+                    className={`escolha-option escolha-option--${resolveEscolhaColorModifier(opcoes, o.id)}`}
+                  >
+                    <input
+                      type="radio"
+                      name={`opcao-${row.itemTemplateId}`}
+                      value={o.id}
+                      checked={row.opcao_id === o.id}
+                      onChange={() => updateRow(row.itemTemplateId, { opcao_id: o.id })}
+                    />
+                    {o.label}
+                  </label>
+                ))}
+              </div>
 
-          <PhotoManager
-            inspectionId={inspectionId}
-            itemTemplateId={row.itemTemplateId}
-            initialPhotos={row.photos}
-            onPhotosChange={(photos) => updateRow(row.itemTemplateId, { photos })}
-          />
+              <div className="field">
+                <label htmlFor={`observacao-${row.itemTemplateId}`} className="label">
+                  Observação
+                </label>
+                <textarea
+                  id={`observacao-${row.itemTemplateId}`}
+                  className="input"
+                  rows={3}
+                  value={row.observacao}
+                  onChange={(e) => updateRow(row.itemTemplateId, { observacao: e.target.value })}
+                />
+              </div>
+
+              <PhotoManager
+                inspectionId={inspectionId}
+                itemTemplateId={row.itemTemplateId}
+                initialPhotos={row.photos}
+                onPhotosChange={(photos) => updateRow(row.itemTemplateId, { photos })}
+              />
+            </>
+          )}
         </fieldset>
       ))}
 

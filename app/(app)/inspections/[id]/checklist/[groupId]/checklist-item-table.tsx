@@ -1,15 +1,16 @@
 // app/(app)/inspections/[id]/checklist/[groupId]/checklist-item-table.tsx
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { saveEscolhaAction, saveTextoAction, saveDataAction } from "./[itemId]/actions";
 import { ItemMedicaoForm } from "./[itemId]/item-medicao-form";
-import { BatchApplyPanel, type BatchRow } from "./[itemId]/batch-apply-panel";
+import { BatchApplyPanel } from "./[itemId]/batch-apply-panel";
 import {
   deriveSiblingRows,
   buildBatchRows,
   resolveEscolhaColorModifier,
+  type BatchRow,
   type SiblingSourceItem,
   type SiblingResponseRow,
 } from "@/lib/checklist/siblings";
@@ -49,11 +50,6 @@ export function ChecklistItemTable({
   photos,
   medicaoResultados,
   medicaoValores,
-  // ponytail: pageUrl no longer feeds a save action (Task 1 removed those redirects). It survives
-  // only as groupListUrl for FamiliaCell -> BatchApplyPanel's post-batch-apply router.push, an
-  // unrelated feature this task doesn't touch. Optional + defaulted so tests that don't exercise
-  // batch-apply can omit it.
-  pageUrl = "",
 }: {
   inspectionId: string;
   items: TableItem[];
@@ -63,7 +59,6 @@ export function ChecklistItemTable({
   photos: TablePhoto[];
   medicaoResultados: TableMedicaoResultado[];
   medicaoValores: TableMedicaoValores[];
-  pageUrl?: string;
 }) {
   const responseByItemId = new Map(responses.map((r) => [r.item_template_id, r]));
   const opcaoLabelById = new Map(opcoes.map((o) => [o.id, o.label]));
@@ -75,6 +70,23 @@ export function ChecklistItemTable({
   }
   const resultadoByResponseId = new Map(medicaoResultados.map((m) => [m.item_response_id, m.resultado]));
   const valoresByResponseId = new Map(medicaoValores.map((m) => [m.item_response_id, m.valores]));
+
+  // Optimistic overlay: the row's respondido/pendente class normally waits on
+  // `response`, which only updates after the save round-trip + router.refresh()
+  // re-fetches the server data. Marking an item here on save-start makes the
+  // row confirm instantly instead of lagging behind the network.
+  const [optimisticRespondido, setOptimisticRespondido] = useState<Set<string>>(new Set());
+  function markOptimistic(itemId: string) {
+    setOptimisticRespondido((prev) => new Set(prev).add(itemId));
+  }
+  function unmarkOptimistic(itemId: string) {
+    setOptimisticRespondido((prev) => {
+      if (!prev.has(itemId)) return prev;
+      const next = new Set(prev);
+      next.delete(itemId);
+      return next;
+    });
+  }
 
   return (
     <table className="item-table">
@@ -88,13 +100,12 @@ export function ChecklistItemTable({
       <tbody>
         {items.map((item) => {
           const response = responseByItemId.get(item.id);
-          const showFamiliaIcon = item.grupo_replicacao !== null && response?.respondido === true;
+          const respondido = response?.respondido || optimisticRespondido.has(item.id);
+          const isGrouped = item.grupo_replicacao !== null;
+          const showFamiliaIcon = isGrouped && response?.respondido === true;
 
           return (
-            <tr
-              key={item.id}
-              className={`item-table__row item-table__row--${response?.respondido ? "respondido" : "pendente"}`}
-            >
+            <tr key={item.id} className={`item-table__row item-table__row--${respondido ? "respondido" : "pendente"}`}>
               <td>{item.nome}</td>
               <td className={`item-table__cell--${item.tipo}`}>
                 {item.tipo === "escolha" && (
@@ -104,13 +115,27 @@ export function ChecklistItemTable({
                     response={response}
                     opcoes={opcoes.filter((o) => o.conjunto_id === item.conjunto_opcao_id)}
                     photos={response ? (photosByResponseId.get(response.id) ?? []) : []}
+                    onSaveStart={() => markOptimistic(item.id)}
+                    onSaveError={() => unmarkOptimistic(item.id)}
                   />
                 )}
                 {item.tipo === "texto" && (
-                  <TextoCell inspectionId={inspectionId} item={item} response={response} />
+                  <TextoCell
+                    inspectionId={inspectionId}
+                    item={item}
+                    response={response}
+                    onSaveStart={() => markOptimistic(item.id)}
+                    onSaveError={() => unmarkOptimistic(item.id)}
+                  />
                 )}
                 {item.tipo === "data" && (
-                  <DataCell inspectionId={inspectionId} item={item} response={response} />
+                  <DataCell
+                    inspectionId={inspectionId}
+                    item={item}
+                    response={response}
+                    onSaveStart={() => markOptimistic(item.id)}
+                    onSaveError={() => unmarkOptimistic(item.id)}
+                  />
                 )}
                 {item.tipo === "medicao" && (
                   <MedicaoCell
@@ -124,7 +149,7 @@ export function ChecklistItemTable({
                 )}
               </td>
               <td className="item-table__cell--familia">
-                {showFamiliaIcon && response && (
+                {showFamiliaIcon && response ? (
                   <FamiliaCell
                     inspectionId={inspectionId}
                     item={item}
@@ -134,8 +159,17 @@ export function ChecklistItemTable({
                     opcoes={opcoes.filter((o) => o.conjunto_id === item.conjunto_opcao_id)}
                     opcaoLabelById={opcaoLabelById}
                     photosByResponseId={photosByResponseId}
-                    pageUrl={pageUrl}
                   />
+                ) : (
+                  isGrouped && (
+                    <span
+                      className="item-table__familia-badge"
+                      title="Este item faz parte de um grupo — responder vai sugerir aplicar a mesma resposta aos demais"
+                      aria-label="Item faz parte de um grupo de respostas"
+                    >
+                      👪
+                    </span>
+                  )
                 )}
               </td>
             </tr>
@@ -166,25 +200,40 @@ function EscolhaCell({
   response,
   opcoes,
   photos,
+  onSaveStart,
+  onSaveError,
 }: {
   inspectionId: string;
   item: TableItem;
   response: TableResponse | undefined;
   opcoes: TableOpcao[];
   photos: Photo[];
+  onSaveStart: () => void;
+  onSaveError: () => void;
 }) {
   const [opcaoId, setOpcaoId] = useState(response?.opcao_id ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
+  // useState's initializer only runs on mount — when a sibling save (batch
+  // apply) or another técnico's edit updates this item's response out from
+  // under this component via router.refresh(), the prop changes but this
+  // local copy doesn't, leaving the pill showing the pre-update selection
+  // until the técnico happens to touch it. Resync whenever the prop moves.
+  useEffect(() => {
+    setOpcaoId(response?.opcao_id ?? "");
+  }, [response?.opcao_id]);
+
   function save(currentOpcaoId: string) {
     setError(null);
+    onSaveStart();
     const formData = buildEscolhaFormData(inspectionId, item.id, currentOpcaoId, response?.observacao ?? "");
     startTransition(async () => {
       const result = await saveEscolhaAction({ status: "idle" }, formData);
       if (result.status === "error") {
         setError(result.message);
+        onSaveError();
       } else {
         router.refresh();
       }
@@ -234,18 +283,27 @@ function TextoCell({
   inspectionId,
   item,
   response,
+  onSaveStart,
+  onSaveError,
 }: {
   inspectionId: string;
   item: TableItem;
   response: TableResponse | undefined;
+  onSaveStart: () => void;
+  onSaveError: () => void;
 }) {
   const [value, setValue] = useState(response?.resposta_texto ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
+  useEffect(() => {
+    setValue(response?.resposta_texto ?? "");
+  }, [response?.resposta_texto]);
+
   function save(currentValue: string) {
     setError(null);
+    onSaveStart();
     const formData = new FormData();
     formData.set("inspectionId", inspectionId);
     formData.set("itemTemplateId", item.id);
@@ -255,6 +313,7 @@ function TextoCell({
       const result = await saveTextoAction({ status: "idle" }, formData);
       if (result.status === "error") {
         setError(result.message);
+        onSaveError();
       } else {
         router.refresh();
       }
@@ -294,18 +353,27 @@ function DataCell({
   inspectionId,
   item,
   response,
+  onSaveStart,
+  onSaveError,
 }: {
   inspectionId: string;
   item: TableItem;
   response: TableResponse | undefined;
+  onSaveStart: () => void;
+  onSaveError: () => void;
 }) {
   const [value, setValue] = useState(response?.resposta_data ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
+  useEffect(() => {
+    setValue(response?.resposta_data ?? "");
+  }, [response?.resposta_data]);
+
   function save(currentValue: string) {
     setError(null);
+    onSaveStart();
     const formData = new FormData();
     formData.set("inspectionId", inspectionId);
     formData.set("itemTemplateId", item.id);
@@ -315,6 +383,7 @@ function DataCell({
       const result = await saveDataAction({ status: "idle" }, formData);
       if (result.status === "error") {
         setError(result.message);
+        onSaveError();
       } else {
         router.refresh();
       }
@@ -424,7 +493,6 @@ function FamiliaCell({
   opcoes,
   opcaoLabelById,
   photosByResponseId,
-  pageUrl,
 }: {
   inspectionId: string;
   item: TableItem;
@@ -434,7 +502,6 @@ function FamiliaCell({
   opcoes: TableOpcao[];
   opcaoLabelById: Map<string, string>;
   photosByResponseId: Map<string, Photo[]>;
-  pageUrl: string;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [rows, setRows] = useState<BatchRow[] | null>(null);
@@ -474,7 +541,6 @@ function FamiliaCell({
         {rows && (
           <BatchApplyPanel
             inspectionId={inspectionId}
-            groupListUrl={pageUrl}
             opcoes={opcoes}
             initialRows={rows}
             onCancel={() => dialogRef.current?.close()}

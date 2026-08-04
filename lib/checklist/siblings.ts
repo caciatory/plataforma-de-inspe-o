@@ -43,22 +43,28 @@ export type BatchRowInput = {
   photos: { id: string; url: string }[];
 };
 
-export function buildBatchRows(
-  current: BatchRowInput,
-  siblings: SiblingRow[],
-  selectedSiblingIds: Set<string>
-): BatchRowInput[] {
+export type BatchRow = BatchRowInput & {
+  included: boolean;
+  isCurrent: boolean;
+  alreadyAnsweredLabel: string | null;
+};
+
+// Every sibling is returned, not just the pending ones — an already-answered
+// sibling must stay visible (unchecked, with its previous answer noted) so a
+// technician can still opt it back in, per the original "Passo 1" design.
+export function buildBatchRows(current: BatchRowInput, siblings: SiblingRow[], selectedSiblingIds: Set<string>): BatchRow[] {
   return [
-    current,
-    ...siblings
-      .filter((s) => selectedSiblingIds.has(s.id))
-      .map((s) => ({
-        itemTemplateId: s.id,
-        nome: s.nome,
-        opcao_id: current.opcao_id,
-        observacao: current.observacao,
-        photos: [],
-      })),
+    { ...current, included: true, isCurrent: true, alreadyAnsweredLabel: null },
+    ...siblings.map((s) => ({
+      itemTemplateId: s.id,
+      nome: s.nome,
+      opcao_id: current.opcao_id,
+      observacao: current.observacao,
+      photos: [],
+      included: selectedSiblingIds.has(s.id),
+      isCurrent: false,
+      alreadyAnsweredLabel: s.opcao_label,
+    })),
   ];
 }
 

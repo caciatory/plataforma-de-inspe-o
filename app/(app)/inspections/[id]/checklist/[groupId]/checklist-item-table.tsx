@@ -237,6 +237,17 @@ function EscolhaCell({
         <label key={o.id} className={`escolha-option escolha-option--${resolveEscolhaColorModifier(opcoes, o.id)}`}>
           <input
             type="radio"
+            // The `checked` prop alone isn't enough on a freshly key-remounted
+            // radio: confirmed live that a batch-applied sibling's response
+            // arrives correctly (same opcao_id in state and props as a row
+            // whose radio DOES render checked), but the newly-created native
+            // <input> doesn't visually paint as checked unless its `.checked`
+            // is also set imperatively here. A page reload (brand-new DOM)
+            // or a real click always render fine — only this remount path
+            // needs the nudge.
+            ref={(el) => {
+              if (el) el.checked = opcaoId === o.id;
+            }}
             name={`opcao-${item.id}`}
             value={o.id}
             checked={opcaoId === o.id}

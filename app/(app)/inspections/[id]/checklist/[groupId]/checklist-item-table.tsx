@@ -111,6 +111,12 @@ export function ChecklistItemTable({
               <td className={`item-table__cell--${item.tipo}`}>
                 {item.tipo === "escolha" && (
                   <EscolhaCell
+                    // Força remount quando a resposta muda por uma fonte
+                    // externa ao componente (lote aplicado num irmão, outro
+                    // técnico) — mais robusto que sincronizar manualmente via
+                    // useEffect (tentativa anterior, não resolveu em teste ao
+                    // vivo). O useState inicial já lê o valor fresco do prop.
+                    key={`${item.id}:${response?.opcao_id ?? "vazio"}`}
                     inspectionId={inspectionId}
                     item={item}
                     response={response}
@@ -202,15 +208,6 @@ function EscolhaCell({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-
-  // useState's initializer only runs on mount — when a sibling save (batch
-  // apply) or another técnico's edit updates this item's response out from
-  // under this component via router.refresh(), the prop changes but this
-  // local copy doesn't, leaving the pill showing the pre-update selection
-  // until the técnico happens to touch it. Resync whenever the prop moves.
-  useEffect(() => {
-    setOpcaoId(response?.opcao_id ?? "");
-  }, [response?.opcao_id]);
 
   function save(currentOpcaoId: string) {
     setError(null);

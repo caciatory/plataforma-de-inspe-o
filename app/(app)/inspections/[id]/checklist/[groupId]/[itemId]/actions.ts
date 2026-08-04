@@ -141,61 +141,6 @@ export async function saveMeasurementAction(
   return { status: "success" };
 }
 
-export type BatchItem = { itemTemplateId: string; opcaoId: string; observacao: string | null };
-
-export async function applyOpcoesBatchAction(
-  inspectionId: string,
-  items: BatchItem[]
-): Promise<{ error?: string }> {
-  if (items.some((i) => !i.opcaoId)) {
-    return { error: "Selecione uma opção em todos os itens do lote." };
-  }
-
-  const supabase = await createClient();
-
-  const [{ data: templates }, { data: opcoes }] = await Promise.all([
-    supabase
-      .from("checklist_item_templates")
-      .select("id, conjunto_opcao_id")
-      .in("id", items.map((i) => i.itemTemplateId)),
-    supabase
-      .from("opcoes")
-      .select("id, conjunto_id")
-      .in("id", items.map((i) => i.opcaoId)),
-  ]);
-
-  const conjuntoByTemplateId = new Map((templates ?? []).map((t) => [t.id, t.conjunto_opcao_id]));
-  const conjuntoByOpcaoId = new Map((opcoes ?? []).map((o) => [o.id, o.conjunto_id]));
-
-  const hasInvalidItem = items.some(
-    (i) => conjuntoByOpcaoId.get(i.opcaoId) !== conjuntoByTemplateId.get(i.itemTemplateId)
-  );
-  if (hasInvalidItem) {
-    return { error: "Opção inválida em um dos itens do lote." };
-  }
-
-  const { error } = await supabase.rpc("apply_opcoes_batch", {
-    p_inspection_id: inspectionId,
-    p_items: items.map((i) => ({
-      item_template_id: i.itemTemplateId,
-      opcao_id: i.opcaoId,
-      observacao: i.observacao,
-    })),
-  });
-
-  if (error) {
-    console.error("applyOpcoesBatchAction failed", error);
-    return {
-      error: friendlyDbError(
-        error,
-        "Um dos itens do lote exige pelo menos 1 foto anexada. Anexe a foto e confirme de novo."
-      ),
-    };
-  }
-
-  return {};
-}
-
 export type SaveTextoState = { status: "idle" } | { status: "error"; message: string };
 
 export async function saveTextoAction(

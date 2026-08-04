@@ -99,3 +99,17 @@ export function resolveEscolhaColorModifier(opcoes: Opcao[], opcaoId: string): s
   if (rank === lastRank) return "ruim";
   return "medio";
 }
+
+export function buildEscolhaFormData(
+  inspectionId: string,
+  itemTemplateId: string,
+  opcaoId: string,
+  observacao: string
+): FormData {
+  const formData = new FormData();
+  formData.set("inspectionId", inspectionId);
+  formData.set("itemTemplateId", itemTemplateId);
+  formData.set("opcao_id", opcaoId);
+  formData.set("observacao", observacao);
+  return formData;
+}

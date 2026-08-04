@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { BatchApplyPanel } from "./batch-apply-panel";
 
-const applyOpcoesBatchAction = vi.fn();
+const saveEscolhaAction = vi.fn();
 vi.mock("./actions", () => ({
-  applyOpcoesBatchAction: (...args: unknown[]) => applyOpcoesBatchAction(...args),
+  saveEscolhaAction: (...args: unknown[]) => saveEscolhaAction(...args),
   attachPhotoAction: vi.fn(),
   deletePhotoAction: vi.fn(),
 }));
@@ -17,7 +17,7 @@ const refresh = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }) }));
 
 beforeEach(() => {
-  applyOpcoesBatchAction.mockReset();
+  saveEscolhaAction.mockReset();
   refresh.mockClear();
 });
 
@@ -91,27 +91,42 @@ describe("BatchApplyPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Confirmar aplicação" }));
 
     expect(screen.getByRole("alert")).toHaveTextContent(/Pneu A/);
-    expect(applyOpcoesBatchAction).not.toHaveBeenCalled();
+    expect(saveEscolhaAction).not.toHaveBeenCalled();
   });
 
-  it("submits only included rows and refreshes the router on success", async () => {
-    applyOpcoesBatchAction.mockResolvedValue({});
+  it("calls saveEscolhaAction once per included row, in order, then refreshes the router", async () => {
+    saveEscolhaAction.mockResolvedValue({ status: "idle" });
 
     render(<BatchApplyPanel inspectionId="insp-1" opcoes={opcoes} initialRows={[rowA, rowB, rowAlreadyAnswered]} onCancel={() => {}} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Confirmar aplicação" }));
 
-    await waitFor(() =>
-      expect(applyOpcoesBatchAction).toHaveBeenCalledWith("insp-1", [
-        { itemTemplateId: "item-1", opcaoId: "opt-otimo", observacao: "Sem avarias" },
-        { itemTemplateId: "item-2", opcaoId: "opt-otimo", observacao: "Sem avarias" },
-      ])
-    );
-    await waitFor(() => expect(refresh).toHaveBeenCalled());
+    await waitFor(() => expect(saveEscolhaAction).toHaveBeenCalledTimes(2));
+
+    expect(saveEscolhaAction.mock.calls[0][1].get("itemTemplateId")).toBe("item-1");
+    expect(saveEscolhaAction.mock.calls[0][1].get("opcao_id")).toBe("opt-otimo");
+    expect(saveEscolhaAction.mock.calls[0][1].get("observacao")).toBe("Sem avarias");
+    expect(saveEscolhaAction.mock.calls[1][1].get("itemTemplateId")).toBe("item-2");
+
+    await waitFor(() => expect(refresh).toHaveBeenCalledTimes(1));
+  });
+
+  it("stops at the first failing row without saving the rest, and does not refresh", async () => {
+    saveEscolhaAction
+      .mockResolvedValueOnce({ status: "idle" })
+      .mockResolvedValueOnce({ status: "error", message: "Não foi possível guardar." });
+
+    render(<BatchApplyPanel inspectionId="insp-1" opcoes={opcoes} initialRows={[rowA, rowB]} onCancel={() => {}} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar aplicação" }));
+
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Não foi possível guardar."));
+    expect(saveEscolhaAction).toHaveBeenCalledTimes(2);
+    expect(refresh).not.toHaveBeenCalled();
   });
 
   it("shows the action's error message and does not refresh on failure", async () => {
-    applyOpcoesBatchAction.mockResolvedValue({ error: "Não foi possível guardar." });
+    saveEscolhaAction.mockResolvedValue({ status: "error", message: "Não foi possível guardar." });
 
     render(<BatchApplyPanel inspectionId="insp-1" opcoes={opcoes} initialRows={[rowA]} onCancel={() => {}} />);
 

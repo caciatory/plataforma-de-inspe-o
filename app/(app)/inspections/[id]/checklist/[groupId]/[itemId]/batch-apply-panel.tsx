@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { applyOpcoesBatchAction } from "./actions";
+import { saveEscolhaAction } from "./actions";
 import { PhotoManager, type Photo } from "./photo-manager";
-import { resolveEscolhaColorModifier, type BatchRow, type Opcao } from "@/lib/checklist/siblings";
+import { buildEscolhaFormData, resolveEscolhaColorModifier, type BatchRow, type Opcao } from "@/lib/checklist/siblings";
 
 export function BatchApplyPanel({
   inspectionId,
@@ -40,18 +40,18 @@ export function BatchApplyPanel({
     }
 
     startTransition(async () => {
-      const result = await applyOpcoesBatchAction(
-        inspectionId,
-        includedRows.map((r) => ({
-          itemTemplateId: r.itemTemplateId,
-          opcaoId: r.opcao_id,
-          observacao: r.observacao || null,
-        }))
-      );
-
-      if (result.error) {
-        setError(result.error);
-        return;
+      // Mesma Server Action que o salvamento individual (EscolhaCell.save())
+      // já usa — reaproveitada aqui em vez do RPC de lote, pra ter a mesma
+      // confiabilidade comprovada. Não é atômico: uma falha no meio para o
+      // loop e deixa os itens anteriores já salvos (decisão aceita — a
+      // checagem de foto acima já cobre o caso comum de bloqueio).
+      for (const row of includedRows) {
+        const formData = buildEscolhaFormData(inspectionId, row.itemTemplateId, row.opcao_id, row.observacao);
+        const result = await saveEscolhaAction({ status: "idle" }, formData);
+        if (result.status === "error") {
+          setError(result.message);
+          return;
+        }
       }
 
       router.refresh();

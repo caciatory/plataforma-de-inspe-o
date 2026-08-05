@@ -630,6 +630,12 @@ textarea.input {
   padding-left: var(--space-5);
 }
 
+.fieldset-reset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
 /* Checklist item list (group navigation) */
 
 .item-list {

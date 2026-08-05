@@ -12,6 +12,7 @@ import {
   type TableMedicaoValores,
 } from "./checklist-item-table";
 import type { SiblingSourceItem } from "@/lib/checklist/siblings";
+import { isInspectionEditable, type InspectionStatus } from "@/lib/inspection/status";
 
 export default async function ChecklistGroupPage({
   params,
@@ -32,6 +33,9 @@ export default async function ChecklistGroupPage({
     .single();
 
   if (!group) notFound();
+
+  const { data: inspection } = await supabase.from("inspections").select("status").eq("id", id).single();
+  const editable = isInspectionEditable((inspection?.status ?? "rascunho") as InspectionStatus);
 
   const [
     { data: items, error: itemsError },
@@ -143,16 +147,18 @@ export default async function ChecklistGroupPage({
       <h2>
         {activeSubcategoria ?? "Sem subcategoria"} — {pendentes} pendente{pendentes === 1 ? "" : "s"} de {total}
       </h2>
-      <ChecklistItemTable
-        inspectionId={id}
-        items={tableItems}
-        allGroupItems={allGroupItemsForSiblings}
-        responses={tableResponses}
-        opcoes={opcoes ?? []}
-        photos={photos ?? []}
-        medicaoResultados={medicaoResultados ?? []}
-        medicaoValores={medicaoValores ?? []}
-      />
+      <fieldset disabled={!editable} className="fieldset-reset">
+        <ChecklistItemTable
+          inspectionId={id}
+          items={tableItems}
+          allGroupItems={allGroupItemsForSiblings}
+          responses={tableResponses}
+          opcoes={opcoes ?? []}
+          photos={photos ?? []}
+          medicaoResultados={medicaoResultados ?? []}
+          medicaoValores={medicaoValores ?? []}
+        />
+      </fieldset>
     </div>
   );
 }

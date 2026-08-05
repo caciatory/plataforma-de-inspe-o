@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { computeInspectionValidity } from "@/lib/inspection/validity";
+import { isInspectionEditable, type InspectionStatus } from "@/lib/inspection/status";
+import { computeGroupProgress, type GroupProgress } from "@/lib/checklist/progress";
+import { SubmitInspectionPanel } from "./submit-inspection-panel";
 
 export default async function InspectionSummaryPage({
   params,
@@ -22,6 +25,41 @@ export default async function InspectionSummaryPage({
     inspection.certificado_emitido_em,
     inspection.vehicle_data?.quilometragem ?? 0
   );
+
+  const status = inspection.status as InspectionStatus;
+  const editable = isInspectionEditable(status);
+  let progress: GroupProgress[] = [];
+  let motivoDevolucao: string | null = null;
+
+  if (editable) {
+    const [
+      { data: groups, error: groupsError },
+      { data: items, error: itemsError },
+      { data: statuses, error: statusesError },
+    ] = await Promise.all([
+      supabase.from("checklist_group_templates").select("id, ordem, nome").eq("ativo", true).order("ordem"),
+      supabase.from("checklist_item_templates").select("id, group_id"),
+      supabase.from("checklist_item_status").select("item_template_id, respondido").eq("inspection_id", id),
+    ]);
+
+    if (groupsError || itemsError || statusesError) {
+      console.error("inspection summary progress fetch failed", { groupsError, itemsError, statusesError });
+    }
+
+    progress = computeGroupProgress(groups ?? [], items ?? [], statuses ?? []);
+
+    if (status === "devolvida") {
+      const { data: devolucao } = await supabase
+        .from("review_events")
+        .select("motivo")
+        .eq("inspection_id", id)
+        .eq("tipo", "devolucao")
+        .order("timestamp", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      motivoDevolucao = devolucao?.motivo ?? null;
+    }
+  }
 
   return (
     <main className="page">
@@ -65,11 +103,23 @@ export default async function InspectionSummaryPage({
             inspeção)
           </p>
         )}
+
+        {motivoDevolucao && (
+          <p className="status-banner status-banner--warning">Motivo da devolução: {motivoDevolucao}</p>
+        )}
       </div>
 
       <Link href={`/inspections/${id}/checklist`} className="btn btn-primary summary-cta">
         Ir para a checklist
       </Link>
+
+      {editable && (
+        <SubmitInspectionPanel
+          inspectionId={id}
+          label={status === "devolvida" ? "Reenviar para aprovação" : "Finalizar inspeção"}
+          progress={progress}
+        />
+      )}
     </main>
   );
 }

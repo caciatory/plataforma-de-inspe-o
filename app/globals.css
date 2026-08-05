@@ -612,6 +612,24 @@ textarea.input {
   margin-top: var(--space-5);
 }
 
+.status-banner {
+  margin: 0;
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.status-banner--warning {
+  background: var(--color-amber-100);
+  color: var(--color-amber-600);
+}
+
+.pendencias-list {
+  margin: 0;
+  padding-left: var(--space-5);
+}
+
 /* Checklist item list (group navigation) */
 
 .item-list {

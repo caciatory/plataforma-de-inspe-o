@@ -109,4 +109,43 @@ begin
   raise notice 'OK: fronteira exata nota_geral=5 classifica B (>=5)';
 end $$;
 
+-- Guarda de regressao (achado da revisao final whole-branch): nenhum teste
+-- permanente checava security_invoker nas 3 views novas de pontuacao. Mesmo
+-- padrao de supabase/tests/00032_views_security_invoker.test.sql.
+do $$
+begin
+  if not exists (
+    select 1 from pg_class
+    where relname = 'checklist_item_score'
+      and reloptions @> array['security_invoker=true']
+  ) then
+    raise exception 'FALHOU: checklist_item_score deveria ter security_invoker=true';
+  end if;
+  raise notice 'OK: checklist_item_score tem security_invoker=true';
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_class
+    where relname = 'checklist_group_score'
+      and reloptions @> array['security_invoker=true']
+  ) then
+    raise exception 'FALHOU: checklist_group_score deveria ter security_invoker=true';
+  end if;
+  raise notice 'OK: checklist_group_score tem security_invoker=true';
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_class
+    where relname = 'inspection_score'
+      and reloptions @> array['security_invoker=true']
+  ) then
+    raise exception 'FALHOU: inspection_score deveria ter security_invoker=true';
+  end if;
+  raise notice 'OK: inspection_score tem security_invoker=true';
+end $$;
+
 rollback;

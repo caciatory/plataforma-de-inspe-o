@@ -43,6 +43,14 @@ insert into public.checklist_item_responses (inspection_id, item_template_id, op
 insert into public.inspections (id, tecnico_id, status, tipo_cliente, objetivo) values
   ('00000000-0000-0000-0000-000000000102', '00000000-0000-0000-0000-000000000001', 'rascunho', 'particular', 'compra');
 
+-- Inspecao 4: grupo A "Medio+Mau" (nota 4), grupo B "Medio" (nota 6) -> geral (4+6)/2=5 -> B
+insert into public.inspections (id, tecnico_id, status, tipo_cliente, objetivo) values
+  ('00000000-0000-0000-0000-000000000103', '00000000-0000-0000-0000-000000000001', 'rascunho', 'particular', 'compra');
+insert into public.checklist_item_responses (inspection_id, item_template_id, opcao_id) values
+  ('00000000-0000-0000-0000-000000000103', '00000000-0000-0000-0000-000000000090', '00000000-0000-0000-0000-000000000072'),
+  ('00000000-0000-0000-0000-000000000103', '00000000-0000-0000-0000-000000000091', '00000000-0000-0000-0000-000000000073'),
+  ('00000000-0000-0000-0000-000000000103', '00000000-0000-0000-0000-000000000092', '00000000-0000-0000-0000-000000000072');
+
 do $$
 declare v_nota numeric;
 begin
@@ -88,6 +96,17 @@ begin
     raise exception 'FALHOU: inspecao sem nenhum item avaliado nao deveria aparecer em inspection_score';
   end if;
   raise notice 'OK: inspecao sem nada avaliado nao aparece em inspection_score (nota_geral/classificacao efetivamente null pra quem consulta)';
+end $$;
+
+do $$
+declare v_nota_geral numeric; v_classificacao text;
+begin
+  select nota_geral, classificacao into v_nota_geral, v_classificacao from public.inspection_score
+  where inspection_id = '00000000-0000-0000-0000-000000000103';
+  if v_nota_geral <> 5 or v_classificacao <> 'B' then
+    raise exception 'FALHOU: inspecao 4 deveria dar nota_geral=5, classificacao=B (deu % / %)', v_nota_geral, v_classificacao;
+  end if;
+  raise notice 'OK: fronteira exata nota_geral=5 classifica B (>=5)';
 end $$;
 
 rollback;

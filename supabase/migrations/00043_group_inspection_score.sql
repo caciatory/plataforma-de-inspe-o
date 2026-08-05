@@ -6,6 +6,9 @@
 -- por inspection_id, filtrando grupos com itens_avaliados > 0 antes de
 -- tirar a media geral (RF-40/41), e classifica A/B/C pelos cortes fixos
 -- (RF-42): >=8 'A', >=5 'B', senao 'C'.
+-- NOTE: design doc describes "always one row (nullable fields)" shape, but
+-- this implementation omits rows for groups/inspections with zero responses.
+-- Deliberate simplification: behaviorally identical for .maybeSingle()/LEFT JOIN.
 create view public.checklist_group_score as
 select
   r.inspection_id,

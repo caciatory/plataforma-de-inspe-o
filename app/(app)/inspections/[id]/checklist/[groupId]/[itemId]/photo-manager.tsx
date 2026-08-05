@@ -16,11 +16,13 @@ export function PhotoManager({
   itemTemplateId,
   initialPhotos,
   onPhotosChange,
+  editable = true,
 }: {
   inspectionId: string;
   itemTemplateId: string;
   initialPhotos: Photo[];
   onPhotosChange?: (photos: Photo[]) => void;
+  editable?: boolean;
 }) {
   const [photos, setPhotos] = useState<Photo[]>(initialPhotos);
   const [error, setError] = useState<string | null>(null);
@@ -88,7 +90,7 @@ export function PhotoManager({
         type="file"
         accept="image/*"
         aria-label="Foto"
-        disabled={isPending}
+        disabled={isPending || !editable}
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) handleUpload(file);
@@ -113,7 +115,7 @@ export function PhotoManager({
                 type="button"
                 className="btn btn-danger photo-grid__delete"
                 onClick={() => handleDelete(photo.id)}
-                disabled={isPending}
+                disabled={isPending || !editable}
               >
                 Excluir
               </button>

@@ -51,6 +51,7 @@ export function ChecklistItemTable({
   photos,
   medicaoResultados,
   medicaoValores,
+  editable = true,
 }: {
   inspectionId: string;
   items: TableItem[];
@@ -60,6 +61,7 @@ export function ChecklistItemTable({
   photos: TablePhoto[];
   medicaoResultados: TableMedicaoResultado[];
   medicaoValores: TableMedicaoValores[];
+  editable?: boolean;
 }) {
   const responseByItemId = new Map(responses.map((r) => [r.item_template_id, r]));
   const opcaoLabelById = new Map(opcoes.map((o) => [o.id, o.label]));
@@ -124,6 +126,7 @@ export function ChecklistItemTable({
                     photos={response ? (photosByResponseId.get(response.id) ?? []) : []}
                     onSaveStart={() => markOptimistic(item.id)}
                     onSaveError={() => unmarkOptimistic(item.id)}
+                    editable={editable}
                   />
                 )}
                 {item.tipo === "texto" && (
@@ -133,6 +136,7 @@ export function ChecklistItemTable({
                     response={response}
                     onSaveStart={() => markOptimistic(item.id)}
                     onSaveError={() => unmarkOptimistic(item.id)}
+                    editable={editable}
                   />
                 )}
                 {item.tipo === "data" && (
@@ -142,6 +146,7 @@ export function ChecklistItemTable({
                     response={response}
                     onSaveStart={() => markOptimistic(item.id)}
                     onSaveError={() => unmarkOptimistic(item.id)}
+                    editable={editable}
                   />
                 )}
                 {item.tipo === "medicao" && (
@@ -152,6 +157,7 @@ export function ChecklistItemTable({
                     resultado={response ? (resultadoByResponseId.get(response.id) ?? null) : null}
                     initialValores={response ? (valoresByResponseId.get(response.id) ?? []) : []}
                     initialPhotos={response ? (photosByResponseId.get(response.id) ?? []) : []}
+                    editable={editable}
                   />
                 )}
               </td>
@@ -166,6 +172,7 @@ export function ChecklistItemTable({
                     opcoes={opcoes.filter((o) => o.conjunto_id === item.conjunto_opcao_id)}
                     opcaoLabelById={opcaoLabelById}
                     photosByResponseId={photosByResponseId}
+                    editable={editable}
                   />
                 ) : (
                   isGrouped && (
@@ -195,6 +202,7 @@ function EscolhaCell({
   photos,
   onSaveStart,
   onSaveError,
+  editable = true,
 }: {
   inspectionId: string;
   item: TableItem;
@@ -203,6 +211,7 @@ function EscolhaCell({
   photos: Photo[];
   onSaveStart: () => void;
   onSaveError: () => void;
+  editable?: boolean;
 }) {
   const [opcaoId, setOpcaoId] = useState(response?.opcao_id ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -251,14 +260,14 @@ function EscolhaCell({
             name={`opcao-${item.id}`}
             value={o.id}
             checked={opcaoId === o.id}
-            disabled={isPending}
+            disabled={isPending || !editable}
             onChange={() => handleChange(o.id)}
           />
           {o.label}
         </label>
       ))}
       {requiresPhoto && (
-        <PhotoManager inspectionId={inspectionId} itemTemplateId={item.id} initialPhotos={photos} />
+        <PhotoManager inspectionId={inspectionId} itemTemplateId={item.id} initialPhotos={photos} editable={editable} />
       )}
       {error && (
         <p role="alert" className="error-text">
@@ -266,7 +275,7 @@ function EscolhaCell({
         </p>
       )}
       {error && (
-        <button type="button" className="btn btn-secondary" disabled={isPending} onClick={() => save(opcaoId)}>
+        <button type="button" className="btn btn-secondary" disabled={isPending || !editable} onClick={() => save(opcaoId)}>
           Tentar novamente
         </button>
       )}
@@ -280,12 +289,14 @@ function TextoCell({
   response,
   onSaveStart,
   onSaveError,
+  editable = true,
 }: {
   inspectionId: string;
   item: TableItem;
   response: TableResponse | undefined;
   onSaveStart: () => void;
   onSaveError: () => void;
+  editable?: boolean;
 }) {
   const [value, setValue] = useState(response?.resposta_texto ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -326,7 +337,7 @@ function TextoCell({
         type="text"
         className="input item-table__input"
         value={value}
-        disabled={isPending}
+        disabled={isPending || !editable}
         onChange={(e) => setValue(e.target.value)}
         onBlur={handleBlur}
       />
@@ -336,7 +347,7 @@ function TextoCell({
         </p>
       )}
       {error && (
-        <button type="button" className="btn btn-secondary" disabled={isPending} onClick={() => save(value)}>
+        <button type="button" className="btn btn-secondary" disabled={isPending || !editable} onClick={() => save(value)}>
           Tentar novamente
         </button>
       )}
@@ -350,12 +361,14 @@ function DataCell({
   response,
   onSaveStart,
   onSaveError,
+  editable = true,
 }: {
   inspectionId: string;
   item: TableItem;
   response: TableResponse | undefined;
   onSaveStart: () => void;
   onSaveError: () => void;
+  editable?: boolean;
 }) {
   const [value, setValue] = useState(response?.resposta_data ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -396,7 +409,7 @@ function DataCell({
         type="date"
         className="input item-table__input"
         value={value}
-        disabled={isPending}
+        disabled={isPending || !editable}
         onChange={(e) => setValue(e.target.value)}
         onBlur={handleBlur}
       />
@@ -406,7 +419,7 @@ function DataCell({
         </p>
       )}
       {error && (
-        <button type="button" className="btn btn-secondary" disabled={isPending} onClick={() => save(value)}>
+        <button type="button" className="btn btn-secondary" disabled={isPending || !editable} onClick={() => save(value)}>
           Tentar novamente
         </button>
       )}
@@ -421,6 +434,7 @@ function MedicaoCell({
   resultado,
   initialValores,
   initialPhotos,
+  editable = true,
 }: {
   inspectionId: string;
   item: TableItem;
@@ -428,6 +442,7 @@ function MedicaoCell({
   resultado: "ok" | "atencao" | "critico" | null;
   initialValores: number[];
   initialPhotos: Photo[];
+  editable?: boolean;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const router = useRouter();
@@ -473,6 +488,7 @@ function MedicaoCell({
           initialObservacao={response?.observacao ?? null}
           initialPhotos={initialPhotos}
           onSuccess={handleMedicaoSaved}
+          editable={editable}
         />
       </dialog>
     </>
@@ -488,6 +504,7 @@ function FamiliaCell({
   opcoes,
   opcaoLabelById,
   photosByResponseId,
+  editable = true,
 }: {
   inspectionId: string;
   item: TableItem;
@@ -497,6 +514,7 @@ function FamiliaCell({
   opcoes: TableOpcao[];
   opcaoLabelById: Map<string, string>;
   photosByResponseId: Map<string, Photo[]>;
+  editable?: boolean;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [rows, setRows] = useState<BatchRow[] | null>(null);
@@ -529,6 +547,7 @@ function FamiliaCell({
         className="item-table__familia-btn"
         aria-label={`Aplicar aos itens semelhantes a ${item.nome}`}
         onClick={handleOpen}
+        disabled={!editable}
       >
         👪
       </button>

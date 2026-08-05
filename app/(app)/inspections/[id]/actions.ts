@@ -38,6 +38,11 @@ export async function submitInspectionAction(
     return { status: "error", message: "Não foi possível verificar as pendências. Tente novamente." };
   }
 
+  if ((groups ?? []).length === 0) {
+    console.error("submitInspectionAction found no active checklist groups");
+    return { status: "error", message: "Não foi possível verificar as pendências. Tente novamente." };
+  }
+
   const progress = computeGroupProgress(groups ?? [], items ?? [], responses ?? []);
   const totalPendentes = progress.reduce((sum, g) => sum + g.pendentes, 0);
 

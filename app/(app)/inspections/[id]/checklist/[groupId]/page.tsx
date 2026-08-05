@@ -35,7 +35,7 @@ export default async function ChecklistGroupPage({
   if (!group) notFound();
 
   const { data: inspection } = await supabase.from("inspections").select("status").eq("id", id).single();
-  const editable = isInspectionEditable((inspection?.status ?? "rascunho") as InspectionStatus);
+  const editable = inspection ? isInspectionEditable(inspection.status as InspectionStatus) : false;
 
   const [
     { data: items, error: itemsError },
@@ -147,18 +147,17 @@ export default async function ChecklistGroupPage({
       <h2>
         {activeSubcategoria ?? "Sem subcategoria"} — {pendentes} pendente{pendentes === 1 ? "" : "s"} de {total}
       </h2>
-      <fieldset disabled={!editable} className="fieldset-reset">
-        <ChecklistItemTable
-          inspectionId={id}
-          items={tableItems}
-          allGroupItems={allGroupItemsForSiblings}
-          responses={tableResponses}
-          opcoes={opcoes ?? []}
-          photos={photos ?? []}
-          medicaoResultados={medicaoResultados ?? []}
-          medicaoValores={medicaoValores ?? []}
-        />
-      </fieldset>
+      <ChecklistItemTable
+        inspectionId={id}
+        items={tableItems}
+        allGroupItems={allGroupItemsForSiblings}
+        responses={tableResponses}
+        opcoes={opcoes ?? []}
+        photos={photos ?? []}
+        medicaoResultados={medicaoResultados ?? []}
+        medicaoValores={medicaoValores ?? []}
+        editable={editable}
+      />
     </div>
   );
 }

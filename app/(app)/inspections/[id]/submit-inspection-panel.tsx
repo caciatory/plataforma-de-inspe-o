@@ -18,7 +18,7 @@ export function SubmitInspectionPanel({
 }) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
-  const [state, formAction] = useActionState(submitInspectionAction, initialState);
+  const [state, formAction, isSubmitting] = useActionState(submitInspectionAction, initialState);
   const pendentesPorGrupo = progress.filter((g) => g.pendentes > 0);
   const bloqueado = pendentesPorGrupo.length > 0;
 
@@ -59,7 +59,7 @@ export function SubmitInspectionPanel({
         <button type="button" className="btn btn-secondary" onClick={() => setConfirming(false)}>
           Cancelar
         </button>
-        <button type="submit" className="btn btn-primary">
+        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
           Confirmar envio
         </button>
       </div>

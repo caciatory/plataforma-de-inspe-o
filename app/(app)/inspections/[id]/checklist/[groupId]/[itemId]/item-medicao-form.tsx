@@ -16,6 +16,7 @@ export function ItemMedicaoForm({
   initialObservacao,
   initialPhotos,
   onSuccess,
+  editable = true,
 }: {
   inspectionId: string;
   itemTemplateId: string;
@@ -25,6 +26,7 @@ export function ItemMedicaoForm({
   initialObservacao: string | null;
   initialPhotos: Photo[];
   onSuccess?: () => void;
+  editable?: boolean;
 }) {
   const [state, formAction] = useActionState(saveMeasurementAction, initialState);
   const pontos = Array.from({ length: qtdPontos }, (_, i) => i);
@@ -60,6 +62,7 @@ export function ItemMedicaoForm({
                 className="input"
                 defaultValue={initialValores[i] ?? ""}
                 required
+                disabled={!editable}
               />
             </div>
           ))}
@@ -70,10 +73,22 @@ export function ItemMedicaoForm({
         <label htmlFor="observacao" className="label">
           Observação
         </label>
-        <textarea id="observacao" name="observacao" className="input" rows={3} defaultValue={initialObservacao ?? ""} />
+        <textarea
+          id="observacao"
+          name="observacao"
+          className="input"
+          rows={3}
+          defaultValue={initialObservacao ?? ""}
+          disabled={!editable}
+        />
       </div>
 
-      <PhotoManager inspectionId={inspectionId} itemTemplateId={itemTemplateId} initialPhotos={initialPhotos} />
+      <PhotoManager
+        inspectionId={inspectionId}
+        itemTemplateId={itemTemplateId}
+        initialPhotos={initialPhotos}
+        editable={editable}
+      />
 
       {state.status === "error" && (
         <p role="alert" className="error-text">
@@ -81,7 +96,7 @@ export function ItemMedicaoForm({
         </p>
       )}
 
-      <button type="submit" className="btn btn-primary">
+      <button type="submit" className="btn btn-primary" disabled={!editable}>
         Salvar e próximo
       </button>
     </form>

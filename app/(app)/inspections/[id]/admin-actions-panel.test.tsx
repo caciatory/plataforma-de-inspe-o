@@ -61,6 +61,13 @@ describe("AdminActionsPanel", () => {
     expect(c2).toBeEmptyDOMElement();
   });
 
+  it("shows Cancelar inspeção alongside Aprovar/Devolver for aguardando_aprovacao", () => {
+    render(<AdminActionsPanel inspectionId="insp-1" status="aguardando_aprovacao" />);
+    expect(screen.getByRole("button", { name: "Aprovar" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Devolver" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cancelar inspeção" })).toBeInTheDocument();
+  });
+
   it("approves and refreshes on success", async () => {
     approveInspectionAction.mockResolvedValue({ status: "success" });
     render(<AdminActionsPanel inspectionId="insp-1" status="aguardando_aprovacao" />);

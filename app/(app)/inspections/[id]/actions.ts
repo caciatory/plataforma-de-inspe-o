@@ -102,6 +102,48 @@ export async function approveInspectionAction(
   return { status: "success" };
 }
 
+const CANCELAVEL_STATUSES: InspectionStatus[] = ["rascunho", "aguardando_aprovacao", "devolvida"];
+
+export async function cancelInspectionAction(
+  _prevState: ReviewActionState,
+  formData: FormData
+): Promise<ReviewActionState> {
+  const inspectionId = formData.get("inspectionId") as string;
+  const motivo = ((formData.get("motivo") as string) || "").trim();
+  const user = await getCurrentUser();
+  if (!user || user.role !== "admin") {
+    return { status: "error", message: "Apenas administradores podem cancelar inspeções." };
+  }
+  if (!motivo) {
+    return { status: "error", message: "Informe o motivo do cancelamento." };
+  }
+
+  const supabase = await createClient();
+  const { data: inspection } = await supabase.from("inspections").select("status").eq("id", inspectionId).single();
+  if (!inspection || !CANCELAVEL_STATUSES.includes(inspection.status as InspectionStatus)) {
+    return { status: "error", message: "Esta inspeção não pode ser cancelada." };
+  }
+
+  const { error: reviewError } = await supabase
+    .from("review_events")
+    .insert({ inspection_id: inspectionId, tipo: "cancelamento", autor_id: user.id, motivo });
+  if (reviewError) {
+    console.error("cancelInspectionAction review_events insert failed", reviewError);
+    return { status: "error", message: "Não foi possível cancelar. Tente novamente." };
+  }
+
+  const { error: updateError } = await supabase
+    .from("inspections")
+    .update({ status: "cancelada" })
+    .eq("id", inspectionId);
+  if (updateError) {
+    console.error("cancelInspectionAction update failed", updateError);
+    return { status: "error", message: "Não foi possível cancelar. Tente novamente." };
+  }
+
+  return { status: "success" };
+}
+
 export async function returnInspectionAction(
   _prevState: ReviewActionState,
   formData: FormData

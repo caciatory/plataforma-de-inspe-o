@@ -183,3 +183,39 @@ describe("returnInspectionAction", () => {
     expect(inspectionQuery.update).toHaveBeenCalledWith({ status: "devolvida" });
   });
 });
+
+describe("cancelInspectionAction", () => {
+  it("rejects when status is already aprovada", async () => {
+    vi.mocked(getCurrentUser).mockResolvedValue({ id: "admin-1", role: "admin" });
+    inspectionQuery.single.mockResolvedValue({ data: { status: "aprovada" }, error: null });
+    const fd = formDataWith("insp-1");
+    fd.set("motivo", "Motivo qualquer");
+    const { cancelInspectionAction } = await import("./actions");
+
+    const result = await cancelInspectionAction({ status: "idle" }, fd);
+
+    expect(result.status).toBe("error");
+    expect(updateQuery.eq).not.toHaveBeenCalled();
+  });
+
+  it("cancels a rascunho with a motivo, inserting review_events and updating status", async () => {
+    vi.mocked(getCurrentUser).mockResolvedValue({ id: "admin-1", role: "admin" });
+    inspectionQuery.single.mockResolvedValue({ data: { status: "rascunho" }, error: null });
+    reviewEventsQuery.insert.mockResolvedValue({ error: null });
+    updateQuery.eq.mockResolvedValue({ error: null });
+    const fd = formDataWith("insp-1");
+    fd.set("motivo", "Cliente desistiu");
+    const { cancelInspectionAction } = await import("./actions");
+
+    const result = await cancelInspectionAction({ status: "idle" }, fd);
+
+    expect(result.status).toBe("success");
+    expect(reviewEventsQuery.insert).toHaveBeenCalledWith({
+      inspection_id: "insp-1",
+      tipo: "cancelamento",
+      autor_id: "admin-1",
+      motivo: "Cliente desistiu",
+    });
+    expect(inspectionQuery.update).toHaveBeenCalledWith({ status: "cancelada" });
+  });
+});

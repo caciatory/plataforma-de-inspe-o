@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { computeGroupProgress } from "@/lib/checklist/progress";
 import { isInspectionEditable, type InspectionStatus } from "@/lib/inspection/status";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export type SubmitInspectionState = { status: "idle" } | { status: "error"; message: string } | { status: "success" };
 
@@ -58,6 +59,84 @@ export async function submitInspectionAction(
   if (updateError) {
     console.error("submitInspectionAction update failed", updateError);
     return { status: "error", message: "Não foi possível enviar a inspeção. Tente novamente." };
+  }
+
+  return { status: "success" };
+}
+
+export type ReviewActionState = { status: "idle" } | { status: "error"; message: string } | { status: "success" };
+
+export async function approveInspectionAction(
+  _prevState: ReviewActionState,
+  formData: FormData
+): Promise<ReviewActionState> {
+  const inspectionId = formData.get("inspectionId") as string;
+  const user = await getCurrentUser();
+  if (!user || user.role !== "admin") {
+    return { status: "error", message: "Apenas administradores podem aprovar inspeções." };
+  }
+
+  const supabase = await createClient();
+  const { data: inspection } = await supabase.from("inspections").select("status").eq("id", inspectionId).single();
+  if (!inspection || inspection.status !== "aguardando_aprovacao") {
+    return { status: "error", message: "Esta inspeção não está aguardando aprovação." };
+  }
+
+  const { error: reviewError } = await supabase
+    .from("review_events")
+    .insert({ inspection_id: inspectionId, tipo: "aprovacao", autor_id: user.id });
+  if (reviewError) {
+    console.error("approveInspectionAction review_events insert failed", reviewError);
+    return { status: "error", message: "Não foi possível aprovar. Tente novamente." };
+  }
+
+  const { error: updateError } = await supabase
+    .from("inspections")
+    .update({ status: "aprovada" })
+    .eq("id", inspectionId);
+  if (updateError) {
+    console.error("approveInspectionAction update failed", updateError);
+    return { status: "error", message: "Não foi possível aprovar. Tente novamente." };
+  }
+
+  return { status: "success" };
+}
+
+export async function returnInspectionAction(
+  _prevState: ReviewActionState,
+  formData: FormData
+): Promise<ReviewActionState> {
+  const inspectionId = formData.get("inspectionId") as string;
+  const motivo = ((formData.get("motivo") as string) || "").trim();
+  const user = await getCurrentUser();
+  if (!user || user.role !== "admin") {
+    return { status: "error", message: "Apenas administradores podem devolver inspeções." };
+  }
+  if (!motivo) {
+    return { status: "error", message: "Informe o motivo da devolução." };
+  }
+
+  const supabase = await createClient();
+  const { data: inspection } = await supabase.from("inspections").select("status").eq("id", inspectionId).single();
+  if (!inspection || inspection.status !== "aguardando_aprovacao") {
+    return { status: "error", message: "Esta inspeção não está aguardando aprovação." };
+  }
+
+  const { error: reviewError } = await supabase
+    .from("review_events")
+    .insert({ inspection_id: inspectionId, tipo: "devolucao", autor_id: user.id, motivo });
+  if (reviewError) {
+    console.error("returnInspectionAction review_events insert failed", reviewError);
+    return { status: "error", message: "Não foi possível devolver. Tente novamente." };
+  }
+
+  const { error: updateError } = await supabase
+    .from("inspections")
+    .update({ status: "devolvida" })
+    .eq("id", inspectionId);
+  if (updateError) {
+    console.error("returnInspectionAction update failed", updateError);
+    return { status: "error", message: "Não foi possível devolver. Tente novamente." };
   }
 
   return { status: "success" };

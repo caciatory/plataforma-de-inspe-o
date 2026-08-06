@@ -6,6 +6,7 @@ import { isInspectionEditable, type InspectionStatus } from "@/lib/inspection/st
 import { getCurrentUser } from "@/lib/auth/session";
 import { computeGroupProgress, type GroupProgress } from "@/lib/checklist/progress";
 import { SubmitInspectionPanel } from "./submit-inspection-panel";
+import { AdminActionsPanel } from "./admin-actions-panel";
 
 const STATUS_LABEL: Record<InspectionStatus, string> = {
   rascunho: "Rascunho",
@@ -144,6 +145,14 @@ export default async function InspectionSummaryPage({
             label={status === "devolvida" ? "Reenviar para aprovação" : "Finalizar inspeção"}
             progress={progress}
           />
+        )}
+
+        {currentUser?.role === "admin" && <AdminActionsPanel inspectionId={id} status={status} />}
+
+        {status === "aprovada" && (
+          <button type="button" className="btn btn-secondary" disabled title="Em breve">
+            Gerar relatório
+          </button>
         )}
       </div>
     </main>

@@ -62,6 +62,11 @@ export default async function ChecklistLayout({
         {!editable && (
           <p className="checklist-nav__readonly-note">Esta inspeção já foi enviada e não pode mais ser editada.</p>
         )}
+        {currentUser?.role === "admin" && inspection.status === "aprovada" && (
+          <p className="status-banner status-banner--warning">
+            Esta inspeção já está aprovada — editar aqui recalcula a nota automaticamente.
+          </p>
+        )}
         {process.env.NODE_ENV === "development" && editable && <DevFillButton inspectionId={id} />}
         <ul className="checklist-nav__list">
           {progress.map((group) => (

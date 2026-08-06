@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { buildAdminInspectionRows } from "@/lib/inspection/admin-list";
 import { InspectionsTable } from "./inspections-table";
@@ -26,7 +27,12 @@ export default async function AdminInspectionsPage() {
 
   return (
     <main className="page">
-      <h1>Todas as inspeções</h1>
+      <div className="stack-row">
+        <h1>Todas as inspeções</h1>
+        <Link href="/admin/tecnicos" className="btn btn-secondary">
+          Gerir técnicos
+        </Link>
+      </div>
       <InspectionsTable rows={rows} />
     </main>
   );

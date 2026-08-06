@@ -1,6 +1,6 @@
 # Roadmap — Check Auto v1.0
 
-Atualizado: 2026-08-05. Baseado em `docs/especificacao-tecnica-v1.md` §5 (9 fases) e no estado real do código (branches, migrations) nesta data.
+Atualizado: 2026-08-06. Baseado em `docs/especificacao-tecnica-v1.md` §5 (9 fases) e no estado real do código (branches, migrations) nesta data.
 
 Cada passo abaixo é uma unidade fechada: você cola o prompt sugerido, o processo documentado em `docs/PROCESSO.md` (`brainstorming` → `writing-plans` → `subagent-driven-development`) roda até o fim, e o passo só é considerado pronto quando passar pelas 3 skills de fechamento (seção final deste doc). Só então vá para o próximo prompt da lista.
 
@@ -48,13 +48,15 @@ Usuário testou a Fase 3 mesclada no navegador (confirmou que o piscar sumiu) e 
 
 ## Estado atual
 
-Todo o bloco 0 (housekeeping) está concluído — ver seção Progresso acima. `main` tem: 44 migrations (schema genérico de tipos de resposta — `conjuntos_opcao`/`opcoes`/`medicoes` —, re-seed real da Peça 2, e os campos/tabelas novos da Peça 3 recorte 3 + ajustes: Histórico com bloco de importação/IUC, `equipamento_sugestoes`/`equipamento_inspecao`/`equipamento_fotos`), RLS nas tabelas + policy de Storage, checklist seedado com o conteúdo real (318 itens/13 grupos após a limpeza dos 41 itens cobertos pela aba Equipamentos), código de app da Fase 1a (login + dados básicos), Fase 1 (navegação do checklist, PR #3 mesclada), validade da inspeção (PR #2 mesclada), Fase 2 (preenchimento de item, PR #4 mesclada, já adaptada ao schema genérico pela Peça 1b), Fase 2.5 (aplicar aos demais, mesclada e enviada, idem), Fase 2.6 (rename Check Auto, mesclada), Fase 2.7 (design system aplicado a todas as telas, mesclada e enviada — porém **rejeitada pelo usuário depois de ver rodando**, ver Fase 2.8) **Fase 2.8 completa** (Peças 1a/1b/2/3, todos os recortes de Peça 3 incluindo o 3 e seus ajustes pós-teste, mescladas) e **Fase 3 completa** (autosave — correção do redirect vestigial/piscar, retry padronizado, mescladas). `npm test` limpo em `main` (211/211), `tsc` limpo, docs sincronizados. Ainda não enviado pro GitHub (`origin/main` está atrás — ver nota abaixo). Diretório de trabalho é `~/Desktop/bild app` (KINGSTON está corrompido/deprecated — nunca usar; **cuidado extra**: o harness reseta o cwd do shell pra dentro do KINGSTON entre alguns comandos Bash, então qualquer script que assuma "ainda estou onde dei `cd` antes" precisa recomeçar com um `cd ~/Desktop/"bild app"` explícito logo no início do próprio comando, não só uma vez no início da sessão).
+Todo o bloco 0 (housekeeping) está concluído — ver seção Progresso acima. `main` tem: 45 migrations (schema genérico de tipos de resposta — `conjuntos_opcao`/`opcoes`/`medicoes` —, re-seed real da Peça 2, os campos/tabelas novos da Peça 3 recorte 3 + ajustes, as 3 views de pontuação da Fase 4, e o trigger de transição de status da Fase 5 sub-projeto 1), RLS nas tabelas + policy de Storage, checklist seedado com o conteúdo real (318 itens/13 grupos após a limpeza dos 41 itens cobertos pela aba Equipamentos), código de app da Fase 1a (login + dados básicos), Fase 1 (navegação do checklist, PR #3 mesclada), validade da inspeção (PR #2 mesclada), Fase 2 (preenchimento de item, PR #4 mesclada, já adaptada ao schema genérico pela Peça 1b), Fase 2.5 (aplicar aos demais, mesclada e enviada, idem), Fase 2.6 (rename Check Auto, mesclada), Fase 2.7 (design system aplicado a todas as telas, mesclada e enviada — porém **rejeitada pelo usuário depois de ver rodando**, ver Fase 2.8) **Fase 2.8 completa** (Peças 1a/1b/2/3, todos os recortes de Peça 3 incluindo o 3 e seus ajustes pós-teste, mescladas), **Fase 3 completa** (autosave — correção do redirect vestigial/piscar, retry padronizado, mescladas), **Fase 4 completa** (pontuação) e **Fase 5 sub-projeto 1 completo** (finalização do técnico — ver seção "Fase 5" abaixo). `npm test` limpo em `main` (235/235), `tsc` limpo, docs sincronizados. Enviado pro GitHub (`origin/main` em dia). Diretório de trabalho é `~/Desktop/bild app` (KINGSTON está corrompido/deprecated — nunca usar; **cuidado extra**: o harness reseta o cwd do shell pra dentro do KINGSTON entre alguns comandos Bash, então qualquer script que assuma "ainda estou onde dei `cd` antes" precisa recomeçar com um `cd ~/Desktop/"bild app"` explícito logo no início do próprio comando, não só uma vez no início da sessão).
 
 **Fase 2.8 (redesign do checklist) — ✅ completa (2026-07-30).** Peça 1a (schema genérico), Peça 1b (camada de app adaptada ao schema novo), Peça 2 (re-seed do checklist real), Peça 3 recorte 1 (redesign visual da tela de preenchimento), Peça 3 recorte 2 (abas de dados do veículo + ajuste pós-teste) e Peça 3 recorte 3 (campos reais em Histórico/Equipamentos + ajustes pós-teste) — todas concluídas, revisadas e mescladas em `main` (2026-07-23 a 2026-07-30) — ver detalhes na seção Progresso acima.
 
 **Fase 3 (autosave online) — ✅ completa (2026-07-30).** Ver detalhes na seção Progresso acima. **Triagem das 5 pendências feita em 2026-08-04** (ver "Pendências descobertas em teste ao vivo" acima): 3 corrigidas e confirmadas no navegador (CSS dos radios, badge de grupo tardio, delay visual/UI otimista), 1 reclassificada como feature ausente e adiada por decisão do usuário (navegação Histórico/Equipamentos pra inspeção existente), 1 (aplicar-em-lote) reescrita do zero via ciclo completo `brainstorming`→`writing-plans`→`subagent-driven-development` (2026-08-04), depois de 2 tentativas de patch pontual não resolverem — mesclada em `main`, **confirmada funcionando ao vivo pelo usuário** depois de um 3º fix (repaint nativo do radio após remount via `key`, ver item 3 em "Pendências descobertas em teste ao vivo" acima). **As 5 pendências da Fase 3 estão todas fechadas** (4 corrigidas + 1 adiada por decisão de escopo). Auditoria dos outros formulários do app pelo mesmo bug de perda de valor no erro (corrigido só no formulário de nova inspeção) continua como item separado, menor prioridade.
 
-**Fase 4 (pontuação) — ✅ completa (2026-08-05).** RF-38 a RF-42 generalizados pro schema de `conjuntos_opcao` da Fase 2.8, fórmula por posição, coluna `opcoes.is_na` e as 3 views de pontuação (`checklist_item_score`, `checklist_group_score`, `inspection_score`) — todas verificadas contra a base real pelo usuário. Ver detalhes na seção "Fase 4 — Pontuação" abaixo. Próxima prioridade real: Fase 5 (revisão do admin, camada de app sobre tabelas que já existem — vai consumir as views de pontuação novas) ou Fase 6 (relatório final).
+**Fase 4 (pontuação) — ✅ completa (2026-08-05).** RF-38 a RF-42 generalizados pro schema de `conjuntos_opcao` da Fase 2.8, fórmula por posição, coluna `opcoes.is_na` e as 3 views de pontuação (`checklist_item_score`, `checklist_group_score`, `inspection_score`) — todas verificadas contra a base real pelo usuário. Ver detalhes na seção "Fase 4 — Pontuação" abaixo.
+
+**Fase 5, sub-projeto 1 (finalização do técnico) — ✅ completo (2026-08-06).** RF-23/24 e RF-33/34. Ver detalhes na seção "Fase 5" abaixo. Próxima prioridade real: Fase 5 sub-projeto 2 (lista + aprovação/devolução do admin) ou Fase 6 (relatório final).
 
 ---
 
@@ -138,10 +140,34 @@ RF-38 a RF-42, RNF-18–19. O bloqueio original (valores de corte A/B/C e fórmu
 
 ## Fase 5 — Revisão do admin
 
-RF-31 a RF-37, RF-57 a RF-62. Tabelas `review_events`, `audit_log_entries` e índices de listagem já existem em `main`; falta a camada de app.
+RF-31 a RF-37, RF-57 a RF-62. Tabelas `review_events`, `audit_log_entries` e índices de listagem já existem em `main`. O brainstorming inicial (2026-08-05) dividiu a fase em 3 sub-projetos sequenciais, porque o primeiro gap encontrado (RF-23/24, o botão de finalizar do técnico) bloqueava os outros dois — não existe nada "enviado" pro admin revisar sem ele:
+
+1. **Finalização do técnico (RF-23/24, RF-33/34) — ✅ completo (2026-08-06).**
+2. Lista do admin + aprovação/devolução (RF-31–34, RF-57–59, RF-62) — próximo.
+3. Edição do admin + auditoria + cancelamento (RF-35–37, RF-60–61).
+
+### Sub-projeto 1 — Finalização do técnico ✅ completo (2026-08-06)
+
+Botão "Finalizar inspeção" / "Reenviar para aprovação" (RF-34) na página de resumo, checagem de completude no servidor (reaproveitando `computeGroupProgress`, sem confiar só no estado desabilitado do botão no client), e read-only na checklist inteira quando o status não permite mais edição — a RLS (`owns_editable_inspection()`, migration `00008`) já bloqueava a escrita, faltava só a UI espelhar essa condição em vez de deixar o técnico bater num erro cru.
+
+Implementado via `brainstorming` → `writing-plans` → `subagent-driven-development` (4 tasks, cada uma revisada). Revisão final whole-branch (2026-08-06, antes do merge) encontrou 1 achado Importante real e pré-existente fora do diff da branch, não bloqueante mas corrigido no mesmo ciclo por decisão do usuário: a policy `inspections_update` (migration `00008`) validava no `WITH CHECK` só *quem* podia escrever (`tecnico_id = auth.uid()`), nunca *pra que status* — um técnico podia, via chamada direta ao Supabase fora do app, pular `status` direto pra `'aprovada'`/`'cancelada'`, ignorando por completo a revisão do admin que a Fase 5 existe pra garantir. Apertar o `WITH CHECK` diretamente quebraria a edição normal (técnico edita outros campos numa inspeção em rascunho sem nunca tocar `status`, e `WITH CHECK` não enxerga o valor antigo da coluna pra distinguir os dois casos) — resolvido com um trigger `BEFORE UPDATE` (mesmo padrão já usado pro RF-16 em `00033_rf16_generico.sql`), que só permite ao técnico a transição `rascunho`/`devolvida` → `aguardando_aprovacao`; qualquer outra mudança de status por um não-admin é bloqueada. Migration `00045`, aplicada e testada contra a base real pelo usuário.
+
+Outros achados da revisão (também corrigidos no mesmo ciclo): cobertura de teste faltando pro gate `editable=false` por tipo de célula da tabela do checklist e pro guard de grupos vazios na Server Action; badge "Só leitura" e banner de devolução reaproveitando um par de cor (`amber-100`/`600`) já documentado como reprovado em contraste AA — trocado pro `amber-700` que já existia na mesma branch; badge "Só leitura" explicava o motivo só via `title` (não dispara em touch, app é tablet-first) — virou legenda sempre visível.
+
+**Trabalho adicional incorporado no mesmo ciclo, a pedido do usuário:** rebrand de cor (verde da marca pra Tailwind emerald, preto de identidade pra um tom escuro) e, depois, um redesign da sidebar do checklist a partir de um PDF de auditoria UI/UX que o usuário trouxe (fundo Slate Dark `#0F172A` literal — substituindo a primeira tentativa de rebrand, que tinha corrigido o hue pro verde sem isso ter sido pedido —, badges de pendência sem o bege/âmbar que destoava da paleta, conector `↳` nas subcategorias). Isolado numa branch própria (`sidebar-redesign`, a partir do topo da branch já revisada) especificamente pra não arriscar o trabalho já aprovado; testado ao vivo pelo usuário no navegador, um ajuste pedido (indicador de progresso: manteve o número decrescente com `✓` no final, em vez do formato `x/total` que a PDF sugeria) e então mesclado de volta via fast-forward.
+
+235/235 testes, `tsc` limpo. Mesclada em `main` via `finishing-a-development-branch` (fast-forward local) e enviada pro GitHub em 2026-08-06. Design: `docs/superpowers/specs/2026-08-05-finalizacao-tecnico-design.md`, plano: `docs/superpowers/plans/2026-08-05-finalizacao-tecnico.md`.
+
+### Sub-projeto 2 — Lista do admin + aprovação/devolução (a seguir)
+
+RF-31–34, RF-57–59, RF-62.
 
 **Prompt:**
-> Vamos construir a revisão do admin (RF-31 a RF-37, RF-57 a RF-62) sobre as tabelas que já existem em `main`. Use `superpowers:brainstorming`.
+> Sub-projeto 1 da Fase 5 (finalização do técnico) está completo e em `main`. Vamos construir o sub-projeto 2: lista de inspeções do admin (RF-57–59) + aprovação/devolução (RF-31–34, RF-62), consumindo as views de pontuação da Fase 4 e o `status`/`review_events` que o sub-projeto 1 já sabe escrever/ler. Use `superpowers:brainstorming`.
+
+### Sub-projeto 3 — Edição do admin + auditoria + cancelamento (depois)
+
+RF-35–37, RF-60–61.
 
 ## Fase 6 — Relatório final
 

@@ -309,7 +309,7 @@ textarea.input {
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-full);
   background: var(--color-amber-100);
-  color: var(--color-amber-600);
+  color: var(--color-amber-700);
   font-size: 0.6875rem;
   font-weight: 700;
   white-space: nowrap;
@@ -669,7 +669,7 @@ textarea.input {
 
 .status-banner--warning {
   background: var(--color-amber-100);
-  color: var(--color-amber-600);
+  color: var(--color-amber-700);
 }
 
 /* Status pill — tinted .100 bg / darkened .700 text (verified >=4.5:1, see the

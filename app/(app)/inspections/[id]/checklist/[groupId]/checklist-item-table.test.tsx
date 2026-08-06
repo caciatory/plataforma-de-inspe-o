@@ -576,4 +576,121 @@ describe("ChecklistItemTable", () => {
     expect(refresh).toHaveBeenCalledTimes(1);
     expect(dialog.open).toBe(false);
   });
+
+  describe("editable=false (read-only inspection)", () => {
+    it("disables the escolha radios but leaves the selected option visible", () => {
+      const response: TableResponse = {
+        id: "resp-bom",
+        item_template_id: "item-escolha",
+        opcao_id: "opt-bom",
+        resposta_texto: null,
+        resposta_data: null,
+        observacao: null,
+        respondido: true,
+      };
+      render(
+        <ChecklistItemTable
+          inspectionId="insp-1"
+          items={[escolhaItem]}
+          allGroupItems={[]}
+          responses={[response]}
+          opcoes={opcoes}
+          photos={[]}
+          medicaoResultados={[]}
+          medicaoValores={[]}
+          editable={false}
+        />
+      );
+
+      expect(screen.getByLabelText("Bom")).toBeChecked();
+      expect(screen.getByLabelText("Bom")).toBeDisabled();
+      expect(screen.getByLabelText("Mau")).toBeDisabled();
+    });
+
+    it("disables the texto input", () => {
+      render(
+        <ChecklistItemTable
+          inspectionId="insp-1"
+          items={[textoItem]}
+          allGroupItems={[]}
+          responses={[]}
+          opcoes={[]}
+          photos={[]}
+          medicaoResultados={[]}
+          medicaoValores={[]}
+          editable={false}
+        />
+      );
+
+      expect(screen.getByRole("textbox")).toBeDisabled();
+    });
+
+    it("disables the data input", () => {
+      const { container } = render(
+        <ChecklistItemTable
+          inspectionId="insp-1"
+          items={[dataItem]}
+          allGroupItems={[]}
+          responses={[]}
+          opcoes={[]}
+          photos={[]}
+          medicaoResultados={[]}
+          medicaoValores={[]}
+          editable={false}
+        />
+      );
+
+      expect(container.querySelector('input[type="date"]')).toBeDisabled();
+    });
+
+    it("keeps the medição view trigger clickable (view stays open, only the write inside is gated)", () => {
+      render(
+        <ChecklistItemTable
+          inspectionId="insp-1"
+          items={[medicaoItem]}
+          allGroupItems={[]}
+          responses={[]}
+          opcoes={[]}
+          photos={[]}
+          medicaoResultados={[]}
+          medicaoValores={[]}
+          editable={false}
+        />
+      );
+
+      const trigger = screen.getByRole("button", { name: "Medir" });
+      expect(trigger).not.toBeDisabled();
+
+      const dialog = document.querySelector("dialog") as HTMLDialogElement;
+      fireEvent.click(trigger);
+      expect(dialog.open).toBe(true);
+    });
+
+    it("disables the aplicar-aos-demais (família) button", () => {
+      const response: TableResponse = {
+        id: "resp-bom",
+        item_template_id: "item-escolha",
+        opcao_id: "opt-bom",
+        resposta_texto: null,
+        resposta_data: null,
+        observacao: null,
+        respondido: true,
+      };
+      render(
+        <ChecklistItemTable
+          inspectionId="insp-1"
+          items={[escolhaItem]}
+          allGroupItems={[]}
+          responses={[response]}
+          opcoes={opcoes}
+          photos={[]}
+          medicaoResultados={[]}
+          medicaoValores={[]}
+          editable={false}
+        />
+      );
+
+      expect(screen.getByRole("button", { name: /Aplicar aos itens semelhantes/ })).toBeDisabled();
+    });
+  });
 });

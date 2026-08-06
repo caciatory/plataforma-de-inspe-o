@@ -71,6 +71,19 @@ describe("submitInspectionAction", () => {
     expect(updateQuery.eq).not.toHaveBeenCalled();
   });
 
+  it("returns an error without updating when no active checklist groups are found", async () => {
+    inspectionQuery.single.mockResolvedValue({ data: { status: "rascunho" }, error: null });
+    groupsQuery.order.mockResolvedValue({ data: [], error: null });
+    itemsQuery.select.mockResolvedValue({ data: [], error: null });
+    statusQuery.eq.mockResolvedValue({ data: [], error: null });
+    const { submitInspectionAction } = await import("./actions");
+
+    const result = await submitInspectionAction({ status: "idle" }, formDataWith("insp-1"));
+
+    expect(result.status).toBe("error");
+    expect(updateQuery.eq).not.toHaveBeenCalled();
+  });
+
   it("updates status to aguardando_aprovacao when there are no pending items", async () => {
     inspectionQuery.single.mockResolvedValue({ data: { status: "devolvida" }, error: null });
     groupsQuery.order.mockResolvedValue({

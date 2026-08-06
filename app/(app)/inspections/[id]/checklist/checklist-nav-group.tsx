@@ -8,12 +8,14 @@ import { SEM_SUBCATEGORIA_PARAM } from "@/lib/checklist/progress";
 export type NavSubcategoria = {
   subcategoria: string | null;
   pendentes: number;
+  total: number;
 };
 
 export type NavGroup = {
   id: string;
   nome: string;
   pendentes: number;
+  total: number;
 };
 
 export function ChecklistNavGroup({
@@ -35,7 +37,7 @@ export function ChecklistNavGroup({
           className={`checklist-nav__status ${group.pendentes === 0 ? "checklist-nav__status--done" : "checklist-nav__status--pending"}`}
           aria-hidden="true"
         >
-          {group.pendentes === 0 ? "✓" : group.pendentes}
+          {group.total - group.pendentes}/{group.total}
         </span>
         <span className="sr-only">{group.pendentes === 0 ? "Concluído: " : `${group.pendentes} pendentes: `}</span>
         {group.nome}
@@ -50,11 +52,14 @@ export function ChecklistNavGroup({
                   href={`/inspections/${inspectionId}/checklist/${group.id}?sub=${encodeURIComponent(subParam)}`}
                   className="checklist-nav__sublink"
                 >
+                  <span className="checklist-nav__connector" aria-hidden="true">
+                    ↳
+                  </span>
                   <span
                     className={`checklist-nav__substatus ${sub.pendentes === 0 ? "checklist-nav__substatus--done" : "checklist-nav__substatus--pending"}`}
                     aria-hidden="true"
                   >
-                    {sub.pendentes === 0 ? "✓" : sub.pendentes}
+                    {sub.total - sub.pendentes}/{sub.total}
                   </span>
                   <span className="sr-only">{sub.pendentes === 0 ? "Concluído: " : `${sub.pendentes} pendentes: `}</span>
                   {sub.subcategoria ?? "Sem subcategoria"}

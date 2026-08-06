@@ -8,3 +8,4 @@ node_modules
 .claude/worktrees/
 .worktrees/
 tsconfig.tsbuildinfo
+.superpowers/

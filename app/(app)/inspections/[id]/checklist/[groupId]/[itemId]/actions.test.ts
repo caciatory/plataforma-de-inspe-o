@@ -6,7 +6,9 @@ const upsert = vi.fn(() => upsertQuery);
 const insertQuery = { select: vi.fn(() => insertQuery), single: vi.fn() };
 const insert = vi.fn(() => insertQuery);
 
-const deleteQuery = { eq: vi.fn() };
+const deleteSingleQuery = { single: vi.fn() };
+const deleteSelectQuery = { select: vi.fn(() => deleteSingleQuery) };
+const deleteQuery = { eq: vi.fn(() => deleteSelectQuery) };
 const del = vi.fn(() => deleteQuery);
 
 const templateQuery: { eq: ReturnType<typeof vi.fn>; single: ReturnType<typeof vi.fn>; in: ReturnType<typeof vi.fn> } = {
@@ -23,16 +25,30 @@ const opcoesQuery: { eq: ReturnType<typeof vi.fn>; maybeSingle: ReturnType<typeo
 };
 const opcoesSelect = vi.fn(() => opcoesQuery);
 
+const responseQuery: { eq: ReturnType<typeof vi.fn>; single: ReturnType<typeof vi.fn> } = {
+  eq: vi.fn(() => responseQuery),
+  single: vi.fn(),
+};
+const responseSelect = vi.fn(() => responseQuery);
+
+const auditInsert = vi.fn();
+
 const rpc = vi.fn();
 
 const from = vi.fn((table: string) => {
   if (table === "checklist_item_templates") return { select: templateSelect };
   if (table === "opcoes") return { select: opcoesSelect };
-  return { upsert, insert, delete: del };
+  if (table === "audit_log_entries") return { insert: auditInsert };
+  if (table === "checklist_item_responses") return { upsert, select: responseSelect };
+  if (table === "photos") return { insert, delete: del };
+  return {};
 });
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({ from, rpc }),
 }));
+
+vi.mock("@/lib/auth/session", () => ({ getCurrentUser: vi.fn() }));
+import { getCurrentUser } from "@/lib/auth/session";
 
 beforeEach(() => {
   from.mockClear();
@@ -43,7 +59,9 @@ beforeEach(() => {
   insertQuery.select.mockClear();
   insertQuery.single.mockReset();
   del.mockClear();
-  deleteQuery.eq.mockReset();
+  deleteQuery.eq.mockClear();
+  deleteSelectQuery.select.mockClear();
+  deleteSingleQuery.single.mockReset();
   templateSelect.mockClear();
   templateQuery.eq.mockClear();
   templateQuery.single.mockReset();
@@ -52,7 +70,13 @@ beforeEach(() => {
   opcoesQuery.eq.mockClear();
   opcoesQuery.maybeSingle.mockReset();
   opcoesQuery.in.mockReset();
+  responseSelect.mockClear();
+  responseQuery.eq.mockClear();
+  responseQuery.single.mockReset();
+  auditInsert.mockReset();
+  auditInsert.mockResolvedValue({ error: null });
   rpc.mockReset();
+  vi.mocked(getCurrentUser).mockReset();
 });
 
 describe("saveEscolhaAction", () => {
@@ -120,6 +144,40 @@ describe("saveEscolhaAction", () => {
       expect(result.message).toMatch(/foto/i);
     }
   });
+
+  it("logs an audit entry when the caller is admin", async () => {
+    templateQuery.single.mockResolvedValue({ data: { conjunto_opcao_id: "conj-1" }, error: null });
+    opcoesQuery.maybeSingle.mockResolvedValue({ data: { id: "opt-medio" }, error: null });
+    upsertQuery.single.mockResolvedValue({ data: { id: "resp-1" }, error: null });
+    vi.mocked(getCurrentUser).mockResolvedValue({ id: "admin-1", role: "admin" });
+    const { saveEscolhaAction } = await import("./actions");
+    const formData = new FormData();
+    formData.set("inspectionId", "insp-1");
+    formData.set("itemTemplateId", "item-1");
+    formData.set("opcao_id", "opt-medio");
+
+    await saveEscolhaAction({ status: "idle" }, formData);
+
+    expect(auditInsert).toHaveBeenCalledWith(
+      expect.objectContaining({ admin_id: "admin-1", inspection_id: "insp-1" })
+    );
+  });
+
+  it("does not log an audit entry when the caller is técnico", async () => {
+    templateQuery.single.mockResolvedValue({ data: { conjunto_opcao_id: "conj-1" }, error: null });
+    opcoesQuery.maybeSingle.mockResolvedValue({ data: { id: "opt-medio" }, error: null });
+    upsertQuery.single.mockResolvedValue({ data: { id: "resp-1" }, error: null });
+    vi.mocked(getCurrentUser).mockResolvedValue({ id: "tec-1", role: "tecnico" });
+    const { saveEscolhaAction } = await import("./actions");
+    const formData = new FormData();
+    formData.set("inspectionId", "insp-1");
+    formData.set("itemTemplateId", "item-1");
+    formData.set("opcao_id", "opt-medio");
+
+    await saveEscolhaAction({ status: "idle" }, formData);
+
+    expect(auditInsert).not.toHaveBeenCalled();
+  });
 });
 
 describe("attachPhotoAction", () => {
@@ -152,7 +210,10 @@ describe("attachPhotoAction", () => {
 
 describe("deletePhotoAction", () => {
   it("deletes the photo row", async () => {
-    deleteQuery.eq.mockResolvedValue({ error: null });
+    deleteSingleQuery.single.mockResolvedValue({
+      data: { inspection_id: "insp-1", item_response_id: "resp-1" },
+      error: null,
+    });
     const { deletePhotoAction } = await import("./actions");
 
     const result = await deletePhotoAction("photo-1");
@@ -162,12 +223,44 @@ describe("deletePhotoAction", () => {
   });
 
   it("returns an error when the delete fails", async () => {
-    deleteQuery.eq.mockResolvedValue({ error: { message: "db error" } });
+    deleteSingleQuery.single.mockResolvedValue({ data: null, error: { message: "db error" } });
     const { deletePhotoAction } = await import("./actions");
 
     const result = await deletePhotoAction("photo-1");
 
     expect(result.error).toBeTruthy();
+    expect(auditInsert).not.toHaveBeenCalled();
+  });
+
+  it("logs an audit entry naming the deleted photo's item when the caller is admin", async () => {
+    deleteSingleQuery.single.mockResolvedValue({
+      data: { inspection_id: "insp-1", item_response_id: "resp-1" },
+      error: null,
+    });
+    responseQuery.single.mockResolvedValue({ data: { item_template_id: "item-1" }, error: null });
+    templateQuery.single.mockResolvedValue({ data: { nome: "Foto qualquer" }, error: null });
+    vi.mocked(getCurrentUser).mockResolvedValue({ id: "admin-1", role: "admin" });
+    const { deletePhotoAction } = await import("./actions");
+
+    const result = await deletePhotoAction("photo-1");
+
+    expect(result).toEqual({});
+    expect(auditInsert).toHaveBeenCalledWith(
+      expect.objectContaining({ admin_id: "admin-1", inspection_id: "insp-1" })
+    );
+  });
+
+  it("does not log an audit entry when the caller is técnico", async () => {
+    deleteSingleQuery.single.mockResolvedValue({
+      data: { inspection_id: "insp-1", item_response_id: "resp-1" },
+      error: null,
+    });
+    vi.mocked(getCurrentUser).mockResolvedValue({ id: "tec-1", role: "tecnico" });
+    const { deletePhotoAction } = await import("./actions");
+
+    await deletePhotoAction("photo-1");
+
+    expect(auditInsert).not.toHaveBeenCalled();
   });
 });
 

@@ -1,6 +1,8 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/session";
+import { recordAdminEdit } from "@/lib/audit/log";
 
 export type SaveEscolhaState = { status: "idle" } | { status: "error"; message: string };
 export type SaveMeasurementState = { status: "idle" } | { status: "error"; message: string } | { status: "success" };
@@ -59,6 +61,11 @@ export async function saveEscolhaAction(
     };
   }
 
+  const currentUser = await getCurrentUser();
+  if (currentUser?.role === "admin") {
+    await recordAdminEdit(supabase, { inspectionId, itemTemplateId, adminId: currentUser.id });
+  }
+
   return { status: "idle" };
 }
 
@@ -94,16 +101,42 @@ export async function attachPhotoAction(
     return { error: "Não foi possível anexar a foto. Tente novamente." };
   }
 
+  const currentUser = await getCurrentUser();
+  if (currentUser?.role === "admin") {
+    await recordAdminEdit(supabase, { inspectionId, itemTemplateId, adminId: currentUser.id });
+  }
+
   return { photoId: photo.id };
 }
 
 export async function deletePhotoAction(photoId: string): Promise<{ error?: string }> {
   const supabase = await createClient();
-  const { error } = await supabase.from("photos").delete().eq("id", photoId);
+  const { data: deleted, error } = await supabase
+    .from("photos")
+    .delete()
+    .eq("id", photoId)
+    .select("inspection_id, item_response_id")
+    .single();
 
-  if (error) {
+  if (error || !deleted) {
     console.error("deletePhotoAction failed", error);
     return { error: "Não foi possível remover a foto. Tente novamente." };
+  }
+
+  const currentUser = await getCurrentUser();
+  if (currentUser?.role === "admin") {
+    const { data: response } = await supabase
+      .from("checklist_item_responses")
+      .select("item_template_id")
+      .eq("id", deleted.item_response_id)
+      .single();
+    if (response) {
+      await recordAdminEdit(supabase, {
+        inspectionId: deleted.inspection_id,
+        itemTemplateId: response.item_template_id,
+        adminId: currentUser.id,
+      });
+    }
   }
 
   return {};
@@ -136,6 +169,11 @@ export async function saveMeasurementAction(
       status: "error",
       message: friendlyDbError(error, "Este resultado exige pelo menos 1 foto anexada. Anexe uma foto antes de salvar."),
     };
+  }
+
+  const currentUser = await getCurrentUser();
+  if (currentUser?.role === "admin") {
+    await recordAdminEdit(supabase, { inspectionId, itemTemplateId, adminId: currentUser.id });
   }
 
   return { status: "success" };
@@ -180,6 +218,11 @@ export async function saveTextoAction(
     };
   }
 
+  const currentUser = await getCurrentUser();
+  if (currentUser?.role === "admin") {
+    await recordAdminEdit(supabase, { inspectionId, itemTemplateId, adminId: currentUser.id });
+  }
+
   return { status: "idle" };
 }
 
@@ -215,6 +258,11 @@ export async function saveDataAction(
       status: "error",
       message: friendlyDbError(error, "Esta resposta exige pelo menos 1 foto anexada. Anexe uma foto antes de salvar."),
     };
+  }
+
+  const currentUser = await getCurrentUser();
+  if (currentUser?.role === "admin") {
+    await recordAdminEdit(supabase, { inspectionId, itemTemplateId, adminId: currentUser.id });
   }
 
   return { status: "idle" };

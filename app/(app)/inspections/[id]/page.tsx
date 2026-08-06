@@ -5,6 +5,7 @@ import { computeInspectionValidity } from "@/lib/inspection/validity";
 import { isInspectionEditable, type InspectionStatus } from "@/lib/inspection/status";
 import { getCurrentUser } from "@/lib/auth/session";
 import { computeGroupProgress, type GroupProgress } from "@/lib/checklist/progress";
+import { mergeHistorico } from "@/lib/inspection/historico";
 import { SubmitInspectionPanel } from "./submit-inspection-panel";
 import { AdminActionsPanel } from "./admin-actions-panel";
 
@@ -84,6 +85,26 @@ export default async function InspectionSummaryPage({
     }
   }
 
+  let historico: ReturnType<typeof mergeHistorico> = [];
+  if (currentUser?.role === "admin") {
+    const [{ data: reviewEvents }, { data: auditEntries }] = await Promise.all([
+      supabase
+        .from("review_events")
+        .select("tipo, motivo, timestamp, users(nome)")
+        .eq("inspection_id", id)
+        .order("timestamp", { ascending: false }),
+      supabase
+        .from("audit_log_entries")
+        .select("descricao, timestamp, users(nome)")
+        .eq("inspection_id", id)
+        .order("timestamp", { ascending: false }),
+    ]);
+    historico = mergeHistorico(
+      (reviewEvents ?? []) as unknown as Parameters<typeof mergeHistorico>[0],
+      (auditEntries ?? []) as unknown as Parameters<typeof mergeHistorico>[1]
+    );
+  }
+
   return (
     <main className="page">
       <h1>Resumo da inspeção</h1>
@@ -155,6 +176,28 @@ export default async function InspectionSummaryPage({
           </button>
         )}
       </div>
+
+      {currentUser?.role === "admin" && historico.length > 0 && (
+        <section className="panel stack">
+          <h2>Histórico</h2>
+          <ul className="item-list">
+            {historico.map((h, i) => (
+              <li key={i} className="item-list__row">
+                {h.tipo === "review" ? (
+                  <>
+                    <strong>{h.label}</strong> — {h.autor} — {new Date(h.timestamp).toLocaleString("pt-PT")}
+                    {h.motivo && <p className="hint">{h.motivo}</p>}
+                  </>
+                ) : (
+                  <>
+                    {h.descricao} — {h.autor} — {new Date(h.timestamp).toLocaleString("pt-PT")}
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </main>
   );
 }

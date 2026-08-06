@@ -50,11 +50,14 @@ export default async function ChecklistLayout({
         <h2 className="checklist-nav__title">
           Checklist
           {!editable && (
-            <span className="checklist-nav__readonly-badge" role="status" title="Inspeção já enviada — não pode mais ser editada">
+            <span className="checklist-nav__readonly-badge" role="status">
               Só leitura
             </span>
           )}
         </h2>
+        {!editable && (
+          <p className="checklist-nav__readonly-note">Esta inspeção já foi enviada e não pode mais ser editada.</p>
+        )}
         {process.env.NODE_ENV === "development" && editable && <DevFillButton inspectionId={id} />}
         <ul className="checklist-nav__list">
           {progress.map((group) => (

@@ -315,6 +315,12 @@ textarea.input {
   white-space: nowrap;
 }
 
+.checklist-nav__readonly-note {
+  margin: 0 0 var(--space-4);
+  font-size: 0.8125rem;
+  color: oklch(1 0 0 / 0.72);
+}
+
 .checklist-nav__list {
   list-style: none;
   padding: 0;

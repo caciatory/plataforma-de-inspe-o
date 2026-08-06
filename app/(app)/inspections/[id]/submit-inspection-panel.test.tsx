@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { SubmitInspectionPanel } from "./submit-inspection-panel";
 
 const submitInspectionAction = vi.fn();
@@ -16,7 +16,7 @@ beforeEach(() => {
 });
 
 describe("SubmitInspectionPanel", () => {
-  it("shows pendências per group and a disabled button when there are pending items", () => {
+  it("opens a dialog with pendências per group, not the confirm form, when there are pending items", () => {
     render(
       <SubmitInspectionPanel
         inspectionId="insp-1"
@@ -28,12 +28,24 @@ describe("SubmitInspectionPanel", () => {
       />
     );
 
-    expect(screen.getByRole("button", { name: "Finalizar inspeção" })).toBeDisabled();
+    const trigger = screen.getByRole("button", { name: "Finalizar inspeção" });
+    expect(trigger).not.toBeDisabled();
+
+    const dialog = document.querySelector("dialog") as HTMLDialogElement;
+    expect(dialog.open).toBe(false);
+
+    fireEvent.click(trigger);
+
+    expect(dialog.open).toBe(true);
     expect(screen.getByText("Pneus: 3 pendentes")).toBeInTheDocument();
     expect(screen.queryByText(/Travões/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Confirmar envio" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
+    expect(dialog.open).toBe(false);
   });
 
-  it("asks for confirmation before submitting when there are no pending items", () => {
+  it("opens a dialog with the send confirmation when there are no pending items", () => {
     render(
       <SubmitInspectionPanel
         inspectionId="insp-1"
@@ -42,16 +54,17 @@ describe("SubmitInspectionPanel", () => {
       />
     );
 
-    const trigger = screen.getByRole("button", { name: "Finalizar inspeção" });
-    expect(trigger).not.toBeDisabled();
-    fireEvent.click(trigger);
+    const dialog = document.querySelector("dialog") as HTMLDialogElement;
+    fireEvent.click(screen.getByRole("button", { name: "Finalizar inspeção" }));
 
+    expect(dialog.open).toBe(true);
     expect(screen.getByRole("button", { name: "Confirmar envio" })).toBeInTheDocument();
+
     fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
-    expect(screen.queryByRole("button", { name: "Confirmar envio" })).not.toBeInTheDocument();
+    expect(dialog.open).toBe(false);
   });
 
-  it("shows the action's error message after a failed submit", async () => {
+  it("shows the action's error message inside the dialog after a failed submit", async () => {
     submitInspectionAction.mockResolvedValue({ status: "error", message: "Ainda há itens pendentes na checklist." });
     render(
       <SubmitInspectionPanel
@@ -65,5 +78,23 @@ describe("SubmitInspectionPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Confirmar envio" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Ainda há itens pendentes na checklist.");
+  });
+
+  it("closes the dialog and refreshes the router after a successful submit", async () => {
+    submitInspectionAction.mockResolvedValue({ status: "success" });
+    render(
+      <SubmitInspectionPanel
+        inspectionId="insp-1"
+        label="Finalizar inspeção"
+        progress={[{ id: "g1", ordem: 1, nome: "Pneus", pendentes: 0, total: 5 }]}
+      />
+    );
+
+    const dialog = document.querySelector("dialog") as HTMLDialogElement;
+    fireEvent.click(screen.getByRole("button", { name: "Finalizar inspeção" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar envio" }));
+
+    await waitFor(() => expect(dialog.open).toBe(false));
+    expect(refresh).toHaveBeenCalled();
   });
 });

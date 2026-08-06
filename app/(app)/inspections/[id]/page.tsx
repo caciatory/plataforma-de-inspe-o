@@ -6,6 +6,26 @@ import { isInspectionEditable, type InspectionStatus } from "@/lib/inspection/st
 import { computeGroupProgress, type GroupProgress } from "@/lib/checklist/progress";
 import { SubmitInspectionPanel } from "./submit-inspection-panel";
 
+const STATUS_LABEL: Record<InspectionStatus, string> = {
+  rascunho: "Rascunho",
+  aguardando_aprovacao: "Aguardando aprovação",
+  devolvida: "Devolvida",
+  aprovada: "Aprovada",
+  cancelada: "Cancelada",
+};
+
+const STATUS_PILL_CLASS: Record<InspectionStatus, string> = {
+  rascunho: "status-pill status-pill--neutral",
+  aguardando_aprovacao: "status-pill status-pill--warning",
+  devolvida: "status-pill status-pill--warning",
+  aprovada: "status-pill status-pill--success",
+  cancelada: "status-pill status-pill--danger",
+};
+
+function capitalize(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 export default async function InspectionSummaryPage({
   params,
 }: {
@@ -63,7 +83,7 @@ export default async function InspectionSummaryPage({
 
   return (
     <main className="page">
-      <h1>Inspeção criada</h1>
+      <h1>Resumo da inspeção</h1>
       <div className="panel stack">
         <dl className="summary-grid">
           <div className="summary-grid__row">
@@ -79,16 +99,18 @@ export default async function InspectionSummaryPage({
           <div className="summary-grid__row">
             <dt className="label">Cliente</dt>
             <dd>
-              {inspection.client_data?.nome_solicitante} ({inspection.tipo_cliente})
+              {inspection.client_data?.nome_solicitante} ({capitalize(inspection.tipo_cliente)})
             </dd>
           </div>
           <div className="summary-grid__row">
             <dt className="label">Objetivo</dt>
-            <dd>{inspection.objetivo}</dd>
+            <dd>{capitalize(inspection.objetivo)}</dd>
           </div>
           <div className="summary-grid__row">
             <dt className="label">Estado</dt>
-            <dd>{inspection.status}</dd>
+            <dd>
+              <span className={STATUS_PILL_CLASS[status]}>{STATUS_LABEL[status]}</span>
+            </dd>
           </div>
         </dl>
 
@@ -109,17 +131,19 @@ export default async function InspectionSummaryPage({
         )}
       </div>
 
-      <Link href={`/inspections/${id}/checklist`} className="btn btn-primary summary-cta">
-        Ir para a checklist
-      </Link>
+      <div className="summary-actions">
+        <Link href={`/inspections/${id}/checklist`} className="btn btn-primary summary-cta">
+          Ir para a checklist
+        </Link>
 
-      {editable && (
-        <SubmitInspectionPanel
-          inspectionId={id}
-          label={status === "devolvida" ? "Reenviar para aprovação" : "Finalizar inspeção"}
-          progress={progress}
-        />
-      )}
+        {editable && (
+          <SubmitInspectionPanel
+            inspectionId={id}
+            label={status === "devolvida" ? "Reenviar para aprovação" : "Finalizar inspeção"}
+            progress={progress}
+          />
+        )}
+      </div>
     </main>
   );
 }

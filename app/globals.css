@@ -21,15 +21,24 @@
   --color-amber-100: oklch(0.94 0.05 78);
   --color-amber-500: oklch(0.78 0.15 75);
   --color-amber-600: oklch(0.7 0.15 72);
+  /* amber-700: amber-600 on amber-100 measures 2.3:1 (WCAG relative-luminance
+     formula) -- fails AA for text this size. amber-700 is the darkened text
+     shade for badges/pills on amber-100, verified 6.36:1. */
+  --color-amber-700: oklch(0.45 0.14 72);
   --color-red-100: oklch(0.93 0.04 25);
   --color-red-500: oklch(0.63 0.19 25);
   --color-red-600: oklch(0.55 0.19 24);
+  /* red-700: red-600 on red-100 measures 4.27:1, just under the 4.5:1 floor
+     for badge-sized text. red-700 clears it at 5.77:1. */
+  --color-red-700: oklch(0.48 0.19 24);
 
   --color-bg: oklch(0.98 0.006 160);
   --color-surface: oklch(0.995 0.004 160);
   --color-border: oklch(0.88 0.01 160);
   --color-ink: oklch(0.2 0.02 160);
   --color-ink-muted: oklch(0.45 0.015 160);
+  --color-neutral-100: oklch(0.9 0.008 160);
+  --color-neutral-700: oklch(0.3 0.012 160);
 
   /* identity-dark (2026-08-05 rebrand): replaces flat #000000. Same
      magnitude/softness as the requested slate-900 (#0F172A) reference, but
@@ -287,8 +296,23 @@ textarea.input {
 }
 
 .checklist-nav__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   font-size: 1.0625rem;
   margin-bottom: var(--space-4);
+}
+
+.checklist-nav__readonly-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-amber-100);
+  color: var(--color-amber-600);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .checklist-nav__list {
@@ -311,6 +335,10 @@ textarea.input {
   font-size: 0.9375rem;
   min-height: 44px;
   transition: background-color 150ms ease-out;
+}
+
+.checklist-nav__back {
+  margin-bottom: var(--space-3);
 }
 
 .checklist-nav__link:hover {
@@ -616,12 +644,19 @@ textarea.input {
   color: var(--color-red-600);
 }
 
+.summary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
 .summary-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  margin-top: var(--space-5);
 }
 
 .status-banner {
@@ -635,6 +670,40 @@ textarea.input {
 .status-banner--warning {
   background: var(--color-amber-100);
   color: var(--color-amber-600);
+}
+
+/* Status pill — tinted .100 bg / darkened .700 text (verified >=4.5:1, see the
+   amber-700/red-700 token comments) for the inspection lifecycle status,
+   distinct from the checklist item classification badges above. */
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-pill--neutral {
+  background: var(--color-neutral-100);
+  color: var(--color-neutral-700);
+}
+
+.status-pill--warning {
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+}
+
+.status-pill--success {
+  background: var(--color-green-100);
+  color: var(--color-green-800);
+}
+
+.status-pill--danger {
+  background: var(--color-red-100);
+  color: var(--color-red-700);
 }
 
 .pendencias-list {

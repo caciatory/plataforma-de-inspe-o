@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { computeGroupProgress, computeSubcategoriaProgress } from "@/lib/checklist/progress";
 import { isInspectionEditable, type InspectionStatus } from "@/lib/inspection/status";
 import { ChecklistNavGroup } from "./checklist-nav-group";
+import { DevFillButton } from "./dev-fill-button";
 
 export default async function ChecklistLayout({
   children,
@@ -41,13 +43,19 @@ export default async function ChecklistLayout({
 
   return (
     <div className="checklist-shell">
-      {!editable && (
-        <p className="status-banner status-banner--warning" role="status">
-          Esta inspeção já foi enviada e não pode mais ser editada (estado atual: {inspection.status}).
-        </p>
-      )}
       <nav className="checklist-nav identity-bar" aria-label="Grupos da checklist">
-        <h2 className="checklist-nav__title">Checklist</h2>
+        <Link href={`/inspections/${id}`} className="checklist-nav__link checklist-nav__back">
+          ← Voltar ao resumo
+        </Link>
+        <h2 className="checklist-nav__title">
+          Checklist
+          {!editable && (
+            <span className="checklist-nav__readonly-badge" role="status" title="Inspeção já enviada — não pode mais ser editada">
+              Só leitura
+            </span>
+          )}
+        </h2>
+        {process.env.NODE_ENV === "development" && editable && <DevFillButton inspectionId={id} />}
         <ul className="checklist-nav__list">
           {progress.map((group) => (
             <ChecklistNavGroup

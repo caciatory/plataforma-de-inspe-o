@@ -3,17 +3,19 @@ version: alpha
 name: Check Auto Design System
 description: Product design system for the Check Auto vehicle pre-purchase inspection app — técnico field checklist, admin review, client report.
 colors:
-  # Brand green ramp — anchored to the official Check Auto brand color (#11C685 = green.500)
-  green.50: oklch(0.97 0.02 160)
-  green.100: oklch(0.93 0.045 160)
-  green.200: oklch(0.87 0.075 160)
-  green.300: oklch(0.80 0.11 160)
-  green.400: oklch(0.76 0.14 160)
-  green.500: oklch(0.73 0.161 160.5)
-  green.600: oklch(0.68 0.155 159)
-  green.700: oklch(0.60 0.145 158)
-  green.800: oklch(0.48 0.125 156)
-  green.900: oklch(0.36 0.10 155)
+  # Brand green ramp — rebranded 2026-08-05, anchored on Tailwind emerald-500/600
+  # (#10B981/#059669), an explicit direction change from the original brand
+  # anchor (#11C685). See "Colors" section below for the full rationale.
+  green.50: oklch(0.94 0.01 162)
+  green.100: oklch(0.90 0.035 162)
+  green.200: oklch(0.84 0.065 162)
+  green.300: oklch(0.77 0.10 162)
+  green.400: oklch(0.73 0.13 162)
+  green.500: oklch(0.70 0.149 162.5)
+  green.600: oklch(0.60 0.127 163)
+  green.700: oklch(0.52 0.117 162)
+  green.800: oklch(0.40 0.097 160)
+  green.900: oklch(0.28 0.072 159)
 
   # Semantic status colors — the app's core domain (classificação: ótimo/médio/ruim/NF)
   amber.100: oklch(0.94 0.05 78)
@@ -37,8 +39,12 @@ colors:
   ink-dark: oklch(0.96 0.006 160)
   ink-muted-dark: oklch(0.72 0.01 160)
 
-  # Identity anchors (exact brand hex, used at chrome/logo touchpoints)
-  identity-black: '#000000'
+  # Identity anchors (chrome/logo touchpoints)
+  # identity-dark: rebranded 2026-08-05, replaces flat #000000. Same
+  # magnitude/softness as the requested slate-900 (#0F172A) reference, but
+  # hue-corrected to 162 (the new green anchor's hue) instead of slate's 265
+  # — keeps chrome and accent in the same hue family.
+  identity-dark: oklch(0.21 0.03 162)
   identity-white: '#FFFFFF'
 
   # Semantic roles
@@ -114,7 +120,7 @@ spacing:
 components:
   button-primary:
     background: '{colors.primary}'
-    color: '{colors.identity-black}'
+    color: '{colors.identity-dark}'
     backgroundHover: '{colors.primary-hover}'
     rounded: '{rounded.md}'
   button-danger:
@@ -140,7 +146,7 @@ components:
     color: '{colors.ink}'
     rounded: '{rounded.sm}'
   header:
-    background: '{colors.identity-black}'
+    background: '{colors.identity-dark}'
     color: '{colors.identity-white}'
 ---
 
@@ -148,20 +154,21 @@ components:
 
 ## Overview
 
-Check Auto é uma ferramenta de trabalho (registro **product**, não brand/marketing): técnico preenche uma checklist de vistoria veicular em tablet, admin revisa em desktop, cliente lê o relatório final. O design serve a tarefa — clareza e velocidade acima de decoração — sem abrir mão da identidade visual da marca (verde `#11C685`, preto, tipografia geométrica bold).
+Check Auto é uma ferramenta de trabalho (registro **product**, não brand/marketing): técnico preenche uma checklist de vistoria veicular em tablet, admin revisa em desktop, cliente lê o relatório final. O design serve a tarefa — clareza e velocidade acima de decoração — sem abrir mão da identidade visual da marca (verde, tom escuro nos pontos de identidade, tipografia geométrica bold).
 
-**Decisão de tema:** preto (`identity-black`) é reservado aos **pontos de identidade** — cabeçalho, navegação, splash, botões primários — não é o fundo de toda a interface. As telas de trabalho (formulários longos, checklist de 320 itens, relatório) usam um canvas neutro claro (`bg`/`surface`), porque preto sólido em sessões longas de leitura/preenchimento cansa mais do que ajuda. Um tema escuro completo (`bg-dark`/`surface-dark`) existe como alternativa consistente, não como padrão.
+**Decisão de tema:** um tom escuro (`identity-dark`) é reservado aos **pontos de identidade** — cabeçalho, navegação, splash, botões primários — não é o fundo de toda a interface. As telas de trabalho (formulários longos, checklist de 320 itens, relatório) usam um canvas neutro claro (`bg`/`surface`), porque um fundo escuro sólido em sessões longas de leitura/preenchimento cansa mais do que ajuda. Um tema escuro completo (`bg-dark`/`surface-dark`) existe como alternativa consistente, não como padrão.
 
 ## Colors
 
-A cor de marca (`green.500` = `#11C685`) é o ponto de ancoragem de uma rampa OKLCH completa — o brand guideline só definia duas variações (`#11C685`/`#10B87C`), insuficiente pra badges, hover, fundo sutil, texto sobre fundo claro etc. `green.600` aproxima o "Verde Escuro" já existente na marca.
+**Rebrand (2026-08-05):** a rampa de verde e o tom escuro de identidade foram trocados a pedido explícito do usuário. `green.500` passou a ancorar em Tailwind emerald-500/600 (`#10B981`/`#059669`, convertido pra OKLCH) em vez do hex original da marca (`#11C685`) — na prática o hue de ambos é quase idêntico (~160-163°), então o resultado lê como uma leve dessaturação/escurecimento, não uma troca de família de cor. `identity-black` (`#000000`) virou `identity-dark` (`oklch(0.21 0.03 162)`): mesma magnitude/suavidade do slate-900 (`#0F172A`) que foi pedido como referência, mas com o hue corrigido pra 162 (o do novo verde) em vez do 265 do slate original — decisão minha, não pedida explicitamente, pra manter cromia e neutros na mesma família de matiz em vez de acento verde sobre neutro azulado. O resto da rampa (50-400, 700-900) foi regerado a partir dos deltas por degrau da rampa antiga, ancorados nos dois pontos exatos pedidos (500/600).
 
-**Cores semânticas** (o núcleo do domínio — classificação ótimo/médio/ruim/NF): `status.otimo` reusa o verde da marca; `status.medio` (âmbar) e `status.ruim` (vermelho) foram propostos com o mesmo peso visual/saturação do verde, pra formar um sistema coerente, não cores genéricas de alerta.
+**Cores semânticas** (o núcleo do domínio — classificação ótimo/médio/ruim/NF): `status.otimo` reusa o verde da marca; `status.medio` (âmbar) e `status.ruim` (vermelho) foram propostos com o mesmo peso visual/saturação do verde, pra formar um sistema coerente, não cores genéricas de alerta. Não foram tocados neste rebrand.
 
-**Regra de contraste travada** (verificado com a fórmula de luminância relativa do WCAG, não estimado):
-- Texto **preto** sobre `green.500`/`amber.500` → **9.4:1**, ótimo.
-- Texto **branco** sobre `green.500` → **2.2:1**, reprova. Nunca usar.
-- Texto **branco** sobre `red.500` (mais escuro) → contraste adequado, é o par correto ali.
+**Regra de contraste travada** (verificado com a fórmula de luminância relativa do WCAG, não estimado — recalculado após o rebrand de 2026-08-05):
+- Texto **preto** sobre `green.500` → **8.4:1**; sobre `amber.500` → **10.3:1**. Ambos ótimos.
+- Texto **branco** sobre `green.500` → **2.5:1**, reprova. Nunca usar.
+- Texto **branco** sobre `red.500` (mais escuro) → **3.8:1**, contraste adequado pra texto grande/bold, é o par correto ali.
+- **Nota separada, não corrigida neste rebrand:** o par `amber.100`/`amber.600` já em uso em badges/banners (`status-badge-medio`, `.status-banner--warning`) mede **2.3:1** — falha AA pra texto desse tamanho. `red.100`/`red.600` mede **4.27:1**, também abaixo do piso de 4.5:1. Os badges novos criados em 2026-08-05 (`status-pill`) usam tons mais escuros (`amber-700`/`red-700`, 6.4:1/5.8:1) pra não repetir o problema, mas os usos antigos continuam como estavam — correção sistêmica pendente, fora do escopo desta sessão.
 - `ink` (`oklch(0.20 0.02 160)`) sobre `bg` — não é preto puro nem branco puro em nenhum extremo de leitura longa: reduz fadiga visual em sessões de preenchimento extensas.
 
 ## Typography
@@ -190,14 +197,14 @@ Ver bloco `components` no frontmatter. Direção geral:
 - **Botão primário**: fundo `primary` (verde), texto preto — nunca branco, por causa do contraste.
 - **Botão de perigo/destrutivo**: fundo `danger` (vermelho), texto branco.
 - **Badge de status**: fundo do tom `.100` da cor semântica, texto do tom `.600`/`.800` da mesma família — nunca a cor `.500` pura como fundo com texto por cima (perde contraste em área pequena).
-- **Header/nav**: o único lugar que usa `identity-black` como fundo sólido por padrão — aqui é onde a marca "aparece".
+- **Header/nav**: o único lugar que usa `identity-dark` como fundo sólido por padrão — aqui é onde a marca "aparece".
 
 ## Do's and Don'ts
 
 **Faça:**
 - Use `status.medio`/`status.ruim`/`status.otimo` para toda classificação — nunca uma cor de alerta genérica fora dessa paleta.
-- Use texto preto sobre qualquer fundo verde ou âmbar; texto branco só sobre vermelho ou sobre `identity-black`.
-- Reserve `identity-black` pra cabeçalho, navegação, botões primários e pontos de marca — não pro fundo geral das telas de trabalho.
+- Use texto preto sobre qualquer fundo verde ou âmbar; texto branco só sobre vermelho ou sobre `identity-dark`.
+- Reserve `identity-dark` pra cabeçalho, navegação, botões primários e pontos de marca — não pro fundo geral das telas de trabalho.
 
 **Não faça:**
 - Não use `green.500` sozinho como fundo de texto longo — é uma cor de acento/ação, não de leitura.

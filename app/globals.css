@@ -1,16 +1,22 @@
 /* Check Auto design system — tokens from DESIGN.md. Product register: clarity and speed over decoration. */
 
 :root {
-  --color-green-50: oklch(0.97 0.02 160);
-  --color-green-100: oklch(0.93 0.045 160);
-  --color-green-200: oklch(0.87 0.075 160);
-  --color-green-300: oklch(0.8 0.11 160);
-  --color-green-400: oklch(0.76 0.14 160);
-  --color-green-500: oklch(0.73 0.161 160.5);
-  --color-green-600: oklch(0.68 0.155 159);
-  --color-green-700: oklch(0.6 0.145 158);
-  --color-green-800: oklch(0.48 0.125 156);
-  --color-green-900: oklch(0.36 0.1 155);
+  /* Green ramp rebrand (2026-08-05): anchored on Tailwind emerald-500/600
+     (#10B981/#059669) per explicit request, converted to OKLCH. Turns out
+     emerald's hue (~162-163) is nearly identical to the old brand anchor
+     (~160), so this reads as a subtle desaturation/darkening, not a hue
+     swap -- 50-400/700-900 regenerated from the old ramp's per-step deltas
+     to keep a smooth progression around the two exact reference points. */
+  --color-green-50: oklch(0.94 0.01 162);
+  --color-green-100: oklch(0.9 0.035 162);
+  --color-green-200: oklch(0.84 0.065 162);
+  --color-green-300: oklch(0.77 0.1 162);
+  --color-green-400: oklch(0.73 0.13 162);
+  --color-green-500: oklch(0.7 0.149 162.5);
+  --color-green-600: oklch(0.6 0.127 163);
+  --color-green-700: oklch(0.52 0.117 162);
+  --color-green-800: oklch(0.4 0.097 160);
+  --color-green-900: oklch(0.28 0.072 159);
 
   --color-amber-100: oklch(0.94 0.05 78);
   --color-amber-500: oklch(0.78 0.15 75);
@@ -25,7 +31,13 @@
   --color-ink: oklch(0.2 0.02 160);
   --color-ink-muted: oklch(0.45 0.015 160);
 
-  --color-identity-black: #000000;
+  /* identity-dark (2026-08-05 rebrand): replaces flat #000000. Same
+     magnitude/softness as the requested slate-900 (#0F172A) reference, but
+     hue-corrected to 162 (the new green anchor's hue) instead of slate's
+     265 -- keeps chrome and accent in the same hue family instead of a
+     green-accent-on-blue-neutral clash. Verified: white text on this =
+     17.6:1, this as button-primary text on green.500 = 7.0:1. */
+  --color-identity-dark: oklch(0.21 0.03 162);
   --color-identity-white: #ffffff;
 
   --color-status-otimo: var(--color-green-500);
@@ -140,10 +152,10 @@ a {
   padding: var(--space-5);
 }
 
-/* Identity chrome — the only place solid black is the default background */
+/* Identity chrome — the only place identity-dark is the default background */
 
 .identity-bar {
-  background: var(--color-identity-black);
+  background: var(--color-identity-dark);
   color: var(--color-identity-white);
 }
 
@@ -223,7 +235,7 @@ textarea.input {
 
 .btn-primary {
   background: var(--color-primary);
-  color: var(--color-identity-black);
+  color: var(--color-identity-dark);
 }
 
 .btn-primary:hover:not(:disabled) {

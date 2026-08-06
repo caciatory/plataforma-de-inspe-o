@@ -15,7 +15,7 @@ export default async function MinhasInspecoesPage() {
 
   const { data: inspections, error: inspectionsError } = await supabase
     .from("inspections")
-    .select("id, status, data_abertura, vehicle_data")
+    .select("id, status, data_abertura, vehicle_data(*)")
     .order("data_abertura", { ascending: false });
 
   if (inspectionsError) {
@@ -42,12 +42,12 @@ export default async function MinhasInspecoesPage() {
   }
 
   const rows = buildTecnicoInspectionRows(
-    (inspections ?? []).map(i => ({
+    (inspections ?? []).map((i) => ({
       id: i.id,
       status: i.status,
       data_abertura: i.data_abertura,
-      vehicle_data: i.vehicle_data
-    })),
+      vehicle_data: Array.isArray(i.vehicle_data) ? i.vehicle_data[0] ?? null : i.vehicle_data,
+    })) as Parameters<typeof buildTecnicoInspectionRows>[0],
     latestDevolucaoByInspectionId
   );
 

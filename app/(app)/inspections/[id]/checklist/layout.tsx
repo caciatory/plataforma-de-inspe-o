@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/session";
 import { computeGroupProgress, computeSubcategoriaProgress } from "@/lib/checklist/progress";
 import { isInspectionEditable, type InspectionStatus } from "@/lib/inspection/status";
 import { ChecklistNavGroup } from "./checklist-nav-group";
@@ -21,7 +22,10 @@ export default async function ChecklistLayout({
 
   if (!inspection) notFound();
 
-  const editable = isInspectionEditable(inspection.status as InspectionStatus);
+  const currentUser = await getCurrentUser();
+  const editable = currentUser
+    ? isInspectionEditable(inspection.status as InspectionStatus, currentUser.role)
+    : false;
 
   const [
     { data: groups, error: groupsError },

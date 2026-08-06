@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { computeInspectionValidity } from "@/lib/inspection/validity";
 import { isInspectionEditable, type InspectionStatus } from "@/lib/inspection/status";
+import { getCurrentUser } from "@/lib/auth/session";
 import { computeGroupProgress, type GroupProgress } from "@/lib/checklist/progress";
 import { SubmitInspectionPanel } from "./submit-inspection-panel";
 
@@ -47,7 +48,8 @@ export default async function InspectionSummaryPage({
   );
 
   const status = inspection.status as InspectionStatus;
-  const editable = isInspectionEditable(status);
+  const currentUser = await getCurrentUser();
+  const editable = currentUser ? isInspectionEditable(status, currentUser.role) : false;
   let progress: GroupProgress[] = [];
   let motivoDevolucao: string | null = null;
 
@@ -136,7 +138,7 @@ export default async function InspectionSummaryPage({
           Ir para a checklist
         </Link>
 
-        {editable && (
+        {editable && currentUser?.role === "tecnico" && (
           <SubmitInspectionPanel
             inspectionId={id}
             label={status === "devolvida" ? "Reenviar para aprovação" : "Finalizar inspeção"}

@@ -19,7 +19,7 @@ export async function submitInspectionAction(
     .eq("id", inspectionId)
     .single();
 
-  if (inspectionError || !inspection || !isInspectionEditable(inspection.status as InspectionStatus)) {
+  if (inspectionError || !inspection || !isInspectionEditable(inspection.status as InspectionStatus, "tecnico")) {
     return { status: "error", message: "Esta inspeção já não pode ser enviada." };
   }
 

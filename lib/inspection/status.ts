@@ -1,15 +1,15 @@
 // lib/inspection/status.ts
-// Espelha a condicao de public.owns_editable_inspection()
-// (supabase/migrations/00008_rls_helpers_and_core.sql) -- unica fonte de
-// verdade sobre quando o tecnico ainda pode editar uma inspecao. Nao
-// substitui a RLS (que continua sendo o bloqueio real), so evita que a UI
-// deixe o usuario bater num erro de permissao sem explicacao.
-// Cobre apenas o lado do tecnico da RLS (owns_editable_inspection) -- o
-// outro braco da policy inspections_update, is_admin(), fica fora deste
-// predicado; a Fase 5 sub-projeto 3 (edicao do admin) e que vai precisar dele.
+// Espelha a condicao de public.owns_editable_inspection() (RLS,
+// supabase/migrations/00008_rls_helpers_and_core.sql) para o tecnico -- e o
+// bypass de is_admin() nas mesmas policies para o admin (owns_editable_inspection
+// nunca entra em jogo quando quem chama e admin). Nao substitui a RLS (que
+// continua sendo o bloqueio real), so evita que a UI deixe o usuario bater
+// num erro de permissao sem explicacao.
 
 export type InspectionStatus = "rascunho" | "aguardando_aprovacao" | "devolvida" | "aprovada" | "cancelada";
+export type UserRole = "tecnico" | "admin";
 
-export function isInspectionEditable(status: InspectionStatus): boolean {
+export function isInspectionEditable(status: InspectionStatus, role: UserRole): boolean {
+  if (role === "admin") return true;
   return status === "rascunho" || status === "devolvida";
 }

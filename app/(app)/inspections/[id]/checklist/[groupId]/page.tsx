@@ -13,6 +13,7 @@ import {
 } from "./checklist-item-table";
 import type { SiblingSourceItem } from "@/lib/checklist/siblings";
 import { isInspectionEditable, type InspectionStatus } from "@/lib/inspection/status";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export default async function ChecklistGroupPage({
   params,
@@ -35,7 +36,9 @@ export default async function ChecklistGroupPage({
   if (!group) notFound();
 
   const { data: inspection } = await supabase.from("inspections").select("status").eq("id", id).single();
-  const editable = inspection ? isInspectionEditable(inspection.status as InspectionStatus) : false;
+  const currentUser = await getCurrentUser();
+  const editable =
+    inspection && currentUser ? isInspectionEditable(inspection.status as InspectionStatus, currentUser.role) : false;
 
   const [
     { data: items, error: itemsError },

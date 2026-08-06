@@ -39,7 +39,13 @@ describe("AdminActionsPanel", () => {
     render(<AdminActionsPanel inspectionId="insp-1" status="aguardando_aprovacao" />);
 
     fireEvent.click(screen.getByRole("button", { name: "Devolver" }));
-    fireEvent.click(screen.getByRole("button", { name: "Confirmar devolução" }));
+    // fireEvent.click on the submit button goes through native requestSubmit()/constraint
+    // validation, which blocks submission on the empty required `motivo` field before the
+    // action ever runs. Dispatch a raw submit event instead, as item-medicao-form.test.tsx
+    // does for the same Server-Action + required-field combination, to exercise the
+    // server-side error-display path.
+    const form = screen.getByLabelText("Motivo da devolução").closest("form") as HTMLFormElement;
+    fireEvent.submit(form);
 
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Informe o motivo da devolução."));
     expect(refresh).not.toHaveBeenCalled();

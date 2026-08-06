@@ -67,8 +67,7 @@ export function AdminActionsPanel({ inspectionId, status }: { inspectionId: stri
             <label htmlFor="motivo" className="label">
               Motivo da devolução
             </label>
-            {/* ponytail: no client-side `required` — server validates motivo (see returnInspectionAction) and its error surfaces below */}
-            <textarea id="motivo" name="motivo" className="input" />
+            <textarea id="motivo" name="motivo" className="input" required />
           </div>
           <div className="stack-row">
             <button type="button" className="btn btn-secondary" onClick={() => returnDialogRef.current?.close()}>

@@ -748,6 +748,10 @@ textarea.input {
   background: var(--color-green-50);
 }
 
+.item-list__row--warning {
+  border-left: 3px solid var(--color-amber-500);
+}
+
 .item-list__status {
   width: 0.625rem;
   height: 0.625rem;

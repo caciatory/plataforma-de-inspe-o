@@ -17,15 +17,18 @@ export default function LoginPage() {
     setError(null);
 
     const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
-    setLoading(false);
-    if (signInError) {
+    if (signInError || !data.user) {
+      setLoading(false);
       setError("Email ou palavra-passe inválidos.");
       return;
     }
 
-    router.push("/inspections/new");
+    const { data: profile } = await supabase.from("users").select("role").eq("id", data.user.id).single();
+    setLoading(false);
+
+    router.push(profile?.role === "admin" ? "/admin" : "/inspections");
     router.refresh();
   }
 

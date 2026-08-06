@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { buildTecnicoInspectionRows } from "@/lib/inspection/list";
+import { getCurrentUser } from "@/lib/auth/session";
 
 const STATUS_LABEL: Record<string, string> = {
   rascunho: "Rascunho",
@@ -11,6 +13,11 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default async function MinhasInspecoesPage() {
+  const user = await getCurrentUser();
+  if (!user || user.role !== "tecnico") {
+    redirect("/admin");
+  }
+
   const supabase = await createClient();
 
   const { data: inspections, error: inspectionsError } = await supabase

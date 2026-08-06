@@ -1,8 +1,15 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EQUIPAMENTO_CATEGORIAS } from "@/lib/equipamento/catalog";
+import { getCurrentUser } from "@/lib/auth/session";
 import { NewInspectionForm } from "./new-inspection-form";
 
 export default async function NewInspectionPage() {
+  const user = await getCurrentUser();
+  if (!user || user.role !== "tecnico") {
+    redirect("/admin");
+  }
+
   const supabase = await createClient();
   const { data: sugestoes } = await supabase.from("equipamento_sugestoes").select("categoria, nome");
 

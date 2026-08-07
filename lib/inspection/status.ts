@@ -6,8 +6,9 @@
 // continua sendo o bloqueio real), so evita que a UI deixe o usuario bater
 // num erro de permissao sem explicacao.
 
+import type { UserRole } from "@/lib/auth/session";
+
 export type InspectionStatus = "rascunho" | "aguardando_aprovacao" | "devolvida" | "aprovada" | "cancelada";
-export type UserRole = "tecnico" | "admin";
 
 export function isInspectionEditable(status: InspectionStatus, role: UserRole): boolean {
   if (role === "admin") return true;

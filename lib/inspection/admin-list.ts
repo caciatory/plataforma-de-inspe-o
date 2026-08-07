@@ -19,11 +19,11 @@ export function buildAdminInspectionRows(
     status: InspectionStatus;
     tipo_cliente: "particular" | "stand";
     data_abertura: string;
+    atrasada: boolean;
     vehicle_data: { matricula: string; marca: string; modelo: string } | null;
     users: { nome: string } | null;
   }[],
-  scores: { inspection_id: string; nota_geral: number; classificacao: string }[],
-  today: string
+  scores: { inspection_id: string; nota_geral: number; classificacao: string }[]
 ): AdminInspectionRow[] {
   const scoreByInspectionId = new Map(scores.map((s) => [s.inspection_id, s]));
 
@@ -39,7 +39,7 @@ export function buildAdminInspectionRows(
       nota: score?.nota_geral ?? null,
       classificacao: score?.classificacao ?? null,
       dataAbertura: i.data_abertura,
-      atrasada: i.data_abertura < today && i.status !== "aprovada" && i.status !== "cancelada",
+      atrasada: i.atrasada,
     };
   });
 }

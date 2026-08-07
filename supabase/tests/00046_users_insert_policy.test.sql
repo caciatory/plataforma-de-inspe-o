@@ -7,7 +7,11 @@ begin;
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-000000000001', 'tecnico1@test.com'),
-  ('00000000-0000-0000-0000-000000000003', 'admin1@test.com');
+  ('00000000-0000-0000-0000-000000000003', 'admin1@test.com'),
+  -- ids referenced only by the public.users inserts below (auth.admin.createUser's
+  -- auth.users row, which createTecnicoAction always creates first)
+  ('00000000-0000-0000-0000-000000000004', 'tecnico2@test.com'),
+  ('00000000-0000-0000-0000-000000000005', 'tecnico3@test.com');
 
 insert into public.users (id, nome, email, role) values
   ('00000000-0000-0000-0000-000000000001', 'Tecnico Um', 'tecnico1@test.com', 'tecnico'),

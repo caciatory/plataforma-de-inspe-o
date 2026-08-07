@@ -4,7 +4,10 @@ import { getCurrentUser } from "@/lib/auth/session";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser();
-  if (!user || user.role !== "admin") {
+  if (!user) {
+    redirect("/login");
+  }
+  if (user.role !== "admin") {
     redirect("/inspections");
   }
 

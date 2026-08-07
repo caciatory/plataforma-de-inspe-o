@@ -1,9 +1,10 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 
 export type UserRole = "tecnico" | "admin";
 export type CurrentUser = { id: string; role: UserRole };
 
-export async function getCurrentUser(): Promise<CurrentUser | null> {
+export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -14,4 +15,4 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   if (!data) return null;
 
   return { id: user.id, role: data.role as UserRole };
-}
+});

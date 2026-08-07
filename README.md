@@ -38,6 +38,7 @@ App de vistoria técnica veicular em tablet. Técnico preenche uma checklist est
 - **Fase 9 confirmada (não especulativa):** Motorização Especial (BEV/HEV/GPL, 35 itens) — aguarda aquisição de equipamento (scanner de bateria, detetor de fugas de gás). Conteúdo já seedado no banco com `ativo=false`.
 - Regra: nunca editar uma migration já aplicada no projeto hospedado — sempre uma nova (ex: `00019_...`), nunca reescrever `0000N_...` já commitado. O ledger do Supabase rastreia por número de versão, não checksum, então edições in-place não quebram nada hoje, mas quebram a confiança do histórico.
 - Ver [`docs/ROADMAP.md`](docs/ROADMAP.md) — Passo 0.4 registra um problema de ambiente conhecido (arquivos `._*` do macOS quebrando a descoberta de testes do Vitest) ainda não corrigido.
+- `/admin/tecnicos` (criar/desativar técnico) exige `SUPABASE_SERVICE_ROLE_KEY` em `.env.local` (Supabase dashboard → Project Settings → API → secret `service_role`) — não configurada no ambiente de dev atual.
 
 ## Grafo de conhecimento
 

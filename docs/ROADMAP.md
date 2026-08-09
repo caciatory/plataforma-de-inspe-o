@@ -1,6 +1,6 @@
 # Roadmap — Check Auto v1.0
 
-Atualizado: 2026-08-06. Baseado em `docs/especificacao-tecnica-v1.md` §5 (9 fases) e no estado real do código (branches, migrations) nesta data.
+Atualizado: 2026-08-07. Baseado em `docs/especificacao-tecnica-v1.md` §5 (9 fases) e no estado real do código (branches, migrations) nesta data.
 
 Cada passo abaixo é uma unidade fechada: você cola o prompt sugerido, o processo documentado em `docs/PROCESSO.md` (`brainstorming` → `writing-plans` → `subagent-driven-development`) roda até o fim, e o passo só é considerado pronto quando passar pelas 3 skills de fechamento (seção final deste doc). Só então vá para o próximo prompt da lista.
 
@@ -55,6 +55,8 @@ Todo o bloco 0 (housekeeping) está concluído — ver seção Progresso acima. 
 **Fase 3 (autosave online) — ✅ completa (2026-07-30).** Ver detalhes na seção Progresso acima. **Triagem das 5 pendências feita em 2026-08-04** (ver "Pendências descobertas em teste ao vivo" acima): 3 corrigidas e confirmadas no navegador (CSS dos radios, badge de grupo tardio, delay visual/UI otimista), 1 reclassificada como feature ausente e adiada por decisão do usuário (navegação Histórico/Equipamentos pra inspeção existente), 1 (aplicar-em-lote) reescrita do zero via ciclo completo `brainstorming`→`writing-plans`→`subagent-driven-development` (2026-08-04), depois de 2 tentativas de patch pontual não resolverem — mesclada em `main`, **confirmada funcionando ao vivo pelo usuário** depois de um 3º fix (repaint nativo do radio após remount via `key`, ver item 3 em "Pendências descobertas em teste ao vivo" acima). **As 5 pendências da Fase 3 estão todas fechadas** (4 corrigidas + 1 adiada por decisão de escopo). Auditoria dos outros formulários do app pelo mesmo bug de perda de valor no erro (corrigido só no formulário de nova inspeção) continua como item separado, menor prioridade.
 
 **Fase 4 (pontuação) — ✅ completa (2026-08-05).** RF-38 a RF-42 generalizados pro schema de `conjuntos_opcao` da Fase 2.8, fórmula por posição, coluna `opcoes.is_na` e as 3 views de pontuação (`checklist_item_score`, `checklist_group_score`, `inspection_score`) — todas verificadas contra a base real pelo usuário. Ver detalhes na seção "Fase 4 — Pontuação" abaixo.
+
+**Fase 5 completa (2026-08-07), ainda não mesclada em `main`.** Sub-projeto 1 (finalização do técnico) já está em `main`. Sub-projeto 2+3 (lista/aprovação/edição/auditoria/cancelamento do admin + gestão de técnico) está implementado, revisado (whole-branch + `ponytail-review`) e testado ao vivo pelo usuário na branch `worktree-revisao-gestao-admin` — 273/273 testes, `tsc` limpo — mas o merge ainda não rodou. Ver detalhes na seção "Fase 5" abaixo. Migration `00046` (policy de INSERT em `public.users`, achado real da revisão final) ainda precisa ser aplicada manualmente no Supabase, como as outras.
 
 **Fase 5, sub-projeto 1 (finalização do técnico) — ✅ completo (2026-08-06).** RF-23/24 e RF-33/34. Ver detalhes na seção "Fase 5" abaixo. Próxima prioridade real: Fase 5 sub-projeto 2 (lista + aprovação/devolução do admin) ou Fase 6 (relatório final).
 
@@ -143,8 +145,10 @@ RF-38 a RF-42, RNF-18–19. O bloqueio original (valores de corte A/B/C e fórmu
 RF-31 a RF-37, RF-57 a RF-62. Tabelas `review_events`, `audit_log_entries` e índices de listagem já existem em `main`. O brainstorming inicial (2026-08-05) dividiu a fase em 3 sub-projetos sequenciais, porque o primeiro gap encontrado (RF-23/24, o botão de finalizar do técnico) bloqueava os outros dois — não existe nada "enviado" pro admin revisar sem ele:
 
 1. **Finalização do técnico (RF-23/24, RF-33/34) — ✅ completo (2026-08-06).**
-2. Lista do admin + aprovação/devolução (RF-31–34, RF-57–59, RF-62) — próximo.
-3. Edição do admin + auditoria + cancelamento (RF-35–37, RF-60–61).
+2. **Lista do admin + aprovação/devolução (RF-31–34, RF-57–59, RF-62) — ✅ completo (2026-08-07), fundido com o sub-projeto 3.**
+3. **Edição do admin + auditoria + cancelamento (RF-35–37, RF-60–61) — ✅ completo (2026-08-07), ver sub-projeto 2.**
+
+**Fase 5 completa** — todos os RF-31 a RF-37 e RF-57 a RF-62 implementados, revisados e verificados ao vivo. Falta só o merge em `main` (branch `worktree-revisao-gestao-admin`, ainda não mesclada nem enviada — ver detalhes no sub-projeto 2+3 abaixo).
 
 ### Sub-projeto 1 — Finalização do técnico ✅ completo (2026-08-06)
 
@@ -158,16 +162,17 @@ Outros achados da revisão (também corrigidos no mesmo ciclo): cobertura de tes
 
 235/235 testes, `tsc` limpo. Mesclada em `main` via `finishing-a-development-branch` (fast-forward local) e enviada pro GitHub em 2026-08-06. Design: `docs/superpowers/specs/2026-08-05-finalizacao-tecnico-design.md`, plano: `docs/superpowers/plans/2026-08-05-finalizacao-tecnico.md`.
 
-### Sub-projeto 2 — Lista do admin + aprovação/devolução (a seguir)
+### Sub-projeto 2+3 — Revisão e gestão do admin ✅ completo (2026-08-07)
 
-RF-31–34, RF-57–59, RF-62.
+RF-31–37, RF-57–62. Fundidos num ciclo só no brainstorming — a RLS já suportava edição do admin desde a Fase 1 (`is_admin()` já tinha bypass em `inspections`, `checklist_item_responses`, `vehicle_data`, `photos`), então o custo marginal de incluir edição/auditoria/cancelamento junto com lista/aprovação era baixo, e evitava duas rodadas de revisão sobre a mesma tela de detalhe. 12 tasks via `subagent-driven-development`: `getCurrentUser()` compartilhado (id + papel, base de todo o resto), `isInspectionEditable(status, role)` fica ciente de papel (admin sempre edita, técnico segue a regra de sempre), lista "Minhas Inspeções" do técnico (novo destino pós-login), lista "Todas as inspeções" do admin (busca/filtro/ordenação client-side, "atrasada" via a view `inspections_with_flags` da Fase 1 — nunca usada até agora), roteamento por papel (login redireciona por `role`, guard em `/admin`, guards nos dois pontos de entrada só-de-técnico, middleware cobrindo `/admin`), log de auditoria (RF-36) nas 6 Server Actions de item do checklist (só dispara quando quem chama é admin), aprovar/devolver/cancelar unificados num `AdminActionsPanel`, botão de relatório placeholder (Fase 6 constrói o de verdade), aviso quando o admin edita uma inspeção já aprovada (a nota recalcula ao vivo, view não é snapshot), Histórico admin-only (`review_events` + `audit_log_entries` mesclados), e gestão de técnico em `/admin/tecnicos` (criar via `auth.admin.createUser`, desativar/reativar via ban nativo do Supabase Auth — sem coluna `ativo` nova).
 
-**Prompt:**
-> Sub-projeto 1 da Fase 5 (finalização do técnico) está completo e em `main`. Vamos construir o sub-projeto 2: lista de inspeções do admin (RF-57–59) + aprovação/devolução (RF-31–34, RF-62), consumindo as views de pontuação da Fase 4 e o `status`/`review_events` que o sub-projeto 1 já sabe escrever/ler. Use `superpowers:brainstorming`.
+**Revisão final whole-branch (2026-08-07, modelo mais capaz) encontrou 2 Críticos reais, ambos corrigidos no mesmo ciclo:** `public.users` tinha RLS habilitada desde a migration `00008` mas nunca ganhou policy de INSERT — o insert de perfil em `createTecnicoAction` falhava com `42501` em toda chamada, então "criar técnico" nunca funcionou de fato (migration `00046`, admin-only); e um loop de redirect infinito entre `/inspections` e `/admin` pra qualquer usuário autenticado sem linha em `public.users` (`getCurrentUser()` retorna `null` tanto pra "sem sessão" quanto pra "sessão sem perfil", e os dois guards mandavam esse caso um pro outro) — corrigido mandando o caso `!user` do guard de `/admin` pro `/login` em vez de `/inspections`, quebrando o ciclo no único nó compartilhado. Mais 3 Importantes: `SUPABASE_SERVICE_ROLE_KEY` não documentada em lugar nenhum (`/admin/tecnicos` quebrava com "supabaseKey is required" na primeira visita); embed de `vehicle_data` tratado de dois jeitos diferentes entre a lista do técnico (com `Array.isArray` defensivo mas inútil) e a do admin (sem guard nenhum) pra exatamente a mesma relação 1:1; `getCurrentUser()` sem `cache()`, gerando round-trips duplicados quando layout+página chamam no mesmo request. Durante o próprio fix, o controller (não o reviewer) achou mais 1 bug real no teste SQL novo da migration `00046` — as linhas de `public.users` inseridas no teste não tinham `auth.users` correspondente (FK), o que faria o teste falhar por violação de FK em vez de testar a policy — corrigido antes do re-review escopado fechar limpo.
 
-### Sub-projeto 3 — Edição do admin + auditoria + cancelamento (depois)
+**`ponytail-review` (2026-08-07)** achou 2 pontos reais no diff inteiro da branch: tipo `UserRole` duplicado entre `lib/inspection/status.ts` e `lib/auth/session.ts` (import em vez de redeclarar); `atrasada` (RF-62) recalculada em TS com um `today` derivado em UTC no client, duplicando a view `inspections_with_flags` da Fase 1 (nunca usada, calcula a mesma coisa com `current_date` no servidor) — os dois corrigidos, e a troca pra view testada diretamente contra o PostgREST real (não só localmente) antes de aceitar.
 
-RF-35–37, RF-60–61.
+**Teste ao vivo pelo usuário** (criou a primeira conta admin real do projeto, `gestor@checkauto.pt` — `admin@checkauto.pt` foi rejeitado pelo Supabase Auth por validação de email, domínio `checkauto.pt` não tem infraestrutura de entrega real então o signup público também não funciona, conta criada direto no Dashboard) encontrou 2 gaps de navegação reais que nenhuma revisão tinha pego: `/admin/tecnicos` e `/inspections/[id]` (destino de todo clique em "Ver" na lista do admin) não tinham nenhum link de volta. Resolvidos junto com uma passada `impeccable` nas telas novas: removida uma borda lateral (`border-left`) que é o "AI-tell" mais reconhecível segundo a própria ferramenta; `.stack-row` (pensada pra grupo de botão de diálogo, `justify-content: flex-end`) estava sendo reaproveitada sem querer pra título+ação de página e pra barra de busca/filtro, empurrando os dois pra direita da tela — duas classes novas (`.page-header`, `.filter-bar`) resolvem cada caso; `.page` (640px, pensada pro formulário do técnico) espremia a tabela de 7 colunas do admin — nova variante `.page--wide`.
+
+273/273 testes, `tsc` limpo. Migration `00046` (+ teste) ainda precisa ser aplicada manualmente no Supabase, mesmo processo de sempre. Branch `worktree-revisao-gestao-admin` implementada, revisada e testada ao vivo — merge em `main` pendente. Design: `docs/superpowers/specs/2026-08-06-revisao-gestao-admin-design.md`, plano: `docs/superpowers/plans/2026-08-06-revisao-gestao-admin.md`.
 
 ## Fase 6 — Relatório final
 

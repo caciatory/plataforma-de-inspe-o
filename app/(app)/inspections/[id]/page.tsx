@@ -107,6 +107,9 @@ export default async function InspectionSummaryPage({
 
   return (
     <main className="page">
+      <Link href={currentUser?.role === "admin" ? "/admin" : "/inspections"} className="back-link">
+        ← Voltar a {currentUser?.role === "admin" ? "todas as inspeções" : "minhas inspeções"}
+      </Link>
       <h1>Resumo da inspeção</h1>
       <div className="panel stack">
         <dl className="summary-grid">

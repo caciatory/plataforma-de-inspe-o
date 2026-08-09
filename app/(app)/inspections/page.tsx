@@ -12,6 +12,14 @@ const STATUS_LABEL: Record<string, string> = {
   cancelada: "Cancelada",
 };
 
+const STATUS_PILL_CLASS: Record<string, string> = {
+  rascunho: "status-pill status-pill--neutral",
+  aguardando_aprovacao: "status-pill status-pill--warning",
+  devolvida: "status-pill status-pill--warning",
+  aprovada: "status-pill status-pill--success",
+  cancelada: "status-pill status-pill--danger",
+};
+
 export default async function MinhasInspecoesPage() {
   const user = await getCurrentUser();
   if (!user || user.role !== "tecnico") {
@@ -22,7 +30,7 @@ export default async function MinhasInspecoesPage() {
 
   const { data: inspections, error: inspectionsError } = await supabase
     .from("inspections")
-    .select("id, status, data_abertura, vehicle_data(*)")
+    .select("id, status, data_abertura, vehicle_data(matricula, marca, modelo, cor)")
     .order("data_abertura", { ascending: false });
 
   if (inspectionsError) {
@@ -66,13 +74,22 @@ export default async function MinhasInspecoesPage() {
           Nova inspeção
         </Link>
       </div>
-      <ul className="item-list">
+      <ul className="item-list item-list--bordered">
         {rows.map((r) => (
           <li key={r.id} className={r.devolvida ? "item-list__row item-list__row--warning" : "item-list__row"}>
-            <Link href={`/inspections/${r.id}`}>
-              <strong>{r.matricula}</strong> — {STATUS_LABEL[r.status] ?? r.status} — {r.dataAbertura}
-              {r.motivo && <p className="hint">Motivo da devolução: {r.motivo}</p>}
+            <Link href={`/inspections/${r.id}`} className="inspection-row">
+              <span className="inspection-row__main">
+                <strong>{r.matricula}</strong>
+                <span className="hint">
+                  {r.marcaModelo}
+                  {r.cor && ` · ${r.cor}`} · {r.dataAbertura}
+                </span>
+              </span>
+              <span className={STATUS_PILL_CLASS[r.status] ?? "status-pill status-pill--neutral"}>
+                {STATUS_LABEL[r.status] ?? r.status}
+              </span>
             </Link>
+            {r.motivo && <p className="hint">Motivo da devolução: {r.motivo}</p>}
           </li>
         ))}
         {rows.length === 0 && <p className="hint">Nenhuma inspeção ainda.</p>}

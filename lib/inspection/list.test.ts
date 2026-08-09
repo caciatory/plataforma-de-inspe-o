@@ -5,17 +5,38 @@ describe("buildTecnicoInspectionRows", () => {
   it("marks devolvida inspections and attaches the motivo", () => {
     const rows = buildTecnicoInspectionRows(
       [
-        { id: "insp-1", status: "rascunho", data_abertura: "2026-08-01", vehicle_data: { matricula: "AA-11-BB" } },
-        { id: "insp-2", status: "devolvida", data_abertura: "2026-08-02", vehicle_data: { matricula: "CC-22-DD" } },
+        {
+          id: "insp-1",
+          status: "rascunho",
+          data_abertura: "2026-08-01",
+          vehicle_data: { matricula: "AA-11-BB", marca: "Renault", modelo: "Clio", cor: "Azul" },
+        },
+        {
+          id: "insp-2",
+          status: "devolvida",
+          data_abertura: "2026-08-02",
+          vehicle_data: { matricula: "CC-22-DD", marca: "Fiat", modelo: "Punto", cor: null },
+        },
       ],
       new Map([["insp-2", "Faltou foto do pneu traseiro"]])
     );
 
     expect(rows).toEqual([
-      { id: "insp-1", matricula: "AA-11-BB", status: "rascunho", dataAbertura: "2026-08-01", devolvida: false, motivo: null },
+      {
+        id: "insp-1",
+        matricula: "AA-11-BB",
+        marcaModelo: "Renault Clio",
+        cor: "Azul",
+        status: "rascunho",
+        dataAbertura: "2026-08-01",
+        devolvida: false,
+        motivo: null,
+      },
       {
         id: "insp-2",
         matricula: "CC-22-DD",
+        marcaModelo: "Fiat Punto",
+        cor: null,
         status: "devolvida",
         dataAbertura: "2026-08-02",
         devolvida: true,
@@ -30,5 +51,7 @@ describe("buildTecnicoInspectionRows", () => {
       new Map()
     );
     expect(rows[0].matricula).toBe("—");
+    expect(rows[0].marcaModelo).toBe("—");
+    expect(rows[0].cor).toBeNull();
   });
 });

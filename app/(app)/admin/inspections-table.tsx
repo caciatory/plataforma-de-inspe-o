@@ -12,13 +12,19 @@ const STATUS_LABEL: Record<string, string> = {
   cancelada: "Cancelada",
 };
 
-type SortKey = "data" | "nota" | "status";
+const STATUS_PILL_CLASS: Record<string, string> = {
+  rascunho: "status-pill status-pill--neutral",
+  aguardando_aprovacao: "status-pill status-pill--warning",
+  devolvida: "status-pill status-pill--warning",
+  aprovada: "status-pill status-pill--success",
+  cancelada: "status-pill status-pill--danger",
+};
 
 export function InspectionsTable({ rows }: { rows: AdminInspectionRow[] }) {
   const [query, setQuery] = useState("");
   const [tecnicoFiltro, setTecnicoFiltro] = useState("");
   const [tipoClienteFiltro, setTipoClienteFiltro] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("data");
+  const [dataFiltro, setDataFiltro] = useState("");
 
   const tecnicos = Array.from(new Set(rows.map((r) => r.tecnicoNome))).sort();
 
@@ -27,25 +33,35 @@ export function InspectionsTable({ rows }: { rows: AdminInspectionRow[] }) {
     const matchesQuery = q === "" || r.matricula.toLowerCase().includes(q) || r.marcaModelo.toLowerCase().includes(q);
     const matchesTecnico = tecnicoFiltro === "" || r.tecnicoNome === tecnicoFiltro;
     const matchesTipoCliente = tipoClienteFiltro === "" || r.tipoCliente === tipoClienteFiltro;
-    return matchesQuery && matchesTecnico && matchesTipoCliente;
+    const matchesData = dataFiltro === "" || r.dataAbertura.startsWith(dataFiltro);
+    return matchesQuery && matchesTecnico && matchesTipoCliente && matchesData;
   });
 
-  const sorted = filtered.slice().sort((a, b) => {
-    if (sortKey === "nota") return (b.nota ?? -1) - (a.nota ?? -1);
-    if (sortKey === "status") return a.status.localeCompare(b.status);
-    return b.dataAbertura.localeCompare(a.dataAbertura);
-  });
+  const sorted = filtered.slice().sort((a, b) => b.dataAbertura.localeCompare(a.dataAbertura));
 
   return (
     <div className="stack">
       <div className="filter-bar">
-        <input
-          className="input"
-          placeholder="Buscar por matrícula ou modelo"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          aria-label="Buscar"
-        />
+        <div className="filter-bar__search">
+          <svg
+            className="filter-bar__search-icon"
+            width="14"
+            height="14"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+          >
+            <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4" />
+            <path d="M11 11l3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          </svg>
+          <input
+            className="input"
+            placeholder="Buscar por matrícula ou modelo"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label="Buscar"
+          />
+        </div>
         <select className="input" value={tecnicoFiltro} onChange={(e) => setTecnicoFiltro(e.target.value)} aria-label="Filtrar por técnico">
           <option value="">Todos os técnicos</option>
           {tecnicos.map((t) => (
@@ -64,50 +80,75 @@ export function InspectionsTable({ rows }: { rows: AdminInspectionRow[] }) {
           <option value="particular">Particular</option>
           <option value="stand">Stand</option>
         </select>
-        <select className="input" value={sortKey} onChange={(e) => setSortKey(e.target.value as SortKey)} aria-label="Ordenar por">
-          <option value="data">Data</option>
-          <option value="nota">Nota</option>
-          <option value="status">Estado</option>
-        </select>
+        <input
+          type="date"
+          className="input"
+          value={dataFiltro}
+          onChange={(e) => setDataFiltro(e.target.value)}
+          aria-label="Filtrar por data"
+        />
       </div>
-      <table className="item-table">
-        <thead>
-          <tr>
-            <th>Matrícula</th>
-            <th>Veículo</th>
-            <th>Técnico</th>
-            <th>Estado</th>
-            <th>Nota</th>
-            <th>Data</th>
-            <th aria-hidden="true" />
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.map((r) => (
-            <tr key={r.id}>
-              <td>{r.matricula}</td>
-              <td>{r.marcaModelo}</td>
-              <td>{r.tecnicoNome}</td>
-              <td>
-                {STATUS_LABEL[r.status] ?? r.status}
-                {r.atrasada && <span className="status-pill status-pill--danger"> Atrasada</span>}
-              </td>
-              <td>{r.nota !== null ? `${r.nota.toFixed(1)} (${r.classificacao})` : "—"}</td>
-              <td>{r.dataAbertura}</td>
-              <td>
-                <Link href={`/inspections/${r.id}`} className="btn btn-secondary">
-                  Ver
-                </Link>
-              </td>
-            </tr>
-          ))}
-          {sorted.length === 0 && (
+      <div className="table-scroll">
+        <table className="item-table item-table--scannable">
+          <thead>
             <tr>
-              <td colSpan={7}>Nenhuma inspeção encontrada.</td>
+              <th>Matrícula</th>
+              <th>Veículo</th>
+              <th>Técnico</th>
+              <th>Estado</th>
+              <th>Prazo</th>
+              <th>Nota</th>
+              <th>Data</th>
+              <th aria-hidden="true" />
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {sorted.map((r) => (
+              <tr key={r.id}>
+                <td>{r.matricula}</td>
+                <td>{r.marcaModelo}</td>
+                <td>{r.tecnicoNome}</td>
+                <td>
+                  <span className={STATUS_PILL_CLASS[r.status] ?? "status-pill status-pill--neutral"}>
+                    {STATUS_LABEL[r.status] ?? r.status}
+                  </span>
+                </td>
+                <td>
+                  {r.atrasada ? (
+                    <span className="status-pill status-pill--danger">Atrasada</span>
+                  ) : (
+                    <span className="hint">—</span>
+                  )}
+                </td>
+                <td className="tabular-nums">{r.nota !== null ? `${r.nota.toFixed(1)} (${r.classificacao})` : "—"}</td>
+                <td>{r.dataAbertura}</td>
+                <td>
+                  <Link
+                    href={`/inspections/${r.id}`}
+                    className="btn btn-secondary btn--icon"
+                    aria-label={`Ver inspeção ${r.matricula}`}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5Z"
+                        stroke="currentColor"
+                        strokeWidth="1.3"
+                      />
+                      <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.3" />
+                    </svg>
+                    Ver
+                  </Link>
+                </td>
+              </tr>
+            ))}
+            {sorted.length === 0 && (
+              <tr>
+                <td colSpan={8}>Nenhuma inspeção encontrada.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -37,19 +37,27 @@ export function TecnicosTable({ rows }: { rows: TecnicoRow[] }) {
             <label htmlFor="nome" className="label">
               Nome
             </label>
-            <input id="nome" name="nome" className="input" required />
+            <input id="nome" name="nome" className="input" autoComplete="name" required />
           </div>
           <div className="field">
             <label htmlFor="email" className="label">
               Email
             </label>
-            <input id="email" name="email" type="email" className="input" required />
+            <input id="email" name="email" type="email" className="input" autoComplete="email" required />
           </div>
           <div className="field">
             <label htmlFor="senha" className="label">
               Senha temporária
             </label>
-            <input id="senha" name="senha" type="password" className="input" minLength={8} required />
+            <input
+              id="senha"
+              name="senha"
+              type="password"
+              className="input"
+              autoComplete="new-password"
+              minLength={8}
+              required
+            />
           </div>
           <div className="stack-row">
             <button type="button" className="btn btn-secondary" onClick={() => dialogRef.current?.close()}>
@@ -67,38 +75,45 @@ export function TecnicosTable({ rows }: { rows: TecnicoRow[] }) {
         </form>
       </dialog>
 
-      <table className="item-table">
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Estado</th>
-            <th aria-hidden="true" />
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((t) => (
-            <tr key={t.id}>
-              <td>{t.nome}</td>
-              <td>{t.email}</td>
-              <td>
-                <span className={`status-pill ${t.ativo ? "status-pill--success" : "status-pill--danger"}`}>
-                  {t.ativo ? "Ativo" : "Desativado"}
-                </span>
-              </td>
-              <td>
-                <form action={toggleFormAction}>
-                  <input type="hidden" name="tecnicoId" value={t.id} />
-                  <input type="hidden" name="ban" value={String(t.ativo)} />
-                  <button type="submit" className="btn btn-secondary">
-                    {t.ativo ? "Desativar" : "Reativar"}
-                  </button>
-                </form>
-              </td>
+      <div className="table-scroll">
+        <table className="item-table item-table--scannable">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Estado</th>
+              <th aria-hidden="true" />
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((t) => (
+              <tr key={t.id}>
+                <td>{t.nome}</td>
+                <td>{t.email}</td>
+                <td>
+                  <span className={`status-pill ${t.ativo ? "status-pill--success" : "status-pill--danger"}`}>
+                    {t.ativo ? "Ativo" : "Desativado"}
+                  </span>
+                </td>
+                <td>
+                  <form action={toggleFormAction}>
+                    <input type="hidden" name="tecnicoId" value={t.id} />
+                    <input type="hidden" name="ban" value={String(t.ativo)} />
+                    <button type="submit" className="btn btn-secondary">
+                      {t.ativo ? "Desativar" : "Reativar"}
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            ))}
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={4}>Nenhum técnico cadastrado.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

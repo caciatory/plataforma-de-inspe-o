@@ -128,6 +128,11 @@ components:
     color: '{colors.identity-white}'
     backgroundHover: '{colors.danger-hover}'
     rounded: '{rounded.md}'
+  button-warning:
+    background: '{colors.amber.500}'
+    color: '{colors.identity-dark}'
+    backgroundHover: '{colors.amber.600}'
+    rounded: '{rounded.md}'
   status-badge-otimo:
     background: '{colors.green.100}'
     color: '{colors.green.800}'
@@ -195,9 +200,11 @@ Cantos arredondados moderados (`rounded.sm`/`rounded.md`) em inputs/botões/card
 
 Ver bloco `components` no frontmatter. Direção geral:
 - **Botão primário**: fundo `primary` (verde), texto preto — nunca branco, por causa do contraste.
-- **Botão de perigo/destrutivo**: fundo `danger` (vermelho), texto branco.
-- **Badge de status**: fundo do tom `.100` da cor semântica, texto do tom `.600`/`.800` da mesma família — nunca a cor `.500` pura como fundo com texto por cima (perde contraste em área pequena).
+- **Botão de aviso** (`button-warning`, 2026-08-09): fundo `amber.500`, texto preto. Reservado pra uma decisão de revisão rotineira que **não** é destrutiva (ex. "Devolver" uma inspeção pro técnico corrigir — nada se perde). Existe especificamente pra não deixar essa ação com o mesmo vermelho de `button-danger`, que fica reservado só pro que é de fato irreversível (ex. "Cancelar inspeção"). Quando as duas aparecem juntas, mantenha um agrupamento visual (borda/gap) que separe a ação de rotina da irreversível — não são a mesma categoria de risco.
+- **Botão de perigo/destrutivo**: fundo `danger` (vermelho), texto branco. Reserve pra ações que não têm volta — não para qualquer botão "negativo" da tela.
+- **Badge de status**: fundo do tom `.100` da cor semântica, texto do tom `.600`/`.800` da mesma família — nunca a cor `.500` pura como fundo com texto por cima (perde contraste em área pequena). Além do badge de classificação (`status-badge-otimo/medio/ruim`), o mesmo padrão de cor cobre o **estado do ciclo de vida da inspeção** (rascunho=neutro cinza, aguardando/devolvida=`warning` âmbar, aprovada=`success` verde, cancelada=`danger` vermelho) via a classe `.status-pill` em `globals.css` — reusado nas listas do técnico e do admin, não só na página de detalhe.
 - **Header/nav**: o único lugar que usa `identity-dark` como fundo sólido por padrão — aqui é onde a marca "aparece".
+- **`<select>` customizado**: a seta em SVG embutida como `background-image` precisa de `background-size` explícito. Sem isso, um SVG sem `width`/`height` intrínsecos (só `viewBox`) renderiza no tamanho padrão do navegador em vez do tamanho do ícone — não é um detalhe estético, é um bug real (encontrado e corrigido em `select.input`, 2026-08-09).
 
 ## Do's and Don'ts
 

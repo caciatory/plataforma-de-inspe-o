@@ -48,9 +48,9 @@ export function AdminActionsPanel({ inspectionId, status }: { inspectionId: stri
   if (!showReview && !showCancel) return null;
 
   return (
-    <div className="stack-row">
+    <div className="stack-row admin-actions">
       {showReview && (
-        <>
+        <div className="admin-actions__group">
           <button type="button" className="btn btn-primary" onClick={() => approveDialogRef.current?.showModal()}>
             Aprovar
           </button>
@@ -74,7 +74,7 @@ export function AdminActionsPanel({ inspectionId, status }: { inspectionId: stri
             </form>
           </dialog>
 
-          <button type="button" className="btn btn-danger" onClick={() => returnDialogRef.current?.showModal()}>
+          <button type="button" className="btn btn-warning" onClick={() => returnDialogRef.current?.showModal()}>
             Devolver
           </button>
           <dialog ref={returnDialogRef} className="dialog-panel">
@@ -90,7 +90,7 @@ export function AdminActionsPanel({ inspectionId, status }: { inspectionId: stri
                 <button type="button" className="btn btn-secondary" onClick={() => returnDialogRef.current?.close()}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn btn-danger" disabled={isReturning}>
+                <button type="submit" className="btn btn-warning" disabled={isReturning}>
                   Confirmar devolução
                 </button>
               </div>
@@ -101,11 +101,11 @@ export function AdminActionsPanel({ inspectionId, status }: { inspectionId: stri
               )}
             </form>
           </dialog>
-        </>
+        </div>
       )}
 
       {showCancel && (
-        <>
+        <div className="admin-actions__group">
           <button type="button" className="btn btn-danger" onClick={() => cancelDialogRef.current?.showModal()}>
             Cancelar inspeção
           </button>
@@ -133,7 +133,7 @@ export function AdminActionsPanel({ inspectionId, status }: { inspectionId: stri
               )}
             </form>
           </dialog>
-        </>
+        </div>
       )}
     </div>
   );

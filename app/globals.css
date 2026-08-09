@@ -171,11 +171,47 @@ a {
 }
 
 /* Search/filter toolbar above a table -- left-aligned and wraps, unlike
-   .stack-row's right-aligned single-line action groups. */
+   .stack-row's right-aligned single-line action groups. Framed as one
+   coherent surface (background/border/padding) instead of naked inputs
+   floating directly on the page background, with its own rounder radius --
+   scoped here rather than raised on the shared .input, which forms and
+   dialogs elsewhere still use unchanged. */
 .filter-bar {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.filter-bar .input {
+  border-radius: var(--radius-md);
+}
+
+.filter-bar__search {
+  position: relative;
+  flex: 1 1 240px;
+}
+
+.filter-bar__search-icon {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-ink-muted);
+  pointer-events: none;
+}
+
+.filter-bar__search .input {
+  width: 100%;
+  padding-left: var(--space-7);
+}
+
+.filter-bar select.input {
+  flex: 0 1 180px;
 }
 
 .back-link {
@@ -274,6 +310,15 @@ textarea.input {
   transition: background-color 150ms ease-out, border-color 150ms ease-out, opacity 150ms ease-out;
 }
 
+/* Opt-in for buttons that pair an icon with text (e.g. the "Ver" action) —
+   scoped rather than added to the shared .btn so plain-text buttons
+   elsewhere keep their existing box model untouched. */
+.btn--icon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .btn:disabled {
   cursor: not-allowed;
   opacity: 0.55;
@@ -295,6 +340,19 @@ textarea.input {
 
 .btn-danger:hover:not(:disabled) {
   background: var(--color-danger-hover);
+}
+
+/* Reserved for a routine review decision that isn't destructive (e.g.
+   "Devolver" sends back for correction, nothing is lost) — keeps red for
+   genuinely irreversible actions only, so the two aren't confusable when
+   they sit side by side. */
+.btn-warning {
+  background: var(--color-amber-500);
+  color: var(--color-identity-dark);
+}
+
+.btn-warning:hover:not(:disabled) {
+  background: var(--color-amber-600);
 }
 
 .btn-secondary {
@@ -708,6 +766,25 @@ textarea.input {
   text-decoration: none;
 }
 
+/* Separates the routine review decision (Aprovar/Devolver) from the rare,
+   irreversible one (Cancelar inspeção) so they don't read as one
+   undifferentiated row of buttons. */
+.admin-actions {
+  gap: var(--space-5);
+}
+
+.admin-actions__group {
+  display: flex;
+  gap: var(--space-3);
+  padding-left: var(--space-5);
+  border-left: 1px solid var(--color-border);
+}
+
+.admin-actions__group:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
 .status-banner {
   margin: 0;
   border-radius: var(--radius-sm);
@@ -794,6 +871,33 @@ textarea.input {
 .item-list__row--warning:hover {
   background: var(--color-amber-100);
   filter: brightness(0.97);
+}
+
+/* Gives each row a visible boundary so a plain list of links reads as
+   discrete entries instead of a run of inline text (e.g. Minhas Inspeções) —
+   without going as far as a card layout. */
+.item-list--bordered .item-list__row {
+  border: 1px solid var(--color-border);
+}
+
+.item-list--bordered .item-list__row--warning {
+  border-color: var(--color-amber-500);
+}
+
+.inspection-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.inspection-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
 .item-list__status {
@@ -972,6 +1076,13 @@ textarea.input {
 
 /* Item table — dense per-subcategoria table (Peça 3) */
 
+/* Contains a wide .item-table's horizontal scroll to the table itself
+   instead of the whole page (admin lists routinely outgrow .page--wide
+   on narrower viewports). */
+.table-scroll {
+  overflow-x: auto;
+}
+
 .item-table {
   width: 100%;
   border-collapse: collapse;
@@ -979,6 +1090,36 @@ textarea.input {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   overflow: hidden;
+}
+
+/* Read-only admin rows (inspections/técnicos lists) — a hover tint aids
+   scanning long lists. Not applied to the checklist's .item-table, whose
+   rows are live form inputs where a whole-row highlight would be noise. */
+.item-table--scannable tbody tr:hover {
+  background: var(--color-green-50);
+}
+
+/* Admin lists read text-dense at the checklist table's compact padding —
+   give rows more vertical room since these aren't inline forms. */
+.item-table--scannable td {
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-4);
+}
+
+/* Uniform select chrome across browsers, matching .input's own border/radius
+   instead of the OS-native control (the mismatch read as inconsistent
+   styling between the search input and the filter dropdowns). */
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%230f172a' stroke-width='1.5'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  background-size: 12px 12px;
+  padding-right: var(--space-7);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 .item-table th {

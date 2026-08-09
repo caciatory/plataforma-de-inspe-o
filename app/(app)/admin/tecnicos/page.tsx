@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { TecnicosTable, type TecnicoRow } from "./tecnicos-table";
@@ -32,7 +33,10 @@ export default async function TecnicosPage() {
   }));
 
   return (
-    <main className="page">
+    <main className="page page--wide">
+      <Link href="/admin" className="back-link">
+        ← Voltar a todas as inspeções
+      </Link>
       <h1>Técnicos</h1>
       <TecnicosTable rows={rows} />
     </main>

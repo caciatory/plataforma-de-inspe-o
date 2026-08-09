@@ -24,8 +24,8 @@ export default async function AdminInspectionsPage() {
   );
 
   return (
-    <main className="page">
-      <div className="stack-row">
+    <main className="page page--wide">
+      <div className="page-header">
         <h1>Todas as inspeções</h1>
         <Link href="/admin/tecnicos" className="btn btn-secondary">
           Gerir técnicos

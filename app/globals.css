@@ -140,6 +140,13 @@ a {
   padding: var(--space-6) var(--space-4);
 }
 
+/* Data-table pages (admin) have no sidebar layout to borrow width from the
+   way the checklist table does -- .page's 640px form-width crams a
+   multi-column table. Not needed on the narrower técnico/form pages. */
+.page--wide {
+  max-width: 1100px;
+}
+
 .stack {
   display: flex;
   flex-direction: column;
@@ -150,6 +157,38 @@ a {
   display: flex;
   justify-content: flex-end;
   gap: var(--space-3);
+}
+
+/* Page title + single trailing action (e.g. "Todas as inspeções" + "Gerir
+   técnicos") -- distinct from .stack-row, which is right-aligned for dialog
+   action groups and pushes a lone title off to the edge if reused here. */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+/* Search/filter toolbar above a table -- left-aligned and wraps, unlike
+   .stack-row's right-aligned single-line action groups. */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: var(--space-3);
+  color: var(--color-ink-muted);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--color-ink);
+  text-decoration: underline;
 }
 
 .panel {
@@ -749,7 +788,12 @@ textarea.input {
 }
 
 .item-list__row--warning {
-  border-left: 3px solid var(--color-amber-500);
+  background: var(--color-amber-100);
+}
+
+.item-list__row--warning:hover {
+  background: var(--color-amber-100);
+  filter: brightness(0.97);
 }
 
 .item-list__status {

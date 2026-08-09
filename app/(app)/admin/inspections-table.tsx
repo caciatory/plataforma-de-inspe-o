@@ -38,7 +38,7 @@ export function InspectionsTable({ rows }: { rows: AdminInspectionRow[] }) {
 
   return (
     <div className="stack">
-      <div className="stack-row">
+      <div className="filter-bar">
         <input
           className="input"
           placeholder="Buscar por matrícula ou modelo"

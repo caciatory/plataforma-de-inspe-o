@@ -60,7 +60,7 @@ export default async function MinhasInspecoesPage() {
 
   return (
     <main className="page">
-      <div className="stack-row">
+      <div className="page-header">
         <h1>Minhas Inspeções</h1>
         <Link href="/inspections/new" className="btn btn-primary">
           Nova inspeção

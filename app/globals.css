@@ -384,10 +384,19 @@ textarea.input {
   min-height: 100vh;
 }
 
+/* Sticky + independently scrollable: without this, a group with many
+   subitems expanded pushes the nav taller than the viewport and it just
+   scrolls away with the page (its top -- including "Voltar ao resumo" --
+   goes offscreen on tablets, RF-09/RF-11 navigation becomes unreachable). */
 .checklist-nav {
   width: 260px;
   flex-shrink: 0;
   padding: var(--space-5) var(--space-4);
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .checklist-nav__title {

@@ -87,7 +87,10 @@ export default async function InspectionSummaryPage({
 
   let historico: ReturnType<typeof mergeHistorico> = [];
   if (currentUser?.role === "admin") {
-    const [{ data: reviewEvents }, { data: auditEntries }] = await Promise.all([
+    const [
+      { data: reviewEvents, error: reviewEventsError },
+      { data: auditEntries, error: auditEntriesError },
+    ] = await Promise.all([
       supabase
         .from("review_events")
         .select("tipo, motivo, timestamp, users(nome)")
@@ -99,6 +102,9 @@ export default async function InspectionSummaryPage({
         .eq("inspection_id", id)
         .order("timestamp", { ascending: false }),
     ]);
+    if (reviewEventsError || auditEntriesError) {
+      console.error("inspection historico fetch failed", { reviewEventsError, auditEntriesError });
+    }
     historico = mergeHistorico(
       (reviewEvents ?? []) as unknown as Parameters<typeof mergeHistorico>[0],
       (auditEntries ?? []) as unknown as Parameters<typeof mergeHistorico>[1]

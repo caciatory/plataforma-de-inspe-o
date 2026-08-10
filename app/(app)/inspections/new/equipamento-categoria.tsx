@@ -218,7 +218,7 @@ export function EquipamentoCategoria({
   }
 
   return (
-    <details className="equip-categoria">
+    <details className="equip-categoria" open={Object.keys(initialSelecionados).length > 0}>
       <summary className="equip-categoria__summary">
         <span className="equip-categoria__titulo">
           {label}

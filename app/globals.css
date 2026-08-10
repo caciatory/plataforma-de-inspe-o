@@ -534,9 +534,14 @@ textarea.input {
   color: var(--color-identity-white);
 }
 
+/* Generous bottom padding so the last item in a subcategoria can scroll up
+   away from the viewport edge instead of sitting flush against it -- on a
+   tablet this is where a técnico is stuck mid-form, not just a cosmetic
+   crop (reported live: last item glued to the bottom). */
 .checklist-main {
   flex: 1;
   padding: var(--space-6);
+  padding-bottom: 50vh;
 }
 
 /* Photo manager — grid is the genuinely 2D case DESIGN.md calls out for Grid over Flexbox */

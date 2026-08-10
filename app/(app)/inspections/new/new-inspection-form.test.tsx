@@ -325,4 +325,26 @@ describe("NewInspectionForm in edit mode", () => {
     // "this render is in edit mode" without reaching into React internals.
     expect(document.querySelector('input[name="inspectionId"]')).toHaveValue("insp-1");
   });
+
+  it("threads initialEquipamentosPorCategoria into EquipamentoCategoria and collects removals into a hidden field", () => {
+    render(
+      <NewInspectionForm
+        inspectionId="insp-1"
+        initialData={{ matricula: "AA-11-BB" }}
+        initialEquipamentosPorCategoria={{
+          conforto: {
+            "Ar Condicionado / Climatização (automática e dual zone)": { id: "equip-1", condicao: "bom", comentario: null, foto1Url: null, foto2Url: null },
+          },
+        }}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("tab", { name: "Equipamentos" }));
+    expect(screen.getByRole("checkbox", { name: "Ar Condicionado / Climatização (automática e dual zone)" })).toBeChecked();
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Ar Condicionado / Climatização (automática e dual zone)" }));
+    fireEvent.click(screen.getByRole("button", { name: /confirmar remo/i }));
+
+    expect(document.querySelector('input[name="equipamentosRemovidos"]')).toHaveValue("equip-1");
+  });
 });

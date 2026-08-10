@@ -13,7 +13,7 @@ import { updateInspectionAction, type UpdateInspectionState } from "../[id]/edit
 import { StandAutocomplete, type StandContact } from "./stand-autocomplete";
 import { TAB_IDS, resolveTabForField, type TabId } from "@/lib/inspection/tabs";
 import { TextareaWithCounter } from "./textarea-with-counter";
-import { EquipamentoCategoria } from "./equipamento-categoria";
+import { EquipamentoCategoria, type EquipamentoInitial } from "./equipamento-categoria";
 import { EquipamentoPersonalizadoDialog } from "./equipamento-personalizado-dialog";
 import { EQUIPAMENTO_CATEGORIAS } from "@/lib/equipamento/catalog";
 import { SimNaoRadio } from "./sim-nao-radio";
@@ -76,6 +76,7 @@ export function NewInspectionForm({
   sugestoesPorCategoria = {},
   inspectionId,
   initialData = {},
+  initialEquipamentosPorCategoria = {},
 }: {
   // Fix 2 (final-review): custom "Outros Equipamentos" items entered by any
   // técnico become suggestions for everyone (§4.2/§5 of the design spec) —
@@ -84,6 +85,7 @@ export function NewInspectionForm({
   sugestoesPorCategoria?: Record<string, string[]>;
   inspectionId?: string;
   initialData?: InspectionFormInitialData;
+  initialEquipamentosPorCategoria?: Record<string, Record<string, EquipamentoInitial>>;
 } = {}) {
   const [activeTab, setActiveTab] = useState<TabId>("cliente");
   const [tipoCliente, setTipoCliente] = useState<TipoCliente>(initialData.tipoCliente ?? "particular");
@@ -138,6 +140,7 @@ export function NewInspectionForm({
   const [personalizadosPorCategoria, setPersonalizadosPorCategoria] =
     useState<Record<string, string[]>>(sugestoesPorCategoria);
   const [categoriaAbrindoDialog, setCategoriaAbrindoDialog] = useState<{ id: string; label: string } | null>(null);
+  const [equipamentosRemovidos, setEquipamentosRemovidos] = useState<string[]>([]);
   const initialActionState: CreateInspectionState | UpdateInspectionState = { status: "idle" };
   const [state, formAction] = useActionState(
     inspectionId ? updateInspectionAction : createInspectionAction,
@@ -161,6 +164,10 @@ export function NewInspectionForm({
     setNomeSolicitante(contact.nome_solicitante);
     setContacto(contact.contacto ?? "");
     setEmail(contact.email ?? "");
+  }
+
+  function handleEquipamentoRemovido(id: string) {
+    setEquipamentosRemovidos((prev) => [...prev, id]);
   }
 
   function handleNext() {
@@ -256,6 +263,9 @@ export function NewInspectionForm({
         </button>
       )}
       {inspectionId && <input type="hidden" name="inspectionId" value={inspectionId} />}
+      {inspectionId && equipamentosRemovidos.length > 0 && (
+        <input type="hidden" name="equipamentosRemovidos" value={equipamentosRemovidos.join(",")} />
+      )}
       <div className="form-tabs" role="tablist">
         {TAB_IDS.map((tab) => (
           <button
@@ -781,6 +791,8 @@ export function NewInspectionForm({
             label={categoria.label}
             itensPreDefinidos={categoria.itens}
             itensPersonalizados={personalizadosPorCategoria[categoria.id] ?? []}
+            initialSelecionados={initialEquipamentosPorCategoria[categoria.id] ?? {}}
+            onRemovido={handleEquipamentoRemovido}
             onAddPersonalizado={() => {
               setCategoriaAbrindoDialog({ id: categoria.id, label: categoria.label });
               personalizadoDialogRef.current?.showModal();

@@ -148,6 +148,7 @@ export function NewInspectionForm({
   );
   const formRef = useRef<HTMLFormElement>(null);
   const personalizadoDialogRef = useRef<HTMLDialogElement>(null);
+  const confirmSaveDialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     if (state.status !== "error") return;
@@ -195,10 +196,20 @@ export function NewInspectionForm({
   function handleGuardarClick(e: MouseEvent<HTMLButtonElement>) {
     const activePanel = formRef.current?.querySelector('[role="tabpanel"]:not([hidden])');
     const invalidField = activePanel?.querySelector<HTMLInputElement | HTMLSelectElement>(":invalid");
-    if (!invalidField) return;
-    e.preventDefault();
-    invalidField.closest("details")?.setAttribute("open", "");
-    invalidField.reportValidity();
+    if (invalidField) {
+      e.preventDefault();
+      invalidField.closest("details")?.setAttribute("open", "");
+      invalidField.reportValidity();
+      return;
+    }
+    // Editar uma inspeção existente pede confirmação antes de gravar — um
+    // toque acidental no fim da rolagem (ex. lista longa de Equipamentos
+    // num tablet) não deve conseguir salvar sozinho. Criação não pede,
+    // nada existente é sobrescrito nesse caso.
+    if (inspectionId) {
+      e.preventDefault();
+      confirmSaveDialogRef.current?.showModal();
+    }
   }
 
   // ponytail: dev-only manual test helper, gated out of prod builds by the
@@ -830,6 +841,33 @@ export function NewInspectionForm({
           />
         )}
       </dialog>
+
+      {inspectionId && (
+        <dialog ref={confirmSaveDialogRef} className="dialog-panel">
+          <div className="stack">
+            <p>Confirma as alterações nos dados desta inspeção?</p>
+            <div className="stack-row">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => confirmSaveDialogRef.current?.close()}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  confirmSaveDialogRef.current?.close();
+                  formRef.current?.requestSubmit();
+                }}
+              >
+                Confirmar alterações
+              </button>
+            </div>
+          </div>
+        </dialog>
+      )}
 
       {state.status === "error" && (
         <p role="alert" className="error-text">

@@ -11,8 +11,9 @@ vi.mock("./actions", () => ({
   searchStandContactsAction: vi.fn(async () => []),
 }));
 
+const updateInspectionAction = vi.fn(async () => ({ status: "idle" }));
 vi.mock("../[id]/editar/actions", () => ({
-  updateInspectionAction: vi.fn(async () => ({ status: "idle" })),
+  updateInspectionAction: (...args: Parameters<typeof updateInspectionAction>) => updateInspectionAction(...args),
 }));
 
 describe("NewInspectionForm", () => {
@@ -346,5 +347,31 @@ describe("NewInspectionForm in edit mode", () => {
     fireEvent.click(screen.getByRole("button", { name: /confirmar remo/i }));
 
     expect(document.querySelector('input[name="equipamentosRemovidos"]')).toHaveValue("equip-1");
+  });
+
+  it("asks for confirmation before saving, and only submits after confirming (regression: accidental scroll-tap on Guardar shouldn't save)", async () => {
+    updateInspectionAction.mockClear();
+    render(
+      <NewInspectionForm
+        inspectionId="insp-1"
+        initialData={{
+          nomeSolicitante: "Cliente Teste",
+          matricula: "AA-11-BB",
+          marca: "Toyota",
+          modelo: "Corolla",
+          quilometragem: "50000",
+        }}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("tab", { name: "Equipamentos" }));
+    fireEvent.click(screen.getByRole("button", { name: "Guardar alterações" }));
+
+    expect(screen.getByText("Confirma as alterações nos dados desta inspeção?")).toBeVisible();
+    expect(updateInspectionAction).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar alterações" }));
+
+    await waitFor(() => expect(updateInspectionAction).toHaveBeenCalled());
   });
 });

@@ -186,6 +186,18 @@ Mudanças aplicadas, todas reaproveitando tokens já existentes em `DESIGN.md`/`
 
 273/273 testes, `tsc` limpo (confirmado depois de cada mudança). Nenhuma migration nova. Doc/spec formal não foi escrita pra esta rodada — passada iterativa direto no código, por pedido explícito do usuário de manter o custo baixo.
 
+## Remoção da duplicação Identificação/Histórico ✅ completo (2026-08-10), aguardando merge
+
+Achado durante teste ao vivo do usuário (não é uma das 9 fases originais): o formulário "Nova Inspeção" já coletava marca/modelo/cor/VIN/matrícula/etc. e quilometragem/histórico de manutenção/indícios de adulteração/etc., e o checklist (grupo `ordem=1`, subcategorias "Identificação"/"Histórico") pedia os mesmos 22 dados de novo — 4 deles do tipo `escolha` pontuando indevidamente na nota geral (usuário confirmou que só "Equipamentos" deveria contar nota). Desenhado via `brainstorming` → `writing-plans` → `subagent-driven-development` (8 tasks, cada uma com implementer + revisor + fix loop). Design: `docs/superpowers/specs/2026-08-10-remocao-duplicacao-identificacao-historico-design.md`, plano: `docs/superpowers/plans/2026-08-10-remocao-duplicacao-identificacao-historico.md`.
+
+**Solução:** os 22 itens saem do checklist (migration `00047`, delete em duas etapas — respostas antes dos templates, sem `on delete cascade`). Correção pós-criação reaproveita o próprio formulário `NewInspectionForm` em modo edição (`inspectionId`/`initialData`/`initialEquipamentosPorCategoria`), nova rota `/inspections/[id]/editar`, nova RPC `update_inspection` (migration `00048`, espelha `create_inspection`, reconcilia equipamentos por id) e `updateInspectionAction` (grava auditoria quando é admin). Reconciliação de equipamento pede confirmação antes de remover um item já selecionado (evita perder foto por engano).
+
+**Dois bugs reais de RLS encontrados e corrigidos no processo, mesma classe em duas tabelas irmãs:** `equipamento_inspecao` não tinha policy de UPDATE/DELETE (migration `00048`) e `equipamento_fotos` também não (achado só na revisão final whole-branch, migration `00049`) — sem elas, editar/remover equipamento ou trocar foto falhava silenciosamente sob RLS (RPC retornava sucesso, mas a linha não mudava). Outro achado real: o diálogo de confirmação de remoção, ao ser adicionado incondicionalmente em todo item de equipamento (Task 5), quebrou 2 testes num arquivo que a Task 5 nem tocava — só apareceu quando a Task 6 rodou a suíte completa (corrigido gating o `<dialog>` atrás de `initial`).
+
+**Limpeza identificada, não aplicada ainda:** `parseEquipamentos`/`isEquipamentoValido`/`buildPhotoPath` (~35 linhas) estão duplicadas quase verbatim entre `app/(app)/inspections/new/actions.ts` (criação) e `app/(app)/inspections/[id]/editar/actions.ts` (edição, novo nesta rodada) — achado pelo `/ponytail:ponytail` depois do merge das tasks. Dois call sites reais agora, não é abstração prematura extrair pra um `lib/inspection/equipamento-form.ts` compartilhado. Não bloqueia, fica como próximo passo opcional.
+
+284/284 testes, `tsc` limpo. Três migrations novas (`00047`, `00048`, `00049`) ainda precisam ser aplicadas manualmente no Supabase, mesmo processo de sempre. Branch `worktree-remocao-duplicacao-identificacao-historico` implementada, revisada — merge em `main` pendente.
+
 ## Fase 6 — Relatório final
 
 RF-43 a RF-53, RNF-13.

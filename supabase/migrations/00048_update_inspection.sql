@@ -119,3 +119,15 @@ begin
   end loop;
 end;
 $$;
+
+-- RLS policies for equipamento_inspecao UPDATE and DELETE (required by update_inspection RPC).
+-- These policies were missing from 00039_equipamentos_inspecao.sql, causing silent no-op on
+-- equipamento reconciliation for non-admin users (RLS default-deny without matching policy).
+create policy equipamento_inspecao_update on public.equipamento_inspecao
+  for update to authenticated
+  using (public.is_admin() or public.owns_editable_inspection(inspection_id))
+  with check (public.is_admin() or public.owns_editable_inspection(inspection_id));
+
+create policy equipamento_inspecao_delete on public.equipamento_inspecao
+  for delete to authenticated
+  using (public.is_admin() or public.owns_editable_inspection(inspection_id));

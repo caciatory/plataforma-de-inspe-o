@@ -81,6 +81,36 @@ begin
     raise exception 'FALHOU: esperava 2 equipamentos (1 atualizado + 1 novo), achou %', v_count;
   end if;
   raise notice 'OK: update_inspection insere equipamento novo junto com a atualizacao';
+
+  -- Test DELETE branch (p_equipamentos_removidos): insert a third item, then delete it.
+  insert into public.equipamento_inspecao (id, inspection_id, categoria, nome_equipamento, condicao, ordem)
+  values ('33333333-3333-3333-3333-333333333333', v_inspection_id, 'interior', 'Tapetes', 'bom', 2);
+
+  perform public.update_inspection(
+    p_inspection_id => v_inspection_id,
+    p_tipo_cliente => 'particular'::public.tipo_cliente,
+    p_objetivo => 'compra'::public.objetivo_inspecao,
+    p_matricula => 'AA-00-048',
+    p_marca => 'Marca Corrigida',
+    p_modelo => 'Modelo Original',
+    p_nome_solicitante => 'Cliente Original',
+    p_quilometragem => 12000,
+    p_equipamentos => jsonb_build_array(
+      jsonb_build_object('id', '22222222-2222-2222-2222-222222222222', 'categoria', 'interior', 'nome_equipamento', 'Ar condicionado', 'condicao', 'atencao', 'comentario', 'Fraco', 'ordem', 0)
+    ),
+    p_equipamentos_removidos => jsonb_build_array('33333333-3333-3333-3333-333333333333')
+  );
+
+  select count(*) into v_count from public.equipamento_inspecao where inspection_id = v_inspection_id;
+  if v_count <> 2 then
+    raise exception 'FALHOU: esperava 2 equipamentos apos delecao (3 - 1 removido), achou %', v_count;
+  end if;
+
+  select count(*) into v_count from public.equipamento_inspecao where id = '33333333-3333-3333-3333-333333333333';
+  if v_count <> 0 then
+    raise exception 'FALHOU: equipamento removido ainda existe na DB';
+  end if;
+  raise notice 'OK: update_inspection deleta equipamento por id em p_equipamentos_removidos';
 end $$;
 
 reset role;

@@ -1,5 +1,6 @@
 // app/(app)/inspections/[id]/checklist/[groupId]/page.tsx
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { groupItemsBySubcategoria, SEM_SUBCATEGORIA_PARAM } from "@/lib/checklist/progress";
 import {
@@ -34,6 +35,15 @@ export default async function ChecklistGroupPage({
     .single();
 
   if (!group) notFound();
+
+  const { data: firstActiveGroup } = await supabase
+    .from("checklist_group_templates")
+    .select("id")
+    .eq("ativo", true)
+    .order("ordem")
+    .limit(1)
+    .maybeSingle();
+  const isFirstGroup = firstActiveGroup?.id === groupId;
 
   const { data: inspection } = await supabase.from("inspections").select("status").eq("id", id).single();
   const currentUser = await getCurrentUser();
@@ -146,6 +156,14 @@ export default async function ChecklistGroupPage({
 
   return (
     <div className="stack">
+      {isFirstGroup && editable && (
+        <div className="panel page-header">
+          <p className="hint">Marca, modelo, cor, quilometragem e demais dados básicos já foram registados na criação da inspeção.</p>
+          <Link href={`/inspections/${id}/editar`} className="btn btn-secondary">
+            Editar dados básicos
+          </Link>
+        </div>
+      )}
       <h1>{group.nome}</h1>
       <h2>
         {activeSubcategoria ?? "Sem subcategoria"} — {pendentes} pendente{pendentes === 1 ? "" : "s"} de {total}

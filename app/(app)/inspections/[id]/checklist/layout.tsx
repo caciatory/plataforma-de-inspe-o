@@ -51,11 +51,6 @@ export default async function ChecklistLayout({
         <Link href={`/inspections/${id}`} className="checklist-nav__link checklist-nav__back">
           ← Voltar ao resumo
         </Link>
-        {editable && (
-          <Link href={`/inspections/${id}/editar`} className="checklist-nav__link">
-            Editar dados básicos
-          </Link>
-        )}
         <h2 className="checklist-nav__title">
           Checklist
           {!editable && (

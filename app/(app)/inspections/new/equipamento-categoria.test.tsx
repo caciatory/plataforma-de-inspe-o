@@ -239,3 +239,70 @@ describe("EquipamentoCategoria", () => {
     expect(screen.getByText("✓ 1/2 verificados")).toBeInTheDocument();
   });
 });
+
+describe("EquipamentoCategoria in edit mode", () => {
+  const initial = {
+    "Ar condicionado": { id: "equip-1", condicao: "bom" as const, comentario: null, foto1Url: null, foto2Url: null },
+  };
+
+  it("pre-checks and pre-fills condição for an item present in initialSelecionados", () => {
+    render(
+      <EquipamentoCategoria
+        categoriaId="conforto"
+        label="Conforto"
+        itensPreDefinidos={["Ar condicionado"]}
+        itensPersonalizados={[]}
+        onAddPersonalizado={() => {}}
+        initialSelecionados={initial}
+      />
+    );
+
+    expect(screen.getByRole("checkbox", { name: "Ar condicionado" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: /Bom \(Ar condicionado\)/ })).toBeChecked();
+  });
+
+  it("asks for confirmation before unchecking a previously-selected item, and only calls onRemovido after confirming", () => {
+    const onRemovido = vi.fn();
+    render(
+      <EquipamentoCategoria
+        categoriaId="conforto"
+        label="Conforto"
+        itensPreDefinidos={["Ar condicionado"]}
+        itensPersonalizados={[]}
+        onAddPersonalizado={() => {}}
+        initialSelecionados={initial}
+        onRemovido={onRemovido}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Ar condicionado" }));
+
+    // Still checked — unchecking is pending confirmation, not applied yet.
+    expect(screen.getByRole("checkbox", { name: "Ar condicionado" })).toBeChecked();
+    expect(onRemovido).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: /confirmar remo/i }));
+
+    expect(screen.getByRole("checkbox", { name: "Ar condicionado" })).not.toBeChecked();
+    expect(onRemovido).toHaveBeenCalledWith("equip-1");
+  });
+
+  it("does not show a confirmation dialog for a freshly-checked item with no initial data", () => {
+    render(
+      <EquipamentoCategoria
+        categoriaId="conforto"
+        label="Conforto"
+        itensPreDefinidos={["Ar condicionado"]}
+        itensPersonalizados={[]}
+        onAddPersonalizado={() => {}}
+      />
+    );
+
+    const checkbox = screen.getByRole("checkbox", { name: "Ar condicionado" });
+    fireEvent.click(checkbox);
+    fireEvent.click(checkbox);
+
+    expect(checkbox).not.toBeChecked();
+    expect(screen.queryByRole("button", { name: /confirmar remo/i })).not.toBeInTheDocument();
+  });
+});

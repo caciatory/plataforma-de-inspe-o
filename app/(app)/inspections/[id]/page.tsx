@@ -36,11 +36,10 @@ export default async function InspectionSummaryPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data: inspection } = await supabase
-    .from("inspections")
-    .select("*, vehicle_data(*), client_data(*)")
-    .eq("id", id)
-    .single();
+  const [{ data: inspection }, { data: score }] = await Promise.all([
+    supabase.from("inspections").select("*, vehicle_data(*), client_data(*), users(nome)").eq("id", id).single(),
+    supabase.from("inspection_score").select("nota_geral, classificacao").eq("inspection_id", id).maybeSingle(),
+  ]);
 
   if (!inspection) notFound();
 
@@ -127,8 +126,15 @@ export default async function InspectionSummaryPage({
             <dt className="label">Veículo</dt>
             <dd>
               {inspection.vehicle_data?.marca} {inspection.vehicle_data?.modelo}
+              {inspection.vehicle_data?.ano_fabrico ? ` (${inspection.vehicle_data.ano_fabrico})` : ""}
             </dd>
           </div>
+          {inspection.vehicle_data?.cor && (
+            <div className="summary-grid__row">
+              <dt className="label">Cor</dt>
+              <dd>{inspection.vehicle_data.cor}</dd>
+            </div>
+          )}
           <div className="summary-grid__row">
             <dt className="label">Cliente</dt>
             <dd>
@@ -139,6 +145,28 @@ export default async function InspectionSummaryPage({
             <dt className="label">Objetivo</dt>
             <dd>{capitalize(inspection.objetivo)}</dd>
           </div>
+          <div className="summary-grid__row">
+            <dt className="label">Técnico</dt>
+            <dd>{inspection.users?.nome ?? "—"}</dd>
+          </div>
+          <div className="summary-grid__row">
+            <dt className="label">Data de abertura</dt>
+            <dd>{new Date(inspection.data_abertura).toLocaleDateString("pt-PT")}</dd>
+          </div>
+          {inspection.data_finalizacao && (
+            <div className="summary-grid__row">
+              <dt className="label">Data de finalização</dt>
+              <dd>{new Date(inspection.data_finalizacao).toLocaleDateString("pt-PT")}</dd>
+            </div>
+          )}
+          {score && (
+            <div className="summary-grid__row">
+              <dt className="label">Nota</dt>
+              <dd>
+                {score.nota_geral.toFixed(1)} ({score.classificacao})
+              </dd>
+            </div>
+          )}
           <div className="summary-grid__row">
             <dt className="label">Estado</dt>
             <dd>

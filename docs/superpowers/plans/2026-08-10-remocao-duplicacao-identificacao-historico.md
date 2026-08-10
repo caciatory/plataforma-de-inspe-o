@@ -869,7 +869,61 @@ export function NewInspectionForm({
 } = {}) {
 ```
 
-Every `useState("")` for a field present in `InspectionFormInitialData` becomes `useState(initialData.<field> ?? "")` (and the two enum-typed ones keep their existing `"" | "sim" | "nao"` union, defaulting the same way — e.g. `useState(initialData.tipoCliente ?? "particular")`, `useState(initialData.matricula ?? "")`, ... one line changed per field, no other line touched). Do this for all 38 fields listed in the type above.
+Every `useState` initializer for a field present in `InspectionFormInitialData` (39 fields) changes to read from `initialData` first, falling back to the same default the line already had — no other part of any of these lines changes. The complete set of edits, in the order the fields already appear in the file:
+
+```tsx
+const [tipoCliente, setTipoCliente] = useState<TipoCliente>(initialData.tipoCliente ?? "particular");
+const [objetivo, setObjetivo] = useState<Objetivo>(initialData.objetivo ?? "compra");
+const [nomeSolicitante, setNomeSolicitante] = useState(initialData.nomeSolicitante ?? "");
+const [contacto, setContacto] = useState(initialData.contacto ?? "");
+const [email, setEmail] = useState(initialData.email ?? "");
+const [responsavelPresente, setResponsavelPresente] = useState(initialData.responsavelPresente ?? "");
+const [matricula, setMatricula] = useState(initialData.matricula ?? "");
+const [marca, setMarca] = useState(initialData.marca ?? "");
+const [modelo, setModelo] = useState(initialData.modelo ?? "");
+const [quilometragem, setQuilometragem] = useState(initialData.quilometragem ?? "");
+const [versaoTrim, setVersaoTrim] = useState(initialData.versaoTrim ?? "");
+const [anoFabrico, setAnoFabrico] = useState(initialData.anoFabrico ?? "");
+const [anoModelo, setAnoModelo] = useState(initialData.anoModelo ?? "");
+const [cor, setCor] = useState(initialData.cor ?? "");
+const [vin, setVin] = useState(initialData.vin ?? "");
+const [numeroMotor, setNumeroMotor] = useState(initialData.numeroMotor ?? "");
+const [numeroPortas, setNumeroPortas] = useState(initialData.numeroPortas ?? "");
+const [combustivel, setCombustivel] = useState(initialData.combustivel ?? "");
+const [caixaVelocidades, setCaixaVelocidades] = useState(initialData.caixaVelocidades ?? "");
+const [tracao, setTracao] = useState(initialData.tracao ?? "");
+const [potenciaCv, setPotenciaCv] = useState(initialData.potenciaCv ?? "");
+const [torqueNm, setTorqueNm] = useState(initialData.torqueNm ?? "");
+const [indiciosAdulteracaoKm, setIndiciosAdulteracaoKm] = useState(initialData.indiciosAdulteracaoKm ?? "");
+const [numeroProprietariosAnteriores, setNumeroProprietariosAnteriores] = useState(
+  initialData.numeroProprietariosAnteriores ?? ""
+);
+const [registoAcidentesAnteriores, setRegistoAcidentesAnteriores] = useState(
+  initialData.registoAcidentesAnteriores ?? ""
+);
+const [historicoManutencao, setHistoricoManutencao] = useState(initialData.historicoManutencao ?? "");
+const [inspecoesPeriodicasIpoNotas, setInspecoesPeriodicasIpoNotas] = useState(
+  initialData.inspecoesPeriodicasIpoNotas ?? ""
+);
+const [inspecoesPeriodicasIpoData, setInspecoesPeriodicasIpoData] = useState(
+  initialData.inspecoesPeriodicasIpoData ?? ""
+);
+const [situacaoFiscalRegular, setSituacaoFiscalRegular] = useState(initialData.situacaoFiscalRegular ?? "");
+const [indiciosAdulteracaoPresentes, setIndiciosAdulteracaoPresentes] = useState<"" | "sim" | "nao">(
+  initialData.indiciosAdulteracaoPresentes ?? ""
+);
+const [veiculoImportado, setVeiculoImportado] = useState<"" | "sim" | "nao">(initialData.veiculoImportado ?? "");
+const [paisOrigem, setPaisOrigem] = useState(initialData.paisOrigem ?? "");
+const [matriculaOrigem, setMatriculaOrigem] = useState(initialData.matriculaOrigem ?? "");
+const [dataImportacao, setDataImportacao] = useState(initialData.dataImportacao ?? "");
+const [possuiCoc, setPossuiCoc] = useState<"" | "sim" | "nao">(initialData.possuiCoc ?? "");
+const [isencaoIsvAplicada, setIsencaoIsvAplicada] = useState<"" | "sim" | "nao">(initialData.isencaoIsvAplicada ?? "");
+const [numeroDav, setNumeroDav] = useState(initialData.numeroDav ?? "");
+const [dataPrimeiraMatricula, setDataPrimeiraMatricula] = useState(initialData.dataPrimeiraMatricula ?? "");
+const [valorBaseIucAnual, setValorBaseIucAnual] = useState(initialData.valorBaseIucAnual ?? "");
+```
+
+`activeTab`, `personalizadosPorCategoria`, `categoriaAbrindoDialog`, `state`, and the two `useRef`s are untouched — none of them are in `InspectionFormInitialData`.
 
 Then swap the action binding:
 

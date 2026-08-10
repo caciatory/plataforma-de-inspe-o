@@ -11,6 +11,10 @@ vi.mock("./actions", () => ({
   searchStandContactsAction: vi.fn(async () => []),
 }));
 
+vi.mock("../[id]/editar/actions", () => ({
+  updateInspectionAction: vi.fn(async () => ({ status: "idle" })),
+}));
+
 describe("NewInspectionForm", () => {
   it("locks objetivo to venda when tipoCliente is stand", () => {
     render(<NewInspectionForm />);
@@ -294,5 +298,31 @@ describe("NewInspectionForm", () => {
 
     expect(screen.getByLabelText("Data da primeira matrícula")).toBeVisible();
     expect(screen.getByLabelText("Valor base IUC anual (€)")).toBeVisible();
+  });
+});
+
+describe("NewInspectionForm in edit mode", () => {
+  it("pre-fills fields from initialData instead of starting blank", () => {
+    render(
+      <NewInspectionForm
+        inspectionId="insp-1"
+        initialData={{ matricula: "AA-11-BB", marca: "Toyota", modelo: "Corolla", quilometragem: "50000" }}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("tab", { name: "Identificação" }));
+
+    expect(screen.getByLabelText("Matrícula")).toHaveValue("AA-11-BB");
+    expect(screen.getByLabelText("Marca")).toHaveValue("Toyota");
+    expect(screen.getByLabelText("Modelo")).toHaveValue("Corolla");
+  });
+
+  it("submits via updateInspectionAction, not createInspectionAction, when inspectionId is set", () => {
+    render(<NewInspectionForm inspectionId="insp-1" initialData={{ matricula: "AA-11-BB" }} />);
+
+    // The form's action prop is bound to whichever action useActionState received;
+    // asserting a hidden inspectionId field is present is the observable proxy for
+    // "this render is in edit mode" without reaching into React internals.
+    expect(document.querySelector('input[name="inspectionId"]')).toHaveValue("insp-1");
   });
 });

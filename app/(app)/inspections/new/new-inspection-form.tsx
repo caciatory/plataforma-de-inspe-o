@@ -9,6 +9,7 @@ import {
   type Objetivo,
 } from "@/lib/inspection/schema";
 import { createInspectionAction, type CreateInspectionState } from "./actions";
+import { updateInspectionAction, type UpdateInspectionState } from "../[id]/editar/actions";
 import { StandAutocomplete, type StandContact } from "./stand-autocomplete";
 import { TAB_IDS, resolveTabForField, type TabId } from "@/lib/inspection/tabs";
 import { TextareaWithCounter } from "./textarea-with-counter";
@@ -18,6 +19,48 @@ import { EQUIPAMENTO_CATEGORIAS } from "@/lib/equipamento/catalog";
 import { SimNaoRadio } from "./sim-nao-radio";
 import { PaisOrigemSelect } from "./pais-origem-select";
 import { ValorMoedaInput } from "./valor-moeda-input";
+
+export type InspectionFormInitialData = Partial<{
+  tipoCliente: TipoCliente;
+  objetivo: Objetivo;
+  nomeSolicitante: string;
+  contacto: string;
+  email: string;
+  responsavelPresente: string;
+  matricula: string;
+  marca: string;
+  modelo: string;
+  quilometragem: string;
+  versaoTrim: string;
+  anoFabrico: string;
+  anoModelo: string;
+  cor: string;
+  vin: string;
+  numeroMotor: string;
+  numeroPortas: string;
+  combustivel: string;
+  caixaVelocidades: string;
+  tracao: string;
+  potenciaCv: string;
+  torqueNm: string;
+  indiciosAdulteracaoKm: string;
+  numeroProprietariosAnteriores: string;
+  registoAcidentesAnteriores: string;
+  historicoManutencao: string;
+  inspecoesPeriodicasIpoNotas: string;
+  inspecoesPeriodicasIpoData: string;
+  situacaoFiscalRegular: string;
+  indiciosAdulteracaoPresentes: "" | "sim" | "nao";
+  veiculoImportado: "" | "sim" | "nao";
+  paisOrigem: string;
+  matriculaOrigem: string;
+  dataImportacao: string;
+  possuiCoc: "" | "sim" | "nao";
+  isencaoIsvAplicada: "" | "sim" | "nao";
+  numeroDav: string;
+  dataPrimeiraMatricula: string;
+  valorBaseIucAnual: string;
+}>;
 
 const initialState: CreateInspectionState = { status: "idle" };
 
@@ -31,57 +74,75 @@ const TAB_LABELS: Record<TabId, string> = {
 
 export function NewInspectionForm({
   sugestoesPorCategoria = {},
+  inspectionId,
+  initialData = {},
 }: {
   // Fix 2 (final-review): custom "Outros Equipamentos" items entered by any
   // técnico become suggestions for everyone (§4.2/§5 of the design spec) —
   // seeded here as the initial value of personalizadosPorCategoria, reusing
   // the exact rendering path itensPersonalizados already has.
   sugestoesPorCategoria?: Record<string, string[]>;
+  inspectionId?: string;
+  initialData?: InspectionFormInitialData;
 } = {}) {
   const [activeTab, setActiveTab] = useState<TabId>("cliente");
-  const [tipoCliente, setTipoCliente] = useState<TipoCliente>("particular");
-  const [objetivo, setObjetivo] = useState<Objetivo>("compra");
-  const [nomeSolicitante, setNomeSolicitante] = useState("");
-  const [contacto, setContacto] = useState("");
-  const [email, setEmail] = useState("");
-  const [responsavelPresente, setResponsavelPresente] = useState("");
-  const [matricula, setMatricula] = useState("");
-  const [marca, setMarca] = useState("");
-  const [modelo, setModelo] = useState("");
-  const [quilometragem, setQuilometragem] = useState("");
-  const [versaoTrim, setVersaoTrim] = useState("");
-  const [anoFabrico, setAnoFabrico] = useState("");
-  const [anoModelo, setAnoModelo] = useState("");
-  const [cor, setCor] = useState("");
-  const [vin, setVin] = useState("");
-  const [numeroMotor, setNumeroMotor] = useState("");
-  const [numeroPortas, setNumeroPortas] = useState("");
-  const [combustivel, setCombustivel] = useState("");
-  const [caixaVelocidades, setCaixaVelocidades] = useState("");
-  const [tracao, setTracao] = useState("");
-  const [potenciaCv, setPotenciaCv] = useState("");
-  const [torqueNm, setTorqueNm] = useState("");
-  const [indiciosAdulteracaoKm, setIndiciosAdulteracaoKm] = useState("");
-  const [numeroProprietariosAnteriores, setNumeroProprietariosAnteriores] = useState("");
-  const [registoAcidentesAnteriores, setRegistoAcidentesAnteriores] = useState("");
-  const [historicoManutencao, setHistoricoManutencao] = useState("");
-  const [inspecoesPeriodicasIpoNotas, setInspecoesPeriodicasIpoNotas] = useState("");
-  const [inspecoesPeriodicasIpoData, setInspecoesPeriodicasIpoData] = useState("");
-  const [situacaoFiscalRegular, setSituacaoFiscalRegular] = useState("");
-  const [indiciosAdulteracaoPresentes, setIndiciosAdulteracaoPresentes] = useState<"" | "sim" | "nao">("");
-  const [veiculoImportado, setVeiculoImportado] = useState<"" | "sim" | "nao">("");
-  const [paisOrigem, setPaisOrigem] = useState("");
-  const [matriculaOrigem, setMatriculaOrigem] = useState("");
-  const [dataImportacao, setDataImportacao] = useState("");
-  const [possuiCoc, setPossuiCoc] = useState<"" | "sim" | "nao">("");
-  const [isencaoIsvAplicada, setIsencaoIsvAplicada] = useState<"" | "sim" | "nao">("");
-  const [numeroDav, setNumeroDav] = useState("");
-  const [dataPrimeiraMatricula, setDataPrimeiraMatricula] = useState("");
-  const [valorBaseIucAnual, setValorBaseIucAnual] = useState("");
+  const [tipoCliente, setTipoCliente] = useState<TipoCliente>(initialData.tipoCliente ?? "particular");
+  const [objetivo, setObjetivo] = useState<Objetivo>(initialData.objetivo ?? "compra");
+  const [nomeSolicitante, setNomeSolicitante] = useState(initialData.nomeSolicitante ?? "");
+  const [contacto, setContacto] = useState(initialData.contacto ?? "");
+  const [email, setEmail] = useState(initialData.email ?? "");
+  const [responsavelPresente, setResponsavelPresente] = useState(initialData.responsavelPresente ?? "");
+  const [matricula, setMatricula] = useState(initialData.matricula ?? "");
+  const [marca, setMarca] = useState(initialData.marca ?? "");
+  const [modelo, setModelo] = useState(initialData.modelo ?? "");
+  const [quilometragem, setQuilometragem] = useState(initialData.quilometragem ?? "");
+  const [versaoTrim, setVersaoTrim] = useState(initialData.versaoTrim ?? "");
+  const [anoFabrico, setAnoFabrico] = useState(initialData.anoFabrico ?? "");
+  const [anoModelo, setAnoModelo] = useState(initialData.anoModelo ?? "");
+  const [cor, setCor] = useState(initialData.cor ?? "");
+  const [vin, setVin] = useState(initialData.vin ?? "");
+  const [numeroMotor, setNumeroMotor] = useState(initialData.numeroMotor ?? "");
+  const [numeroPortas, setNumeroPortas] = useState(initialData.numeroPortas ?? "");
+  const [combustivel, setCombustivel] = useState(initialData.combustivel ?? "");
+  const [caixaVelocidades, setCaixaVelocidades] = useState(initialData.caixaVelocidades ?? "");
+  const [tracao, setTracao] = useState(initialData.tracao ?? "");
+  const [potenciaCv, setPotenciaCv] = useState(initialData.potenciaCv ?? "");
+  const [torqueNm, setTorqueNm] = useState(initialData.torqueNm ?? "");
+  const [indiciosAdulteracaoKm, setIndiciosAdulteracaoKm] = useState(initialData.indiciosAdulteracaoKm ?? "");
+  const [numeroProprietariosAnteriores, setNumeroProprietariosAnteriores] = useState(
+    initialData.numeroProprietariosAnteriores ?? ""
+  );
+  const [registoAcidentesAnteriores, setRegistoAcidentesAnteriores] = useState(
+    initialData.registoAcidentesAnteriores ?? ""
+  );
+  const [historicoManutencao, setHistoricoManutencao] = useState(initialData.historicoManutencao ?? "");
+  const [inspecoesPeriodicasIpoNotas, setInspecoesPeriodicasIpoNotas] = useState(
+    initialData.inspecoesPeriodicasIpoNotas ?? ""
+  );
+  const [inspecoesPeriodicasIpoData, setInspecoesPeriodicasIpoData] = useState(
+    initialData.inspecoesPeriodicasIpoData ?? ""
+  );
+  const [situacaoFiscalRegular, setSituacaoFiscalRegular] = useState(initialData.situacaoFiscalRegular ?? "");
+  const [indiciosAdulteracaoPresentes, setIndiciosAdulteracaoPresentes] = useState<"" | "sim" | "nao">(
+    initialData.indiciosAdulteracaoPresentes ?? ""
+  );
+  const [veiculoImportado, setVeiculoImportado] = useState<"" | "sim" | "nao">(initialData.veiculoImportado ?? "");
+  const [paisOrigem, setPaisOrigem] = useState(initialData.paisOrigem ?? "");
+  const [matriculaOrigem, setMatriculaOrigem] = useState(initialData.matriculaOrigem ?? "");
+  const [dataImportacao, setDataImportacao] = useState(initialData.dataImportacao ?? "");
+  const [possuiCoc, setPossuiCoc] = useState<"" | "sim" | "nao">(initialData.possuiCoc ?? "");
+  const [isencaoIsvAplicada, setIsencaoIsvAplicada] = useState<"" | "sim" | "nao">(initialData.isencaoIsvAplicada ?? "");
+  const [numeroDav, setNumeroDav] = useState(initialData.numeroDav ?? "");
+  const [dataPrimeiraMatricula, setDataPrimeiraMatricula] = useState(initialData.dataPrimeiraMatricula ?? "");
+  const [valorBaseIucAnual, setValorBaseIucAnual] = useState(initialData.valorBaseIucAnual ?? "");
   const [personalizadosPorCategoria, setPersonalizadosPorCategoria] =
     useState<Record<string, string[]>>(sugestoesPorCategoria);
   const [categoriaAbrindoDialog, setCategoriaAbrindoDialog] = useState<{ id: string; label: string } | null>(null);
-  const [state, formAction] = useActionState(createInspectionAction, initialState);
+  const initialActionState: CreateInspectionState | UpdateInspectionState = { status: "idle" };
+  const [state, formAction] = useActionState(
+    inspectionId ? updateInspectionAction : createInspectionAction,
+    initialActionState
+  );
   const formRef = useRef<HTMLFormElement>(null);
   const personalizadoDialogRef = useRef<HTMLDialogElement>(null);
 
@@ -189,11 +250,12 @@ export function NewInspectionForm({
 
   return (
     <form ref={formRef} action={formAction} className="stack">
-      {process.env.NODE_ENV !== "production" && (
+      {!inspectionId && process.env.NODE_ENV !== "production" && (
         <button type="button" className="btn btn-secondary" onClick={handleFillTestData}>
           Preencher com dados de teste
         </button>
       )}
+      {inspectionId && <input type="hidden" name="inspectionId" value={inspectionId} />}
       <div className="form-tabs" role="tablist">
         {TAB_IDS.map((tab) => (
           <button
@@ -764,7 +826,7 @@ export function NewInspectionForm({
       )}
       {activeTab === TAB_IDS[TAB_IDS.length - 1] ? (
         <button type="submit" className="btn btn-primary" onClick={handleGuardarClick}>
-          Guardar
+          {inspectionId ? "Guardar alterações" : "Guardar"}
         </button>
       ) : (
         <button type="button" className="btn btn-primary" onClick={handleNext}>

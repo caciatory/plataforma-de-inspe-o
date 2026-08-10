@@ -89,19 +89,21 @@ function EquipamentoItem({
       <input type="hidden" name={`${prefix}__personalizado`} value={personalizado ? "1" : "0"} />
       {initial && <input type="hidden" name={`${prefix}__id`} value={initial.id} />}
 
-      <dialog ref={confirmDialogRef} className="dialog-panel">
-        <div className="stack">
-          <p>Remover "{nome}"? Isto apaga as fotos anexadas.</p>
-          <div className="stack-row">
-            <button type="button" className="btn btn-secondary" onClick={() => confirmDialogRef.current?.close()}>
-              Cancelar
-            </button>
-            <button type="button" className="btn btn-danger" onClick={handleConfirmRemocao}>
-              Confirmar remoção
-            </button>
+      {initial && (
+        <dialog ref={confirmDialogRef} className="dialog-panel">
+          <div className="stack">
+            <p>Remover "{nome}"? Isto apaga as fotos anexadas.</p>
+            <div className="stack-row">
+              <button type="button" className="btn btn-secondary" onClick={() => confirmDialogRef.current?.close()}>
+                Cancelar
+              </button>
+              <button type="button" className="btn btn-danger" onClick={handleConfirmRemocao}>
+                Confirmar remoção
+              </button>
+            </div>
           </div>
-        </div>
-      </dialog>
+        </dialog>
+      )}
 
       <div hidden={compactado}>
         <label className="equip-item__check">

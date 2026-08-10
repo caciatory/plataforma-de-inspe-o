@@ -169,6 +169,12 @@ export default async function InspectionSummaryPage({
           Ir para a checklist
         </Link>
 
+        {editable && (
+          <Link href={`/inspections/${id}/editar`} className="btn btn-secondary summary-cta">
+            Editar dados básicos
+          </Link>
+        )}
+
         {editable && currentUser?.role === "tecnico" && (
           <SubmitInspectionPanel
             inspectionId={id}

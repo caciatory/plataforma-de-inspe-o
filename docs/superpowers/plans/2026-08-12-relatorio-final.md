@@ -42,8 +42,8 @@
 **Modificados:**
 - `app/(app)/inspections/[id]/actions.ts` — `approveInspectionAction` passa a gerar `codigo_certificado`/`certificado_emitido_em`.
 - `app/(app)/inspections/[id]/actions.test.ts` — novo assert na suíte de `approveInspectionAction`.
-- `lib/inspection/admin-list.ts` — `AdminInspectionRow` ganha `parceiroNome` (usado só para decidir se mostra "editar" vs "adicionar" no botão — não é exibido na tabela).
-- `lib/inspection/admin-list.test.ts` — cobre o campo novo.
+- `lib/inspection/admin-list.ts` — `AdminInspectionRow` ganha `parceiroNome`/`parceiroLogoUrl`/`parceiroTelefone` (não exibidos na tabela — só pré-preenchem o diálogo da Task 4 sem risco de sobrescrever com vazio).
+- `lib/inspection/admin-list.test.ts` — cobre os 3 campos novos.
 - `app/(app)/admin/page.tsx` — inclui `parceiro_nome, parceiro_logo_url, parceiro_telefone` no select.
 - `app/(app)/admin/inspections-table.tsx` — botão "Fotos & Parceiro" (só quando `status === 'aprovada'`) + monta o diálogo.
 - `app/(app)/inspections/[id]/page.tsx` — botão "Gerar relatório" habilitado e virando `<Link>` quando `status === 'aprovada'`.
@@ -571,9 +571,9 @@ git commit -m "feat: agregacao pura de grupos/itens do relatorio final"
 - Consumes: `Task 1` colunas `parceiro_*`; padrão de upload de `app/(app)/inspections/[id]/checklist/[groupId]/[itemId]/photo-manager.tsx` (bucket `fotos-inspecao`, `supabase.storage.from("fotos-inspecao").upload/getPublicUrl`).
 - Produces: `saveParceiroAction(inspectionId, formData) => Promise<{error?: string}>`, `attachCapaPhotoAction(inspectionId, url) => Promise<{error?: string; photoId?: string}>`, `deleteCapaPhotoAction(photoId) => Promise<{error?: string}>` — consumidos só pelo diálogo desta task.
 
-- [ ] **Step 1: Expor `status` já existe em `AdminInspectionRow` — adicionar só `parceiroNome`**
+- [ ] **Step 1: Expor `status` já existe em `AdminInspectionRow` — adicionar os 3 campos de parceiro**
 
-`lib/inspection/admin-list.ts` — trocar a assinatura e o corpo:
+`lib/inspection/admin-list.ts` — trocar a assinatura e o corpo. Os 3 campos (não só o nome) precisam ir até a linha da tabela: o diálogo da Task 4 reabre a cada carregamento de página, e `saveParceiroAction` sempre escreve os 3 campos de uma vez — se só `parceiroNome` chegasse pré-preenchido, salvar depois de editar só o nome apagaria silenciosamente um logo/telefone já salvo.
 
 ```ts
 export type AdminInspectionRow = {
@@ -588,6 +588,8 @@ export type AdminInspectionRow = {
   dataAbertura: string;
   atrasada: boolean;
   parceiroNome: string | null;
+  parceiroLogoUrl: string | null;
+  parceiroTelefone: string | null;
 };
 
 export function buildAdminInspectionRows(
@@ -598,6 +600,8 @@ export function buildAdminInspectionRows(
     data_abertura: string;
     atrasada: boolean;
     parceiro_nome: string | null;
+    parceiro_logo_url: string | null;
+    parceiro_telefone: string | null;
     vehicle_data: { matricula: string; marca: string; modelo: string } | null;
     users: { nome: string } | null;
   }[],
@@ -619,6 +623,8 @@ export function buildAdminInspectionRows(
       dataAbertura: i.data_abertura,
       atrasada: i.atrasada,
       parceiroNome: i.parceiro_nome,
+      parceiroLogoUrl: i.parceiro_logo_url,
+      parceiroTelefone: i.parceiro_telefone,
     };
   });
 }
@@ -626,16 +632,19 @@ export function buildAdminInspectionRows(
 
 - [ ] **Step 2: Atualizar `lib/inspection/admin-list.test.ts`**
 
-Adicionar `parceiro_nome: null` (e num segundo caso `"Stand Central"`) nos dois objetos de `inspections`, e um teste novo:
+Adicionar `parceiro_nome: null, parceiro_logo_url: null, parceiro_telefone: null` no objeto `insp-1` e `parceiro_nome: "Stand Central", parceiro_logo_url: "https://example.com/logo.png", parceiro_telefone: "351912345678"` no objeto `insp-2` do array `inspections` já existente no topo do arquivo, e um teste novo:
 
 ```ts
-  it("passa parceiroNome adiante, null quando a inspeção não tem parceiro", () => {
+  it("passa os 3 campos de parceiro adiante, null quando a inspeção não tem parceiro", () => {
     const rows = buildAdminInspectionRows(inspections, scores);
     expect(rows[0].parceiroNome).toBeNull();
+    expect(rows[0].parceiroLogoUrl).toBeNull();
+    expect(rows[0].parceiroTelefone).toBeNull();
+    expect(rows[1].parceiroNome).toBe("Stand Central");
+    expect(rows[1].parceiroLogoUrl).toBe("https://example.com/logo.png");
+    expect(rows[1].parceiroTelefone).toBe("351912345678");
   });
 ```
-
-(Adicionar `parceiro_nome: null` no objeto `insp-1` e `parceiro_nome: "Stand Central"` no objeto `insp-2` do array `inspections` já existente no topo do arquivo, para o teste ter os dois casos.)
 
 - [ ] **Step 3: Rodar o teste e confirmar que passa**
 
@@ -1092,7 +1101,7 @@ Em `app/(app)/admin/page.tsx`, incluir os 3 campos novos no select e passá-los 
     supabase
       .from("inspections_with_flags")
       .select(
-        "id, status, tipo_cliente, data_abertura, atrasada, parceiro_nome, vehicle_data(matricula, marca, modelo), users(nome)"
+        "id, status, tipo_cliente, data_abertura, atrasada, parceiro_nome, parceiro_logo_url, parceiro_telefone, vehicle_data(matricula, marca, modelo), users(nome)"
       )
       .order("data_abertura", { ascending: false }),
 ```
@@ -1125,14 +1134,18 @@ Dentro do `<td>` que hoje só tem o link "Ver" (linhas 125-141), adicionar:
                   {r.status === "aprovada" && (
                     <FotosParceiroDialog
                       inspectionId={r.id}
-                      initialParceiro={{ parceiro_nome: r.parceiroNome, parceiro_logo_url: null, parceiro_telefone: null }}
+                      initialParceiro={{
+                        parceiro_nome: r.parceiroNome,
+                        parceiro_logo_url: r.parceiroLogoUrl,
+                        parceiro_telefone: r.parceiroTelefone,
+                      }}
                       initialFotos={[]}
                     />
                   )}
                 </td>
 ```
 
-Nota: `parceiro_logo_url`/`parceiro_telefone`/fotos de capa não estão disponíveis na row da tabela (só `parceiroNome`, adicionado no Step 1) — o diálogo abre com esses campos vazios na primeira vez que é aberto nesta sessão. Isso é aceitável: o admin preenche uma vez por inspeção, e reabrir o diálogo na mesma navegação já mantém o que foi digitado (estado do componente `FotosParceiroDialog` não é resetado entre aberturas). Buscar `parceiro_logo_url`/`parceiro_telefone`/fotos de capa completos ao abrir fica fora de escopo desta task — YAGNI até virar necessidade real relatada pelo usuário.
+Nota: fotos de capa continuam vazias (`initialFotos={[]}`) no primeiro carregamento — ao contrário dos campos de texto do parceiro, isso não arrisca perda de dado: `attachCapaPhotoAction`/`deleteCapaPhotoAction` operam por id de foto individual (insert/delete), nunca substituem a lista inteira, então reabrir o diálogo sem a lista pré-carregada não apaga fotos já salvas — só não mostra visualmente as que já existem até a página ser recarregada. Buscar a lista completa de fotos de capa ao abrir fica fora de escopo desta task — YAGNI até virar necessidade real relatada pelo usuário.
 
 - [ ] **Step 13: Checar tipos e rodar a suíte completa**
 

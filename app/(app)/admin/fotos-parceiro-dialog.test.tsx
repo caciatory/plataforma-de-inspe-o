@@ -88,4 +88,46 @@ describe("FotosParceiroDialog", () => {
 
     expect(screen.getAllByRole("button", { name: "Excluir" })).toHaveLength(1);
   });
+
+  it("mostra pré-visualização do logo já existente ao abrir o diálogo", () => {
+    render(
+      <FotosParceiroDialog
+        inspectionId="insp-1"
+        initialParceiro={{
+          parceiro_nome: "Stand Central",
+          parceiro_logo_url: "https://example.com/logo-atual.png",
+          parceiro_telefone: null,
+        }}
+        initialFotos={[]}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Fotos & Parceiro" }));
+
+    expect(screen.getByAltText("Logo do parceiro")).toHaveAttribute("src", "https://example.com/logo-atual.png");
+  });
+
+  it("faz upload do logo do parceiro e atualiza a pré-visualização", async () => {
+    upload.mockResolvedValue({ error: null });
+    getPublicUrl.mockReturnValue({ data: { publicUrl: "https://example.com/logo-novo.png" } });
+    render(
+      <FotosParceiroDialog
+        inspectionId="insp-1"
+        initialParceiro={{ parceiro_nome: null, parceiro_logo_url: null, parceiro_telefone: null }}
+        initialFotos={[]}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Fotos & Parceiro" }));
+
+    const file = new File(["logo"], "logo.png", { type: "image/png" });
+    const input = document.getElementById("parceiro-logo-input") as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [file] } });
+
+    expect(await screen.findByAltText("Logo do parceiro")).toHaveAttribute(
+      "src",
+      "https://example.com/logo-novo.png"
+    );
+    expect(attachCapaPhotoAction).not.toHaveBeenCalled();
+  });
 });

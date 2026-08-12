@@ -12,6 +12,11 @@ function buildCapaPhotoPath(inspectionId: string, filename: string): string {
   return `${inspectionId}/capa/${Date.now()}-${safeName}`;
 }
 
+function buildLogoPath(inspectionId: string, filename: string): string {
+  const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
+  return `${inspectionId}/parceiro/${Date.now()}-${safeName}`;
+}
+
 export function FotosParceiroDialog({
   inspectionId,
   initialParceiro,
@@ -36,6 +41,23 @@ export function FotosParceiroDialog({
       formData.set("parceiro_telefone", parceiro.parceiro_telefone ?? "");
       const result = await saveParceiroAction(inspectionId, formData);
       if (result.error) setError(result.error);
+    });
+  }
+
+  function handleUploadLogo(file: File) {
+    setError(null);
+    startTransition(async () => {
+      const supabase = createClient();
+      const path = buildLogoPath(inspectionId, file.name);
+
+      const { error: uploadError } = await supabase.storage.from("fotos-inspecao").upload(path, file);
+      if (uploadError) {
+        setError("Não foi possível enviar o logo. Tente novamente.");
+        return;
+      }
+
+      const { data } = supabase.storage.from("fotos-inspecao").getPublicUrl(path);
+      setParceiro((p) => ({ ...p, parceiro_logo_url: data.publicUrl }));
     });
   }
 
@@ -103,6 +125,28 @@ export function FotosParceiroDialog({
               className="input"
               value={parceiro.parceiro_telefone ?? ""}
               onChange={(e) => setParceiro((p) => ({ ...p, parceiro_telefone: e.target.value }))}
+            />
+          </div>
+          <div className="field">
+            <span className="label">Logo do parceiro</span>
+            {parceiro.parceiro_logo_url && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={parceiro.parceiro_logo_url} alt="Logo do parceiro" className="photo-grid__thumb" />
+            )}
+            <label htmlFor="parceiro-logo-input" className="btn btn-secondary" aria-disabled={isPending}>
+              {parceiro.parceiro_logo_url ? "Alterar logo" : "Adicionar logo"}
+            </label>
+            <input
+              id="parceiro-logo-input"
+              className="sr-only"
+              type="file"
+              accept="image/*"
+              disabled={isPending}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleUploadLogo(file);
+                e.target.value = "";
+              }}
             />
           </div>
           <button type="button" className="btn btn-primary" onClick={handleSaveParceiro} disabled={isPending}>

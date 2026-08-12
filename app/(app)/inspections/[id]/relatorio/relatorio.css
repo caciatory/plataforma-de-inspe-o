@@ -53,6 +53,11 @@
   margin: 0.25rem 0 1rem;
 }
 
+.relatorio-hero__status {
+  color: var(--relatorio-mint);
+  font-weight: 600;
+}
+
 .relatorio-gauge {
   display: inline-flex;
   flex-direction: column;
@@ -105,6 +110,12 @@
   color: var(--relatorio-ink-muted);
 }
 
+.relatorio-spec-card__valor {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--relatorio-ink);
+}
+
 .relatorio-parceiro {
   display: flex;
   align-items: center;
@@ -125,6 +136,11 @@
 .relatorio-parceiro__whatsapp {
   margin-left: auto;
   color: var(--relatorio-mint);
+}
+
+.relatorio-parceiro__nome {
+  font-weight: 600;
+  color: var(--relatorio-ink);
 }
 
 .relatorio-grupo {
@@ -278,6 +294,11 @@
   gap: 0.5rem;
   justify-content: center;
   margin: 1rem 0;
+}
+
+.relatorio-veredito__assinatura {
+  font-size: 0.85rem;
+  color: var(--relatorio-ink-muted);
 }
 
 .relatorio-footer {

@@ -9,7 +9,24 @@ import {
   type RelatorioOpcao,
   type RelatorioMedicaoResultado,
   type RelatorioPhoto,
+  type ReportItem,
 } from "@/lib/report/build-relatorio";
+
+// Agrupa por subcategoria preservando a ordem de primeira aparicao (mesma
+// convencao de groupItemsBySubcategoria em lib/checklist/progress.ts, que
+// via localeCompare com "" acaba colocando subcategoria=null primeiro).
+function groupBySubcategoria(items: ReportItem[]): { subcategoria: string | null; items: ReportItem[] }[] {
+  const order: (string | null)[] = [];
+  const buckets = new Map<string | null, ReportItem[]>();
+  for (const item of items) {
+    if (!buckets.has(item.subcategoria)) {
+      order.push(item.subcategoria);
+      buckets.set(item.subcategoria, []);
+    }
+    buckets.get(item.subcategoria)!.push(item);
+  }
+  return order.map((subcategoria) => ({ subcategoria, items: buckets.get(subcategoria)! }));
+}
 
 // ponytail: <details>/<summary> nativos cobrem o colapsar/expandir sem
 // nenhum estado React -- só a impressão precisa de JS, porque um <details>
@@ -81,40 +98,45 @@ export function AnaliseTecnica({
               )}
             </span>
           </summary>
-          <ul className="relatorio-item-list">
-            {grupo.items.map((item) => (
-              <li key={item.id} className={`relatorio-item relatorio-item--${item.status}`}>
-                <span className="relatorio-item__nome">{item.nome}</span>
-                <span className={`relatorio-badge relatorio-badge--${item.status}`}>{item.respostaLabel}</span>
-                {item.fotos.length > 0 && (
-                  <button
-                    type="button"
-                    className="relatorio-item__foto-icon"
-                    aria-label={`Ver foto de ${item.nome}`}
-                    onClick={() => {
-                      setFotoAberta(item.fotos);
-                      fotoDialogRef.current?.showModal();
-                    }}
-                  >
-                    📷
-                  </button>
-                )}
-                {item.comentario && (
-                  <button
-                    type="button"
-                    className={`relatorio-item__comentario-icon${item.piscaComentario ? " relatorio-item__comentario-icon--pisca" : ""}`}
-                    aria-label={`Ver comentário de ${item.nome}`}
-                    onClick={() => {
-                      setComentarioAberto(item.comentario);
-                      comentarioDialogRef.current?.showModal();
-                    }}
-                  >
-                    ℹ️
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
+          {groupBySubcategoria(grupo.items).map((sub) => (
+            <div key={sub.subcategoria ?? "__sem-subcategoria__"}>
+              {sub.subcategoria && <p className="relatorio-item-list__subcategoria">{sub.subcategoria}</p>}
+              <ul className="relatorio-item-list">
+                {sub.items.map((item) => (
+                  <li key={item.id} className={`relatorio-item relatorio-item--${item.status}`}>
+                    <span className="relatorio-item__nome">{item.nome}</span>
+                    <span className={`relatorio-badge relatorio-badge--${item.status}`}>{item.respostaLabel}</span>
+                    {item.fotos.length > 0 && (
+                      <button
+                        type="button"
+                        className="relatorio-item__foto-icon"
+                        aria-label={`Ver foto de ${item.nome}`}
+                        onClick={() => {
+                          setFotoAberta(item.fotos);
+                          fotoDialogRef.current?.showModal();
+                        }}
+                      >
+                        📷
+                      </button>
+                    )}
+                    {item.comentario && (
+                      <button
+                        type="button"
+                        className={`relatorio-item__comentario-icon${item.piscaComentario ? " relatorio-item__comentario-icon--pisca" : ""}`}
+                        aria-label={`Ver comentário de ${item.nome}`}
+                        onClick={() => {
+                          setComentarioAberto(item.comentario);
+                          comentarioDialogRef.current?.showModal();
+                        }}
+                      >
+                        ℹ️
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </details>
       ))}
 

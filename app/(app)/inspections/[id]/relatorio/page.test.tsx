@@ -5,6 +5,13 @@ vi.mock("@/lib/auth/session", () => ({
   getCurrentUser: vi.fn(async () => ({ id: "admin-1", role: "admin" })),
 }));
 
+// next/font/google's SWC transform only runs inside a real Next.js build;
+// under vitest it's just a plain import, so stub it the same way the module
+// behaves at runtime (an object exposing a className).
+vi.mock("next/font/google", () => ({
+  DM_Sans: () => ({ className: "mock-dm-sans" }),
+}));
+
 function buildQuery(result: unknown) {
   const query: any = {
     select: vi.fn(() => query),

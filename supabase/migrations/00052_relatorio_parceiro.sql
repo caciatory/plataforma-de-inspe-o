@@ -9,3 +9,13 @@ alter table public.inspections
   add column parceiro_nome text,
   add column parceiro_logo_url text,
   add column parceiro_telefone text;
+
+-- ALTER TABLE ADD COLUMN nao propaga para uma view "select *" ja existente --
+-- inspections_with_flags (00001_core_entities.sql) precisa ser recriada para
+-- expor as novas colunas de parceiro. Reaplica security_invoker (00007).
+drop view public.inspections_with_flags;
+create view public.inspections_with_flags as
+select i.*,
+  (i.status not in ('aprovada', 'cancelada') and i.data_abertura < current_date) as atrasada
+from public.inspections i;
+alter view public.inspections_with_flags set (security_invoker = true);

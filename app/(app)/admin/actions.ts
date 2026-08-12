@@ -1,11 +1,17 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export async function saveParceiroAction(
   inspectionId: string,
   formData: FormData
 ): Promise<{ error?: string }> {
+  const user = await getCurrentUser();
+  if (!user || user.role !== "admin") {
+    return { error: "Apenas administradores podem editar dados do parceiro." };
+  }
+
   const supabase = await createClient();
   const parceiroNome = (formData.get("parceiro_nome") as string) || null;
   const parceiroLogoUrl = (formData.get("parceiro_logo_url") as string) || null;
@@ -28,6 +34,11 @@ export async function attachCapaPhotoAction(
   inspectionId: string,
   url: string
 ): Promise<{ error?: string; photoId?: string }> {
+  const user = await getCurrentUser();
+  if (!user || user.role !== "admin") {
+    return { error: "Apenas administradores podem anexar fotos de capa." };
+  }
+
   const supabase = await createClient();
 
   const { data: photo, error } = await supabase
@@ -45,8 +56,13 @@ export async function attachCapaPhotoAction(
 }
 
 export async function deleteCapaPhotoAction(photoId: string): Promise<{ error?: string }> {
+  const user = await getCurrentUser();
+  if (!user || user.role !== "admin") {
+    return { error: "Apenas administradores podem remover fotos de capa." };
+  }
+
   const supabase = await createClient();
-  const { error } = await supabase.from("photos").delete().eq("id", photoId);
+  const { error } = await supabase.from("photos").delete().eq("id", photoId).eq("contexto", "capa");
 
   if (error) {
     console.error("deleteCapaPhotoAction failed", error);

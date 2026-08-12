@@ -6,6 +6,7 @@ const groups = [{ id: "g1", ordem: 1, nome: "Pneus" }];
 const items = [
   { id: "i1", group_id: "g1", subcategoria: "Rodas", nome: "Pneu dianteiro", tipo: "escolha" as const, conjunto_opcao_id: "c1" },
   { id: "i2", group_id: "g1", subcategoria: "Rodas", nome: "Pneu traseiro", tipo: "escolha" as const, conjunto_opcao_id: "c1" },
+  { id: "i3", group_id: "g1", subcategoria: "Travões", nome: "Disco dianteiro", tipo: "escolha" as const, conjunto_opcao_id: "c1" },
 ];
 const opcoes = [
   { id: "o1", conjunto_id: "c1", label: "Ótimo", ordem: 1, exige_foto: false },
@@ -14,6 +15,7 @@ const opcoes = [
 const responses = [
   { id: "r1", item_template_id: "i1", opcao_id: "o1", resposta_texto: null, resposta_data: null, observacao: null },
   { id: "r2", item_template_id: "i2", opcao_id: "o2", resposta_texto: null, resposta_data: null, observacao: "Risco fundo" },
+  { id: "r3", item_template_id: "i3", opcao_id: "o1", resposta_texto: null, resposta_data: null, observacao: null },
 ];
 const photos = [{ id: "p1", url: "https://example.com/a.jpg", item_response_id: "r2" }];
 
@@ -21,8 +23,24 @@ describe("AnaliseTecnica", () => {
   it("mostra a contagem OK/atenção no cabeçalho do grupo", () => {
     render(<AnaliseTecnica groups={groups} items={items} responses={responses} opcoes={opcoes} medicaoResultados={[]} photos={[]} />);
     expect(screen.getByText("Pneus")).toBeInTheDocument();
-    expect(screen.getByText("1 OK")).toBeInTheDocument();
+    expect(screen.getByText("2 OK")).toBeInTheDocument();
     expect(screen.getByText("1 atenção")).toBeInTheDocument();
+  });
+
+  it("agrupa os itens por subcategoria, com uma subheading por subcategoria", () => {
+    render(<AnaliseTecnica groups={groups} items={items} responses={responses} opcoes={opcoes} medicaoResultados={[]} photos={[]} />);
+    const subheadings = screen.getAllByText(/^(Rodas|Travões)$/);
+    expect(subheadings.map((el) => el.textContent)).toEqual(["Rodas", "Travões"]);
+
+    const rodasHeading = screen.getByText("Rodas");
+    const rodasList = rodasHeading.nextElementSibling as HTMLElement;
+    expect(rodasList.textContent).toContain("Pneu dianteiro");
+    expect(rodasList.textContent).toContain("Pneu traseiro");
+    expect(rodasList.textContent).not.toContain("Disco dianteiro");
+
+    const travoesHeading = screen.getByText("Travões");
+    const travoesList = travoesHeading.nextElementSibling as HTMLElement;
+    expect(travoesList.textContent).toContain("Disco dianteiro");
   });
 
   it("mostra o ícone de foto só no item que tem foto, e abre o diálogo ao clicar", () => {

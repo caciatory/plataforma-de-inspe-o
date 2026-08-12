@@ -77,4 +77,17 @@ begin
 end $$;
 
 reset role;
+
+do $$
+declare
+  v_inspection_id uuid := current_setting('test.inspection_id')::uuid;
+  v_nome text;
+begin
+  select parceiro_nome into v_nome from public.inspections_with_flags where id = v_inspection_id;
+  if v_nome <> 'Stand Central' then
+    raise exception 'FALHOU: inspections_with_flags nao expoe parceiro_nome (view precisa ser recriada apos ALTER TABLE)';
+  end if;
+  raise notice 'OK: inspections_with_flags expoe parceiro_nome';
+end $$;
+
 rollback;

@@ -1,9 +1,14 @@
 // app/(app)/inspections/[id]/relatorio/page.tsx
 import { notFound } from "next/navigation";
+import { DM_Sans } from "next/font/google";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import { AnaliseTecnica } from "./analise-tecnica";
 import "./relatorio.css";
+
+// Fonte exclusiva desta rota (identidade visual dark-glassmorphism) -- nao
+// entra em app/layout.tsx, que so carrega Space Grotesk/Inter para o resto da app.
+const dmSans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
 export default async function RelatorioPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -12,6 +17,12 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
 
   const supabase = await createClient();
 
+  // Select amplo (`*`) na tabela base por necessidade: sem um Database type
+  // gerado, um column-list explicito na tabela base faz o postgrest-js
+  // inferir os embeds vehicle_data/users como array em vez de objeto unico
+  // (~24 erros TS2339) -- mesmo padrao ja usado em
+  // app/(app)/inspections/[id]/page.tsx:40. RF-50 continua garantido porque
+  // client_data e uma tabela fisicamente separada, nunca embutida aqui.
   const { data: inspection } = await supabase
     .from("inspections")
     .select("*, vehicle_data(*), users(nome, credencial_interna)")
@@ -28,7 +39,13 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
     { data: responses },
   ] = await Promise.all([
     supabase.from("inspection_score").select("nota_geral, classificacao").eq("inspection_id", id).maybeSingle(),
-    supabase.from("photos").select("id, url, ordem").eq("inspection_id", id).eq("contexto", "capa").order("ordem"),
+    supabase
+      .from("photos")
+      .select("id, url, ordem")
+      .eq("inspection_id", id)
+      .eq("contexto", "capa")
+      .order("ordem")
+      .order("criado_em"),
     supabase.from("checklist_group_templates").select("id, ordem, nome").eq("ativo", true).order("ordem"),
     supabase
       .from("checklist_item_templates")
@@ -60,7 +77,7 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
   const capaUrl = fotosCapa?.[0]?.url ?? null;
 
   return (
-    <main className="relatorio-page">
+    <main className={`relatorio-page ${dmSans.className}`}>
       <section className="relatorio-hero" style={capaUrl ? { backgroundImage: `url(${capaUrl})` } : undefined}>
         <div className="relatorio-hero__overlay">
           <p className="relatorio-hero__matricula">{vehicle?.matricula}</p>

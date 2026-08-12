@@ -1,1 +1,300 @@
-/* Styles for relatorio page */
+/* app/(app)/inspections/[id]/relatorio/relatorio.css
+   Identidade visual exclusiva do relatorio final -- dark glassmorphism,
+   adaptada do mockup de referencia fornecido pelo usuario (secao 2 do
+   design doc: docs/superpowers/specs/2026-08-12-relatorio-final-design.md).
+   Escopado inteiramente sob .relatorio-page -- nao reconcilia com
+   app/globals.css (DESIGN.md so vale pro resto do app). */
+
+.relatorio-page {
+  --relatorio-bg: #121414;
+  --relatorio-surface: rgba(255, 255, 255, 0.05);
+  --relatorio-border: rgba(255, 255, 255, 0.1);
+  --relatorio-ink: #f4f5f5;
+  --relatorio-ink-muted: rgba(244, 245, 245, 0.65);
+  --relatorio-mint: #00f5a0;
+  --relatorio-red: #ff5470;
+  --relatorio-amber: #ffb020;
+
+  background: var(--relatorio-bg);
+  color: var(--relatorio-ink);
+  font-family: "DM Sans", system-ui, sans-serif;
+  min-height: 100vh;
+  padding-bottom: 3rem;
+}
+
+.relatorio-page h1,
+.relatorio-page h2 {
+  color: var(--relatorio-ink);
+}
+
+.relatorio-hero {
+  position: relative;
+  min-height: 60vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-end;
+}
+
+.relatorio-hero__overlay {
+  width: 100%;
+  padding: 2rem;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 70%);
+}
+
+.relatorio-hero__matricula {
+  color: var(--relatorio-mint);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.relatorio-hero__titulo {
+  font-size: 2rem;
+  margin: 0.25rem 0 1rem;
+}
+
+.relatorio-gauge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  border: 3px solid var(--relatorio-mint);
+  background: var(--relatorio-surface);
+}
+
+.relatorio-gauge__nota {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.relatorio-gauge__classificacao {
+  font-size: 0.75rem;
+  color: var(--relatorio-ink-muted);
+}
+
+.relatorio-section {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.relatorio-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.relatorio-spec-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--relatorio-surface);
+  border: 1px solid var(--relatorio-border);
+  border-radius: 0.75rem;
+  backdrop-filter: blur(8px);
+}
+
+.relatorio-spec-card__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--relatorio-ink-muted);
+}
+
+.relatorio-parceiro {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: var(--relatorio-surface);
+  border: 1px solid var(--relatorio-border);
+  border-radius: 0.75rem;
+}
+
+.relatorio-parceiro__logo {
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+  border-radius: 0.5rem;
+}
+
+.relatorio-parceiro__whatsapp {
+  margin-left: auto;
+  color: var(--relatorio-mint);
+}
+
+.relatorio-grupo {
+  background: var(--relatorio-surface);
+  border: 1px solid var(--relatorio-border);
+  border-radius: 0.75rem;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.relatorio-grupo__cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.relatorio-grupo__contagem {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.relatorio-item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.relatorio-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.relatorio-item--ruim {
+  background: rgba(255, 84, 112, 0.12);
+  border: 1px solid rgba(255, 84, 112, 0.4);
+}
+
+.relatorio-item__nome {
+  flex: 1;
+}
+
+.relatorio-badge {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.relatorio-badge--otimo,
+.relatorio-badge--ok {
+  background: rgba(0, 245, 160, 0.15);
+  color: var(--relatorio-mint);
+}
+
+.relatorio-badge--medio {
+  background: rgba(255, 176, 32, 0.15);
+  color: var(--relatorio-amber);
+}
+
+.relatorio-badge--ruim,
+.relatorio-badge--atencao {
+  background: rgba(255, 84, 112, 0.15);
+  color: var(--relatorio-red);
+}
+
+.relatorio-badge--na,
+.relatorio-badge--info {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--relatorio-ink-muted);
+}
+
+.relatorio-badge--selo,
+.relatorio-badge--garantia {
+  background: rgba(0, 245, 160, 0.1);
+  color: var(--relatorio-mint);
+  border: 1px solid var(--relatorio-mint);
+}
+
+.relatorio-item__foto-icon,
+.relatorio-item__comentario-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .relatorio-item__comentario-icon--pisca {
+    animation: relatorio-pulse 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes relatorio-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.relatorio-dialog {
+  background: var(--relatorio-bg);
+  color: var(--relatorio-ink);
+  border: 1px solid var(--relatorio-border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  max-width: 90vw;
+}
+
+.relatorio-dialog__foto {
+  max-width: 100%;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.relatorio-veredito {
+  text-align: center;
+}
+
+.relatorio-veredito__gauge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  border: 4px solid var(--relatorio-mint);
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.relatorio-veredito__nota {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.relatorio-veredito__badges {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.relatorio-footer {
+  max-width: 960px;
+  margin: 2rem auto 0;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--relatorio-border);
+  color: var(--relatorio-ink-muted);
+  font-size: 0.85rem;
+}
+
+@media print {
+  .relatorio-page {
+    background: white;
+    color: black;
+  }
+  .relatorio-item__comentario-icon--pisca {
+    animation: none;
+  }
+}

@@ -11,6 +11,9 @@ export type AdminInspectionRow = {
   classificacao: string | null;
   dataAbertura: string;
   atrasada: boolean;
+  parceiroNome: string | null;
+  parceiroLogoUrl: string | null;
+  parceiroTelefone: string | null;
 };
 
 export function buildAdminInspectionRows(
@@ -20,6 +23,9 @@ export function buildAdminInspectionRows(
     tipo_cliente: "particular" | "stand";
     data_abertura: string;
     atrasada: boolean;
+    parceiro_nome: string | null;
+    parceiro_logo_url: string | null;
+    parceiro_telefone: string | null;
     vehicle_data: { matricula: string; marca: string; modelo: string } | null;
     users: { nome: string } | null;
   }[],
@@ -40,6 +46,9 @@ export function buildAdminInspectionRows(
       classificacao: score?.classificacao ?? null,
       dataAbertura: i.data_abertura,
       atrasada: i.atrasada,
+      parceiroNome: i.parceiro_nome,
+      parceiroLogoUrl: i.parceiro_logo_url,
+      parceiroTelefone: i.parceiro_telefone,
     };
   });
 }

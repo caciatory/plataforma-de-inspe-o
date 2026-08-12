@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { AdminInspectionRow } from "@/lib/inspection/admin-list";
+import { FotosParceiroDialog } from "./fotos-parceiro-dialog";
 
 const STATUS_LABEL: Record<string, string> = {
   rascunho: "Rascunho",
@@ -138,6 +139,17 @@ export function InspectionsTable({ rows }: { rows: AdminInspectionRow[] }) {
                     </svg>
                     Ver
                   </Link>
+                  {r.status === "aprovada" && (
+                    <FotosParceiroDialog
+                      inspectionId={r.id}
+                      initialParceiro={{
+                        parceiro_nome: r.parceiroNome,
+                        parceiro_logo_url: r.parceiroLogoUrl,
+                        parceiro_telefone: r.parceiroTelefone,
+                      }}
+                      initialFotos={[]}
+                    />
+                  )}
                 </td>
               </tr>
             ))}

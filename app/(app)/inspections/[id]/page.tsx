@@ -214,9 +214,9 @@ export default async function InspectionSummaryPage({
         {currentUser?.role === "admin" && <AdminActionsPanel inspectionId={id} status={status} />}
 
         {status === "aprovada" && (
-          <button type="button" className="btn btn-secondary" disabled title="Em breve">
-            Gerar relatório
-          </button>
+          <Link href={`/inspections/${id}/relatorio`} className="btn btn-secondary summary-cta">
+            Ver relatório
+          </Link>
         )}
       </div>
 

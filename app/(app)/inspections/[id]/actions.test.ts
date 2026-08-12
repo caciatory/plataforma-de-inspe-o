@@ -146,7 +146,10 @@ describe("approveInspectionAction", () => {
       tipo: "aprovacao",
       autor_id: "admin-1",
     });
-    expect(inspectionQuery.update).toHaveBeenCalledWith({ status: "aprovada" });
+    const updateArgs = inspectionQuery.update.mock.calls[0][0];
+    expect(updateArgs.status).toBe("aprovada");
+    expect(updateArgs.codigo_certificado).toMatch(/^[A-Z0-9]{8}$/);
+    expect(typeof updateArgs.certificado_emitido_em).toBe("string");
   });
 });
 

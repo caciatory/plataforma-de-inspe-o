@@ -98,6 +98,7 @@ export function AnaliseTecnica({
   return (
     <section className="relatorio-section relatorio-analise" ref={containerRef}>
       <h2>Análise técnica</h2>
+      <div className="relatorio-grupos-grid">
       {grupos.map((grupo) => (
         <details key={grupo.id} className="relatorio-grupo glass" open>
           <summary className="relatorio-grupo__cabecalho">
@@ -173,6 +174,7 @@ export function AnaliseTecnica({
           ))}
         </details>
       ))}
+      </div>
 
       <dialog ref={fotoDialogRef} className="relatorio-dialog" onClose={() => setFotoAberta(null)}>
         {fotoAberta?.map((foto) => (

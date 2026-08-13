@@ -125,10 +125,10 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
             </span>
             <span>Relatório de Inspeção Certificada</span>
           </div>
-          <p className="relatorio-hero__matricula">{vehicle?.matricula}</p>
           <h1 className="relatorio-hero__titulo">
             {vehicle?.marca} {vehicle?.modelo}
           </h1>
+          <p className="relatorio-hero__matricula">{vehicle?.matricula}</p>
           {score ? (
             <div className="relatorio-hero__dashboard glass">
               <div className="relatorio-hero__metric">

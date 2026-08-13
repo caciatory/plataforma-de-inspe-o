@@ -1,0 +1,1075 @@
+/* app/(app)/inspections/[id]/relatorio/relatorio.css
+   Identidade visual exclusiva do relatorio final -- dark glassmorphism,
+   adaptada do mockup de referencia fornecido pelo usuario (secao 2 do
+   design doc: docs/superpowers/specs/2026-08-12-relatorio-final-design.md).
+   Tokens/recipes (bg #121414, mint #00f5a0, red #E24B4A, glass-card com blur
+   40px e bordas direcionais) copiados do mockup para fidelidade visual.
+   Escopado inteiramente sob .relatorio-page -- nao reconcilia com
+   app/globals.css (DESIGN.md so vale pro resto do app). */
+
+.relatorio-page {
+  --relatorio-bg: #121414;
+  --relatorio-surface: rgba(255, 255, 255, 0.05);
+  --relatorio-border: rgba(255, 255, 255, 0.1);
+  --relatorio-ink: #e2e2e2;
+  --relatorio-ink-muted: rgba(226, 226, 226, 0.65);
+  --relatorio-mint: #00f5a0;
+  --relatorio-mint-soft: #cdffde;
+  --relatorio-red: #e24b4a;
+  --relatorio-amber: #ffb020;
+  /* Largura mestra do container -- Analise tecnica e a referencia (precisa
+     de mais espaco pras 2 colunas). Todo bloco da pagina (hero, specs,
+     analise, selo, rodape) usa essa mesma largura + o mesmo padding lateral
+     pra bordas alinhadas verticalmente entre si. */
+  --relatorio-container-max: 1200px;
+
+  color-scheme: dark;
+  background: var(--relatorio-bg);
+  color: var(--relatorio-ink);
+  font-family: "DM Sans", system-ui, sans-serif;
+  min-height: 100vh;
+  padding-bottom: 3rem;
+  /* Rede de seguranca contra overflow horizontal no celular -- a causa raiz
+     (flex/grid items sem min-width:0 nao encolhem abaixo do conteudo, texto
+     longo empurra a pagina pra largura maior que a viewport) esta corrigida
+     nos pontos especificos abaixo, isso aqui e so a garantia final. */
+  overflow-x: hidden;
+}
+
+.relatorio-page h1,
+.relatorio-page h2 {
+  color: var(--relatorio-ink);
+  margin: 0;
+}
+
+.relatorio-page h2 {
+  font-size: clamp(1.5rem, 1.3rem + 1vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.25rem;
+}
+
+/* Cabecalho de secao com subtitulo + linha separadora -- igual ao padrao do
+   mockup ("Análise Técnica Expandida" + descricao + border-b). Usado em
+   Especificações do veículo e Análise técnica. */
+.relatorio-section__header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--relatorio-border);
+}
+
+.relatorio-section__header h2 {
+  margin-bottom: 0.5rem;
+}
+
+.relatorio-section__subtitle {
+  color: var(--relatorio-ink-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.relatorio-page a:focus-visible,
+.relatorio-page button:focus-visible,
+.relatorio-page summary:focus-visible {
+  outline: 2px solid var(--relatorio-mint);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Material Symbols Outlined -- classe base para os icones do mockup
+   (check_circle/warning/verified/security/photo_camera/...). Font carregada
+   via <link> em page.tsx (nao entra no next/font, que so cobre a familia de
+   texto DM Sans). display=block evita o flash do nome literal do icone
+   ("check_circle" como texto) antes da fonte carregar. */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.25rem;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glass-card -- receita exata do mockup: fundo quase transparente + blur
+   forte + bordas direcionais (mais claras em cima/esquerda, quase invisiveis
+   embaixo/direita) simulando luz vindo de cima. */
+.relatorio-page .glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.01);
+  border-right: 1px solid rgba(255, 255, 255, 0.01);
+}
+
+.relatorio-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--relatorio-ink-muted);
+  margin: 0 0 0.25rem;
+}
+
+.relatorio-historico__importacao-titulo {
+  margin-top: 1.5rem;
+}
+
+.relatorio-gradient-text {
+  background: linear-gradient(135deg, var(--relatorio-mint-soft) 0%, var(--relatorio-mint) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Hero */
+
+.relatorio-hero {
+  position: relative;
+  min-height: 60vh;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* Slideshow de fotos de capa -- fotos empilhadas absolutas, crossfade via
+   opacity (permite transicao suave, ao contrario de trocar background-image
+   direto). Auto-avanca e tem controles manuais (HeroCarousel, client). */
+.relatorio-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.relatorio-hero__bg-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .relatorio-hero__bg-slide {
+    transition: opacity 1.2s ease;
+  }
+}
+
+.relatorio-hero__carousel-controls {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.relatorio-hero__carousel-expand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--relatorio-ink);
+  cursor: pointer;
+  pointer-events: auto;
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+}
+
+.relatorio-hero__carousel-expand:hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* No topo, nao embaixo -- a parte de baixo do hero e onde vive o badge,
+   titulo e a barra do dashboard (que cresce de altura dependendo de ter ou
+   nao parceiro/codigo/etc), entao um offset fixo tipo bottom:1.5rem sempre
+   ia acabar colidindo com esse conteudo em algum breakpoint. O topo do
+   hero e so foto, sempre sobra espaco. */
+.relatorio-hero__carousel-dots {
+  position: absolute;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  pointer-events: auto;
+}
+
+.relatorio-hero__carousel-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+}
+
+.relatorio-hero__carousel-dot--ativo {
+  width: 1.5rem;
+  background: var(--relatorio-mint);
+}
+
+.relatorio-hero__lightbox {
+  max-width: 95vw;
+}
+
+.relatorio-hero__lightbox-photo {
+  position: relative;
+}
+
+.relatorio-hero__lightbox .relatorio-dialog__foto {
+  display: block;
+  max-height: 80vh;
+  width: 100%;
+  object-fit: contain;
+}
+
+/* Botao de fechar como icone vermelho no canto da foto, nao mais uma
+   pill com texto embaixo -- pedido explicito do usuario, fica mais limpo. */
+.relatorio-hero__lightbox-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: none;
+  background: var(--relatorio-red);
+  color: white;
+  cursor: pointer;
+}
+
+.relatorio-hero__lightbox-close:hover {
+  background: #c73f3e;
+}
+
+.relatorio-hero__lightbox-close .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+.relatorio-hero__lightbox-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* Camada de escurecimento -- cobre a foto inteira (nao so a altura do texto)
+   pra transicao suave de cima a baixo do hero, igual ao mockup (que usa uma
+   div separada absolute inset-0 so pro gradiente, independente do wrapper
+   do texto). Antes o gradiente vivia dentro de .relatorio-hero__overlay,
+   que so tem a altura do proprio conteudo -- ficava uma borda dura no meio
+   da foto porque o degrade nao cobria o hero inteiro. */
+.relatorio-hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.55) 40%, rgba(0, 0, 0, 0.1) 75%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Mesmo container das outras secoes (max-width + margin auto + padding
+   lateral) -- antes o overlay so tinha padding:2rem sem max-width, entao o
+   conteudo do hero comecava/terminava numa borda diferente de
+   .relatorio-section em telas largas (onde o container centralizado tem
+   margem lateral bem maior que 2rem). */
+.relatorio-hero__overlay {
+  position: relative;
+  z-index: 2;
+  /* .relatorio-hero e display:flex (row) -- sem width:100% aqui, este item
+     vira shrink-to-fit (largura do proprio conteudo) em vez de esticar ate
+     o max-width, e o margin:auto centraliza uma caixa mais estreita do que
+     o container das outras secoes em vez de alinhar a mesma borda. */
+  width: 100%;
+  max-width: var(--relatorio-container-max);
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.relatorio-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(0, 245, 160, 0.1);
+  border: 1px solid rgba(0, 245, 160, 0.25);
+  color: var(--relatorio-mint);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 1rem;
+}
+
+.relatorio-hero__badge .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+.relatorio-hero__titulo {
+  font-size: clamp(2rem, 1.4rem + 3vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0.25rem 0 0;
+}
+
+.relatorio-hero__status {
+  color: var(--relatorio-mint);
+  font-weight: 600;
+  margin: 1.5rem 0 0;
+}
+
+.relatorio-hero__dashboard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1.5rem 2rem;
+  border-radius: 1.75rem;
+  width: 100%;
+  margin: 1.75rem 0 0;
+}
+
+/* Mobile: os segmentos (nota, parceiro, data) empilham em vez de ficar lado
+   a lado -- space-between deixa cada um colado a esquerda quando sobra so
+   1 por linha, e o separador vertical nao faz sentido entre blocos
+   empilhados. So nessa largura; desktop continua em linha com separador. */
+@media (max-width: 640px) {
+  .relatorio-hero__dashboard {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .relatorio-hero__divider {
+    display: none;
+  }
+}
+
+.relatorio-hero__metric {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.relatorio-hero__parceiro {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.relatorio-hero__parceiro > div {
+  min-width: 0;
+}
+
+.relatorio-hero__parceiro p {
+  margin: 0;
+}
+
+.relatorio-hero__parceiro .relatorio-parceiro__whatsapp {
+  display: inline-block;
+  margin-left: 0;
+  margin-top: 0.15rem;
+  font-size: 0.85rem;
+}
+
+.relatorio-hero__metric-value {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+.relatorio-hero__codigo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  color: var(--relatorio-ink-muted);
+}
+
+.relatorio-hero__codigo-valor {
+  font-weight: 700;
+  color: var(--relatorio-mint);
+  letter-spacing: 0.05em;
+}
+
+.relatorio-hero__divider {
+  width: 1px;
+  height: 3.5rem;
+  background: var(--relatorio-border);
+}
+
+.relatorio-hero__stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.relatorio-hero__stats p {
+  margin: 0;
+}
+
+/* Gauge -- anel de progresso SVG real (nao so um circulo com borda), mesma
+   logica do mockup (stroke-dasharray/dashoffset proporcional a nota). */
+
+.relatorio-gauge {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 6.5rem;
+  height: 6.5rem;
+  flex-shrink: 0;
+}
+
+.relatorio-gauge__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.relatorio-gauge__track {
+  stroke: rgba(255, 255, 255, 0.1);
+}
+
+.relatorio-gauge__fill {
+  stroke: var(--relatorio-mint);
+  stroke-linecap: round;
+}
+
+.relatorio-gauge[data-classificacao="B"] .relatorio-gauge__fill,
+.relatorio-veredito__gauge[data-classificacao="B"] .relatorio-gauge__fill {
+  stroke: var(--relatorio-amber);
+}
+
+.relatorio-gauge[data-classificacao="C"] .relatorio-gauge__fill,
+.relatorio-veredito__gauge[data-classificacao="C"] .relatorio-gauge__fill {
+  stroke: var(--relatorio-red);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .relatorio-gauge__fill {
+    transition: stroke-dashoffset 1s ease-out;
+  }
+}
+
+.relatorio-gauge__valor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.relatorio-gauge__nota {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.relatorio-gauge__classificacao {
+  font-size: 0.7rem;
+  color: var(--relatorio-ink-muted);
+}
+
+/* Seções gerais */
+
+.relatorio-section {
+  max-width: var(--relatorio-container-max);
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.relatorio-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .relatorio-specs-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+.relatorio-spec-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  min-width: 0;
+  /* Uniforme entre todos os cards -- sem isso, um valor que quebra em 2
+     linhas (ex: "Gasolina / Manual" em Combustivel) so estica as outras
+     colunas DA MESMA linha do grid (comportamento padrao de stretch), nao
+     as linhas vizinhas -- resultado: altura inconsistente linha a linha. */
+  min-height: 6rem;
+}
+
+.relatorio-spec-card__label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--relatorio-ink-muted);
+}
+
+.relatorio-spec-card__valor {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--relatorio-ink);
+  overflow-wrap: break-word;
+}
+
+.relatorio-parceiro__logo {
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+  border-radius: 0.5rem;
+}
+
+.relatorio-parceiro__whatsapp {
+  margin-left: auto;
+  color: var(--relatorio-mint);
+}
+
+/* Análise técnica -- duas colunas em desktop (mockup: grid-cols-1
+   md:grid-cols-2), preenchendo a primeira coluna antes da segunda via
+   CSS multi-column (nossos grupos sao dinamicos, N grupos reais, nao os
+   2 grupos fixos do mockup -- columns se comporta melhor que grid aqui
+   porque nao intercala 1-2-1-2, preenche a coluna 1 inteira primeiro). */
+.relatorio-analise {
+  max-width: var(--relatorio-container-max);
+}
+
+@media (min-width: 900px) {
+  .relatorio-grupos-grid {
+    columns: 2;
+    column-gap: 1.5rem;
+  }
+
+  .relatorio-grupos-grid .relatorio-grupo {
+    break-inside: avoid;
+  }
+}
+
+.relatorio-grupo {
+  border-radius: 1.25rem;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.relatorio-grupo__cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.relatorio-grupo__titulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.relatorio-grupo__dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--relatorio-mint);
+}
+
+.relatorio-grupo__dot--atencao {
+  background: var(--relatorio-red);
+}
+
+.relatorio-grupo__contagem {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.relatorio-item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.relatorio-item-list__subcategoria {
+  margin: 0.5rem 1.25rem 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--relatorio-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.relatorio-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.relatorio-item--ruim {
+  background: rgba(226, 75, 74, 0.06);
+  border-color: rgba(226, 75, 74, 0.25);
+}
+
+.relatorio-item__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: rgba(0, 245, 160, 0.1);
+  color: var(--relatorio-mint);
+  flex-shrink: 0;
+}
+
+.relatorio-item__icon .material-symbols-outlined {
+  font-size: 1.2rem;
+}
+
+.relatorio-item__icon--ruim {
+  background: rgba(226, 75, 74, 0.12);
+  color: var(--relatorio-red);
+}
+
+.relatorio-item__icon--medio {
+  background: rgba(255, 176, 32, 0.12);
+  color: var(--relatorio-amber);
+}
+
+.relatorio-item__icon--na,
+.relatorio-item__icon--info {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--relatorio-ink-muted);
+}
+
+.relatorio-item__nome {
+  flex: 1;
+  /* min-width:0 e o pulo do gato -- sem isso um flex item nunca encolhe
+     abaixo da largura natural do texto (default min-width:auto), entao um
+     nome de item comprido empurrava a linha inteira (e a pagina) pra fora
+     da viewport no celular em vez de quebrar linha. */
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.relatorio-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.relatorio-badge .material-symbols-outlined {
+  font-size: 0.9rem;
+}
+
+.relatorio-badge--otimo,
+.relatorio-badge--ok {
+  background: rgba(0, 245, 160, 0.15);
+  color: var(--relatorio-mint);
+  border: 1px solid rgba(0, 245, 160, 0.3);
+}
+
+.relatorio-badge--medio {
+  background: rgba(255, 176, 32, 0.15);
+  color: var(--relatorio-amber);
+  border: 1px solid rgba(255, 176, 32, 0.3);
+}
+
+.relatorio-badge--ruim,
+.relatorio-badge--atencao {
+  background: rgba(226, 75, 74, 0.15);
+  color: var(--relatorio-red);
+  border: 1px solid rgba(226, 75, 74, 0.3);
+}
+
+.relatorio-badge--na,
+.relatorio-badge--info {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--relatorio-ink-muted);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.relatorio-badge--selo,
+.relatorio-badge--garantia {
+  background: rgba(0, 245, 160, 0.1);
+  color: var(--relatorio-mint);
+  border: 1px solid rgba(0, 245, 160, 0.3);
+}
+
+.relatorio-item__foto-icon,
+.relatorio-item__comentario-icon {
+  display: inline-flex;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--relatorio-ink-muted);
+  padding: 0.25rem;
+}
+
+.relatorio-item__foto-icon:hover,
+.relatorio-item__comentario-icon:hover {
+  color: var(--relatorio-ink);
+}
+
+.relatorio-item__comentario-icon--pisca {
+  color: var(--relatorio-red);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .relatorio-item__comentario-icon--pisca {
+    animation: relatorio-pulse 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes relatorio-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Diálogos de foto/comentário -- auto-contidos, nunca usam .dialog-panel/.btn
+   (essas sao do design system claro do resto do app; misturar quebrava a
+   identidade escura aqui dentro). */
+
+.relatorio-dialog {
+  background: var(--relatorio-bg);
+  color: var(--relatorio-ink);
+  border: 1px solid var(--relatorio-border);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  max-width: 90vw;
+}
+
+.relatorio-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.relatorio-dialog__foto {
+  max-width: 100%;
+  border-radius: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.relatorio-dialog__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--relatorio-border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--relatorio-ink);
+  cursor: pointer;
+  font: inherit;
+}
+
+.relatorio-dialog__close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Veredito final */
+
+.relatorio-veredito-wrap {
+  max-width: var(--relatorio-container-max);
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+}
+
+/* Brilho verde suave atras do card -- receita do mockup (.emerald-glow), so
+   nessa secao (o "climax" do relatorio). Precisa de um wrapper PROPRIO sem
+   padding, nao .relatorio-veredito-wrap (que herda o padding lateral de
+   .relatorio-section e deixava a sombra desencontrada da borda real do
+   card) nem .relatorio-veredito (que tem overflow:hidden pro icone de
+   fundo gigante e clipa qualquer box-shadow que extrapole a propria caixa).
+   Esse wrapper nao tem padding proprio, entao a caixa dele bate exatamente
+   com a do card filho. */
+.relatorio-veredito__glow {
+  border-radius: 3rem;
+  box-shadow: 0 0 60px rgba(0, 245, 160, 0.12);
+}
+
+.relatorio-veredito {
+  position: relative;
+  overflow: hidden;
+  border-radius: 3rem;
+  padding: 3rem 2rem;
+}
+
+@media (min-width: 768px) {
+  .relatorio-veredito {
+    padding: 4.5rem 4rem;
+  }
+}
+
+.relatorio-veredito__bg-icon {
+  position: absolute;
+  top: -2rem;
+  right: -2rem;
+  font-size: 16rem;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.relatorio-veredito__grid {
+  position: relative;
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+}
+
+.relatorio-veredito__grid > * {
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .relatorio-veredito__grid {
+    grid-template-columns: 1.2fr 1fr;
+  }
+}
+
+.relatorio-veredito__eyebrow {
+  color: var(--relatorio-mint);
+}
+
+.relatorio-veredito__grau {
+  font-size: clamp(3rem, 2.25rem + 3vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 1.25rem;
+}
+
+.relatorio-veredito__desc {
+  color: var(--relatorio-ink-muted);
+  font-size: 1.05rem;
+  line-height: 1.65;
+  max-width: 42ch;
+  margin: 0 0 2rem;
+}
+
+.relatorio-veredito__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.relatorio-veredito__assinatura-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.relatorio-veredito__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--relatorio-surface);
+  border: 1px solid var(--relatorio-border);
+  color: var(--relatorio-ink-muted);
+  flex-shrink: 0;
+}
+
+.relatorio-veredito__assinatura-nome {
+  font-weight: 600;
+  margin: 0;
+}
+
+.relatorio-veredito__assinatura-cargo {
+  font-size: 0.8rem;
+  color: var(--relatorio-ink-muted);
+  margin: 0;
+}
+
+.relatorio-veredito__codigo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 1.5rem 0 0;
+  font-size: 0.8rem;
+  color: var(--relatorio-ink-muted);
+}
+
+.relatorio-veredito__codigo-valor {
+  font-weight: 700;
+  color: var(--relatorio-mint);
+  letter-spacing: 0.05em;
+}
+
+.relatorio-info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--relatorio-ink-muted);
+  cursor: pointer;
+}
+
+.relatorio-info-icon--pisca {
+  color: var(--relatorio-mint);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .relatorio-info-icon--pisca {
+    animation: relatorio-pulse 1.4s ease-in-out infinite;
+  }
+}
+
+.relatorio-info-icon:hover {
+  color: var(--relatorio-mint);
+}
+
+.relatorio-info-icon .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+.relatorio-info-dialog {
+  max-width: min(90vw, 420px);
+}
+
+.relatorio-info-dialog h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  color: var(--relatorio-ink);
+}
+
+.relatorio-info-dialog p {
+  color: var(--relatorio-ink-muted);
+  line-height: 1.6;
+  margin: 0 0 0.75rem;
+}
+
+.relatorio-info-dialog strong {
+  color: var(--relatorio-ink);
+}
+
+.relatorio-veredito__gauge-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.relatorio-veredito__gauge {
+  position: relative;
+  width: 16rem;
+  height: 16rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .relatorio-veredito__gauge {
+    width: 20rem;
+    height: 20rem;
+  }
+}
+
+.relatorio-veredito__nota {
+  position: relative;
+  font-size: clamp(3.5rem, 3rem + 2vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.relatorio-footer {
+  max-width: var(--relatorio-container-max);
+  margin: 3rem auto 0;
+  padding: 1.5rem;
+  border-top: 1px solid var(--relatorio-border);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--relatorio-ink-muted);
+  font-size: 0.85rem;
+}
+
+.relatorio-footer p {
+  margin: 0 0 0.35rem;
+}
+
+.relatorio-footer p:last-child {
+  margin-bottom: 0;
+}
+
+@media print {
+  .relatorio-page {
+    --relatorio-ink: #000;
+    --relatorio-ink-muted: #444;
+    --relatorio-surface: transparent;
+    --relatorio-border: #ccc;
+    --relatorio-mint: #006c44;
+    --relatorio-mint-soft: #006c44;
+    background: white;
+    color: black;
+  }
+  .relatorio-page .glass {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: transparent;
+  }
+  .relatorio-item__comentario-icon--pisca {
+    animation: none;
+    color: var(--relatorio-red);
+  }
+  .relatorio-info-icon--pisca {
+    animation: none;
+  }
+  .relatorio-gradient-text {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: black;
+  }
+}

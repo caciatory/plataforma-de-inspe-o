@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { computeGroupProgress } from "@/lib/checklist/progress";
 import { isInspectionEditable, type InspectionStatus } from "@/lib/inspection/status";
 import { getCurrentUser } from "@/lib/auth/session";
+import { gerarCodigoCertificado } from "@/lib/report/certificado";
 
 export type SubmitInspectionState = { status: "idle" } | { status: "error"; message: string } | { status: "success" };
 
@@ -92,7 +93,11 @@ export async function approveInspectionAction(
 
   const { error: updateError } = await supabase
     .from("inspections")
-    .update({ status: "aprovada" })
+    .update({
+      status: "aprovada",
+      codigo_certificado: gerarCodigoCertificado(),
+      certificado_emitido_em: new Date().toISOString(),
+    })
     .eq("id", inspectionId);
   if (updateError) {
     console.error("approveInspectionAction update failed", updateError);

@@ -6,21 +6,29 @@ import { InspectionsTable } from "./inspections-table";
 export default async function AdminInspectionsPage() {
   const supabase = await createClient();
 
-  const [{ data: inspections, error: inspectionsError }, { data: scores, error: scoresError }] = await Promise.all([
+  const [
+    { data: inspections, error: inspectionsError },
+    { data: scores, error: scoresError },
+    { data: fotosCapa, error: fotosCapaError },
+  ] = await Promise.all([
     supabase
       .from("inspections_with_flags")
-      .select("id, status, tipo_cliente, data_abertura, atrasada, vehicle_data(matricula, marca, modelo), users(nome)")
+      .select(
+        "id, status, tipo_cliente, data_abertura, atrasada, parceiro_nome, parceiro_logo_url, parceiro_telefone, vehicle_data(matricula, marca, modelo), users(nome)"
+      )
       .order("data_abertura", { ascending: false }),
     supabase.from("inspection_score").select("inspection_id, nota_geral, classificacao"),
+    supabase.from("photos").select("id, url, inspection_id, ordem").eq("contexto", "capa").order("ordem"),
   ]);
 
-  if (inspectionsError || scoresError) {
-    console.error("admin inspections list fetch failed", { inspectionsError, scoresError });
+  if (inspectionsError || scoresError || fotosCapaError) {
+    console.error("admin inspections list fetch failed", { inspectionsError, scoresError, fotosCapaError });
   }
 
   const rows = buildAdminInspectionRows(
     (inspections ?? []) as unknown as Parameters<typeof buildAdminInspectionRows>[0],
-    scores ?? []
+    scores ?? [],
+    fotosCapa ?? []
   );
 
   return (

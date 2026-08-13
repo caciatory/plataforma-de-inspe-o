@@ -24,6 +24,11 @@
   font-family: "DM Sans", system-ui, sans-serif;
   min-height: 100vh;
   padding-bottom: 3rem;
+  /* Rede de seguranca contra overflow horizontal no celular -- a causa raiz
+     (flex/grid items sem min-width:0 nao encolhem abaixo do conteudo, texto
+     longo empurra a pagina pra largura maior que a viewport) esta corrigida
+     nos pontos especificos abaixo, isso aqui e so a garantia final. */
+  overflow-x: hidden;
 }
 
 .relatorio-page h1,
@@ -284,19 +289,25 @@
   border-radius: 1.75rem;
   width: 100%;
   max-width: 56rem;
-  margin: 1.75rem auto 0;
+  margin: 1.75rem 0 0;
 }
 
 .relatorio-hero__metric {
   display: flex;
   align-items: center;
   gap: 1.25rem;
+  min-width: 0;
 }
 
 .relatorio-hero__parceiro {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  min-width: 0;
+}
+
+.relatorio-hero__parceiro > div {
+  min-width: 0;
 }
 
 .relatorio-hero__parceiro p {
@@ -314,6 +325,7 @@
   font-weight: 700;
   font-size: 1.05rem;
   margin: 0;
+  overflow-wrap: break-word;
 }
 
 .relatorio-hero__divider {
@@ -411,6 +423,7 @@
   gap: 0.25rem;
   padding: 1.25rem 1.5rem;
   border-radius: 1rem;
+  min-width: 0;
 }
 
 .relatorio-spec-card__label {
@@ -424,6 +437,7 @@
   font-weight: 700;
   font-size: 1.05rem;
   color: var(--relatorio-ink);
+  overflow-wrap: break-word;
 }
 
 .relatorio-parceiro__logo {
@@ -563,6 +577,12 @@
 
 .relatorio-item__nome {
   flex: 1;
+  /* min-width:0 e o pulo do gato -- sem isso um flex item nunca encolhe
+     abaixo da largura natural do texto (default min-width:auto), entao um
+     nome de item comprido empurrava a linha inteira (e a pagina) pra fora
+     da viewport no celular em vez de quebrar linha. */
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .relatorio-badge {
@@ -721,6 +741,10 @@
   display: grid;
   gap: 3rem;
   align-items: center;
+}
+
+.relatorio-veredito__grid > * {
+  min-width: 0;
 }
 
 @media (min-width: 768px) {

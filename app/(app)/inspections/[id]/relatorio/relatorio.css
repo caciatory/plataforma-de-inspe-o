@@ -460,6 +460,16 @@
   stroke-linecap: round;
 }
 
+.relatorio-gauge[data-classificacao="B"] .relatorio-gauge__fill,
+.relatorio-veredito__gauge[data-classificacao="B"] .relatorio-gauge__fill {
+  stroke: var(--relatorio-amber);
+}
+
+.relatorio-gauge[data-classificacao="C"] .relatorio-gauge__fill,
+.relatorio-veredito__gauge[data-classificacao="C"] .relatorio-gauge__fill {
+  stroke: var(--relatorio-red);
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .relatorio-gauge__fill {
     transition: stroke-dashoffset 1s ease-out;
@@ -1040,6 +1050,8 @@
     --relatorio-ink-muted: #444;
     --relatorio-surface: transparent;
     --relatorio-border: #ccc;
+    --relatorio-mint: #006c44;
+    --relatorio-mint-soft: #006c44;
     background: white;
     color: black;
   }
@@ -1054,7 +1066,6 @@
   }
   .relatorio-info-icon--pisca {
     animation: none;
-    color: #006c44;
   }
   .relatorio-gradient-text {
     background: none;

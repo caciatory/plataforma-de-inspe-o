@@ -362,6 +362,18 @@
   overflow-wrap: break-word;
 }
 
+.relatorio-hero__codigo {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  color: var(--relatorio-ink-muted);
+}
+
+.relatorio-hero__codigo-valor {
+  font-weight: 700;
+  color: var(--relatorio-mint);
+  letter-spacing: 0.05em;
+}
+
 .relatorio-hero__divider {
   width: 1px;
   height: 3.5rem;
@@ -752,11 +764,17 @@
   max-width: var(--relatorio-container-max);
   margin-top: 4rem;
   margin-bottom: 4rem;
-  /* Brilho verde suave atras do card -- receita do mockup (.emerald-glow),
-     so nessa secao (o "climax" do relatorio), nao nos outros glass-cards.
-     Precisa ficar no wrapper, nao em .relatorio-veredito -- esse tem
-     overflow:hidden (pro icone de fundo gigante) e clipa qualquer
-     box-shadow que extrapole a propria caixa. */
+}
+
+/* Brilho verde suave atras do card -- receita do mockup (.emerald-glow), so
+   nessa secao (o "climax" do relatorio). Precisa de um wrapper PROPRIO sem
+   padding, nao .relatorio-veredito-wrap (que herda o padding lateral de
+   .relatorio-section e deixava a sombra desencontrada da borda real do
+   card) nem .relatorio-veredito (que tem overflow:hidden pro icone de
+   fundo gigante e clipa qualquer box-shadow que extrapole a propria caixa).
+   Esse wrapper nao tem padding proprio, entao a caixa dele bate exatamente
+   com a do card filho. */
+.relatorio-veredito__glow {
   border-radius: 3rem;
   box-shadow: 0 0 60px rgba(0, 245, 160, 0.12);
 }

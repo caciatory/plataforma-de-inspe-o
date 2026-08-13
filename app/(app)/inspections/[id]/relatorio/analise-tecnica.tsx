@@ -100,7 +100,7 @@ export function AnaliseTecnica({
     <section className="relatorio-section relatorio-analise" ref={containerRef}>
       <div className="relatorio-section__header">
         <h2>Análise técnica</h2>
-        <p className="relatorio-section__subtitle">{totalItens} pontos de controlo verificados nesta inspeção.</p>
+        <p className="relatorio-section__subtitle">{totalItens} pontos de controlo verificados.</p>
       </div>
       <div className="relatorio-grupos-grid">
       {grupos.map((grupo) => (

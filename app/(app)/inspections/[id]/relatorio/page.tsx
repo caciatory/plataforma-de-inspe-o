@@ -123,6 +123,7 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
       />
       <section className="relatorio-hero">
         <HeroCarousel fotos={fotosCapa ?? []} />
+        <div className="relatorio-hero__scrim" aria-hidden="true" />
         <div className="relatorio-hero__overlay">
           <div className="relatorio-hero__badge">
             <span className="material-symbols-outlined" aria-hidden="true">

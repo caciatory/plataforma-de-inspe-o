@@ -132,7 +132,7 @@
 .relatorio-hero__carousel-controls {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 3;
   pointer-events: none;
 }
 
@@ -220,12 +220,25 @@
   margin-top: 0.5rem;
 }
 
+/* Camada de escurecimento -- cobre a foto inteira (nao so a altura do texto)
+   pra transicao suave de cima a baixo do hero, igual ao mockup (que usa uma
+   div separada absolute inset-0 so pro gradiente, independente do wrapper
+   do texto). Antes o gradiente vivia dentro de .relatorio-hero__overlay,
+   que so tem a altura do proprio conteudo -- ficava uma borda dura no meio
+   da foto porque o degrade nao cobria o hero inteiro. */
+.relatorio-hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.55) 40%, rgba(0, 0, 0, 0.1) 75%, transparent 100%);
+  pointer-events: none;
+}
+
 .relatorio-hero__overlay {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   width: 100%;
   padding: 2rem;
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 70%);
 }
 
 .relatorio-hero__badge {
@@ -271,7 +284,7 @@
   border-radius: 1.75rem;
   width: 100%;
   max-width: 56rem;
-  margin-top: 1.75rem;
+  margin: 1.75rem auto 0;
 }
 
 .relatorio-hero__metric {
@@ -382,8 +395,14 @@
 
 .relatorio-specs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .relatorio-specs-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
 }
 
 .relatorio-spec-card {

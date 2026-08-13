@@ -301,16 +301,10 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
           <p className="relatorio-section__subtitle">Informações declaradas na abertura da inspeção.</p>
         </div>
         <div className="relatorio-specs-grid">
-          <div className="relatorio-spec-card glass">
-            <span className="relatorio-spec-card__label">Situação fiscal</span>
-            <span className="relatorio-spec-card__valor">
-              {vehicle?.situacao_fiscal_regular ? "Regular" : "Irregular"}
-            </span>
-          </div>
-          {vehicle?.situacao_fiscal_observacoes && (
+          {vehicle?.situacao_fiscal_regular && (
             <div className="relatorio-spec-card glass">
-              <span className="relatorio-spec-card__label">Observações fiscais</span>
-              <span className="relatorio-spec-card__valor">{vehicle.situacao_fiscal_observacoes}</span>
+              <span className="relatorio-spec-card__label">Situação fiscal</span>
+              <span className="relatorio-spec-card__valor">{vehicle.situacao_fiscal_regular}</span>
             </div>
           )}
           {vehicle?.numero_proprietarios_anteriores != null && (
@@ -319,12 +313,15 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
               <span className="relatorio-spec-card__valor">{vehicle.numero_proprietarios_anteriores}</span>
             </div>
           )}
-          {vehicle?.indicios_adulteracao_km && (
-            <div className="relatorio-spec-card glass">
-              <span className="relatorio-spec-card__label">Indícios de adulteração de KM</span>
-              <span className="relatorio-spec-card__valor">{vehicle.indicios_adulteracao_km}</span>
-            </div>
-          )}
+          <div className="relatorio-spec-card glass">
+            <span className="relatorio-spec-card__label">Indícios de adulteração de KM</span>
+            <span className="relatorio-spec-card__valor">
+              {vehicle?.indicios_adulteracao_presentes ? "Sim" : "Não"}
+              {vehicle?.indicios_adulteracao_presentes && vehicle?.indicios_adulteracao_km
+                ? ` — ${vehicle.indicios_adulteracao_km}`
+                : ""}
+            </span>
+          </div>
           {vehicle?.registo_acidentes_anteriores && (
             <div className="relatorio-spec-card glass">
               <span className="relatorio-spec-card__label">Registo de acidentes anteriores</span>
@@ -351,7 +348,59 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
               <span className="relatorio-spec-card__valor">{vehicle.inspecoes_periodicas_ipo_notas}</span>
             </div>
           )}
+          {vehicle?.data_primeira_matricula && (
+            <div className="relatorio-spec-card glass">
+              <span className="relatorio-spec-card__label">Data da 1ª matrícula</span>
+              <span className="relatorio-spec-card__valor">
+                {new Date(vehicle.data_primeira_matricula).toLocaleDateString("pt-PT")}
+              </span>
+            </div>
+          )}
+          {vehicle?.valor_base_iuc_anual != null && (
+            <div className="relatorio-spec-card glass">
+              <span className="relatorio-spec-card__label">Valor base IUC anual</span>
+              <span className="relatorio-spec-card__valor">{vehicle.valor_base_iuc_anual} €</span>
+            </div>
+          )}
         </div>
+
+        {vehicle?.veiculo_importado && (
+          <>
+            <p className="relatorio-eyebrow relatorio-historico__importacao-titulo">Veículo importado</p>
+            <div className="relatorio-specs-grid">
+              <div className="relatorio-spec-card glass">
+                <span className="relatorio-spec-card__label">País de origem</span>
+                <span className="relatorio-spec-card__valor">{vehicle.pais_origem ?? "—"}</span>
+              </div>
+              <div className="relatorio-spec-card glass">
+                <span className="relatorio-spec-card__label">Matrícula de origem</span>
+                <span className="relatorio-spec-card__valor">{vehicle.matricula_origem ?? "—"}</span>
+              </div>
+              <div className="relatorio-spec-card glass">
+                <span className="relatorio-spec-card__label">Data de importação</span>
+                <span className="relatorio-spec-card__valor">
+                  {vehicle.data_importacao ? new Date(vehicle.data_importacao).toLocaleDateString("pt-PT") : "—"}
+                </span>
+              </div>
+              <div className="relatorio-spec-card glass">
+                <span className="relatorio-spec-card__label">Possui COC</span>
+                <span className="relatorio-spec-card__valor">
+                  {vehicle.possui_coc == null ? "—" : vehicle.possui_coc ? "Sim" : "Não"}
+                </span>
+              </div>
+              <div className="relatorio-spec-card glass">
+                <span className="relatorio-spec-card__label">Isenção de ISV aplicada</span>
+                <span className="relatorio-spec-card__valor">
+                  {vehicle.isencao_isv_aplicada == null ? "—" : vehicle.isencao_isv_aplicada ? "Sim" : "Não"}
+                </span>
+              </div>
+              <div className="relatorio-spec-card glass">
+                <span className="relatorio-spec-card__label">Número DAV</span>
+                <span className="relatorio-spec-card__valor">{vehicle.numero_dav ?? "—"}</span>
+              </div>
+            </div>
+          </>
+        )}
       </section>
 
       <AnaliseTecnica

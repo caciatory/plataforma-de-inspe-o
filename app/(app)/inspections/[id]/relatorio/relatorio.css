@@ -384,6 +384,9 @@
 }
 
 .relatorio-hero__codigo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   margin: 0.35rem 0 0;
   font-size: 0.75rem;
   color: var(--relatorio-ink-muted);
@@ -900,6 +903,9 @@
 }
 
 .relatorio-veredito__codigo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   margin: 1.5rem 0 0;
   font-size: 0.8rem;
   color: var(--relatorio-ink-muted);
@@ -915,15 +921,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   width: 1.1rem;
   height: 1.1rem;
-  margin-left: 0.35rem;
   padding: 0;
   border: none;
   background: none;
   color: var(--relatorio-ink-muted);
   cursor: pointer;
-  vertical-align: middle;
+}
+
+.relatorio-info-icon--pisca {
+  color: var(--relatorio-mint);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .relatorio-info-icon--pisca {
+    animation: relatorio-pulse 1.4s ease-in-out infinite;
+  }
 }
 
 .relatorio-info-icon:hover {
@@ -1020,6 +1035,10 @@
   .relatorio-item__comentario-icon--pisca {
     animation: none;
     color: var(--relatorio-red);
+  }
+  .relatorio-info-icon--pisca {
+    animation: none;
+    color: #006c44;
   }
   .relatorio-gradient-text {
     background: none;

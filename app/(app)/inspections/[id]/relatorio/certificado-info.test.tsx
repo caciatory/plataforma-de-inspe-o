@@ -23,4 +23,14 @@ describe("CertificadoInfoButton", () => {
 
     expect(dialog.open).toBe(false);
   });
+
+  it("pisca até o cliente clicar, depois fica normal", () => {
+    render(<CertificadoInfoButton />);
+    const botao = screen.getByRole("button", { name: "O que é o código de certificado?" });
+    expect(botao.className).toContain("relatorio-info-icon--pisca");
+
+    fireEvent.click(botao);
+
+    expect(botao.className).not.toContain("relatorio-info-icon--pisca");
+  });
 });

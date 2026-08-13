@@ -1,17 +1,24 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 export function CertificadoInfoButton() {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  // Pisca ate o cliente clicar (ou seja, ate ele reparar que da pra ler a
+  // explicacao) -- depois disso fica normal. So dessa instancia: o icone do
+  // hero e o do selo final piscam/param cada um por conta propria.
+  const [lida, setLida] = useState(false);
 
   return (
     <>
       <button
         type="button"
-        className="relatorio-info-icon"
+        className={`relatorio-info-icon${lida ? "" : " relatorio-info-icon--pisca"}`}
         aria-label="O que é o código de certificado?"
-        onClick={() => dialogRef.current?.showModal()}
+        onClick={() => {
+          setLida(true);
+          dialogRef.current?.showModal();
+        }}
       >
         <span className="material-symbols-outlined" aria-hidden="true">
           info

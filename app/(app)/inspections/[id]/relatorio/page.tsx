@@ -168,9 +168,11 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
                   <p className="relatorio-eyebrow">Status final</p>
                   <p className="relatorio-hero__metric-value">Aprovada</p>
                   {inspection.codigo_certificado && (
-                    <p className="relatorio-hero__codigo">
-                      Certificado <span className="relatorio-hero__codigo-valor">{inspection.codigo_certificado}</span>
-                    </p>
+                    <div className="relatorio-hero__codigo">
+                      Certificado{" "}
+                      <span className="relatorio-hero__codigo-valor">{inspection.codigo_certificado}</span>
+                      <CertificadoInfoButton />
+                    </div>
                   )}
                 </div>
               </div>

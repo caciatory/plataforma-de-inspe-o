@@ -347,6 +347,22 @@
   margin: 1.75rem 0 0;
 }
 
+/* Mobile: os segmentos (nota, parceiro, data) empilham em vez de ficar lado
+   a lado -- space-between deixa cada um colado a esquerda quando sobra so
+   1 por linha, e o separador vertical nao faz sentido entre blocos
+   empilhados. So nessa largura; desktop continua em linha com separador. */
+@media (max-width: 640px) {
+  .relatorio-hero__dashboard {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .relatorio-hero__divider {
+    display: none;
+  }
+}
+
 .relatorio-hero__metric {
   display: flex;
   align-items: center;

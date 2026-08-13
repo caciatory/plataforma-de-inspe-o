@@ -2,6 +2,8 @@
    Identidade visual exclusiva do relatorio final -- dark glassmorphism,
    adaptada do mockup de referencia fornecido pelo usuario (secao 2 do
    design doc: docs/superpowers/specs/2026-08-12-relatorio-final-design.md).
+   Tokens/recipes (bg #121414, mint #00f5a0, red #E24B4A, glass-card com blur
+   40px e bordas direcionais) copiados do mockup para fidelidade visual.
    Escopado inteiramente sob .relatorio-page -- nao reconcilia com
    app/globals.css (DESIGN.md so vale pro resto do app). */
 
@@ -9,12 +11,14 @@
   --relatorio-bg: #121414;
   --relatorio-surface: rgba(255, 255, 255, 0.05);
   --relatorio-border: rgba(255, 255, 255, 0.1);
-  --relatorio-ink: #f4f5f5;
-  --relatorio-ink-muted: rgba(244, 245, 245, 0.65);
+  --relatorio-ink: #e2e2e2;
+  --relatorio-ink-muted: rgba(226, 226, 226, 0.65);
   --relatorio-mint: #00f5a0;
-  --relatorio-red: #ff5470;
+  --relatorio-mint-soft: #cdffde;
+  --relatorio-red: #e24b4a;
   --relatorio-amber: #ffb020;
 
+  color-scheme: dark;
   background: var(--relatorio-bg);
   color: var(--relatorio-ink);
   font-family: "DM Sans", system-ui, sans-serif;
@@ -25,7 +29,74 @@
 .relatorio-page h1,
 .relatorio-page h2 {
   color: var(--relatorio-ink);
+  margin: 0;
 }
+
+.relatorio-page h2 {
+  font-size: clamp(1.5rem, 1.3rem + 1vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.25rem;
+}
+
+.relatorio-page a:focus-visible,
+.relatorio-page button:focus-visible,
+.relatorio-page summary:focus-visible {
+  outline: 2px solid var(--relatorio-mint);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Material Symbols Outlined -- classe base para os icones do mockup
+   (check_circle/warning/verified/security/photo_camera/...). Font carregada
+   via <link> em page.tsx (nao entra no next/font, que so cobre a familia de
+   texto DM Sans). display=block evita o flash do nome literal do icone
+   ("check_circle" como texto) antes da fonte carregar. */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.25rem;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glass-card -- receita exata do mockup: fundo quase transparente + blur
+   forte + bordas direcionais (mais claras em cima/esquerda, quase invisiveis
+   embaixo/direita) simulando luz vindo de cima. */
+.relatorio-page .glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.01);
+  border-right: 1px solid rgba(255, 255, 255, 0.01);
+}
+
+.relatorio-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--relatorio-ink-muted);
+  margin: 0 0 0.25rem;
+}
+
+.relatorio-gradient-text {
+  background: linear-gradient(135deg, var(--relatorio-mint-soft) 0%, var(--relatorio-mint) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Hero */
 
 .relatorio-hero {
   position: relative;
@@ -42,15 +113,38 @@
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 70%);
 }
 
+.relatorio-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(0, 245, 160, 0.1);
+  border: 1px solid rgba(0, 245, 160, 0.25);
+  color: var(--relatorio-mint);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 1rem;
+}
+
+.relatorio-hero__badge .material-symbols-outlined {
+  font-size: 1rem;
+}
+
 .relatorio-hero__matricula {
   color: var(--relatorio-mint);
   font-weight: 600;
   letter-spacing: 0.05em;
+  margin: 0;
 }
 
 .relatorio-hero__titulo {
-  font-size: 2rem;
-  margin: 0.25rem 0 1rem;
+  font-size: clamp(2rem, 1.4rem + 3vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0.25rem 0 1.5rem;
 }
 
 .relatorio-hero__status {
@@ -58,27 +152,97 @@
   font-weight: 600;
 }
 
+.relatorio-hero__dashboard {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.5rem 2rem;
+  border-radius: 1.75rem;
+}
+
+.relatorio-hero__metric {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.relatorio-hero__metric-value {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.relatorio-hero__divider {
+  width: 1px;
+  height: 3.5rem;
+  background: var(--relatorio-border);
+}
+
+.relatorio-hero__stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.relatorio-hero__stats p {
+  margin: 0;
+}
+
+/* Gauge -- anel de progresso SVG real (nao so um circulo com borda), mesma
+   logica do mockup (stroke-dasharray/dashoffset proporcional a nota). */
+
 .relatorio-gauge {
+  position: relative;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 6rem;
-  height: 6rem;
-  border-radius: 50%;
-  border: 3px solid var(--relatorio-mint);
-  background: var(--relatorio-surface);
+  width: 6.5rem;
+  height: 6.5rem;
+  flex-shrink: 0;
+}
+
+.relatorio-gauge__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.relatorio-gauge__track {
+  stroke: rgba(255, 255, 255, 0.1);
+}
+
+.relatorio-gauge__fill {
+  stroke: var(--relatorio-mint);
+  stroke-linecap: round;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .relatorio-gauge__fill {
+    transition: stroke-dashoffset 1s ease-out;
+  }
+}
+
+.relatorio-gauge__valor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .relatorio-gauge__nota {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 700;
 }
 
 .relatorio-gauge__classificacao {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--relatorio-ink-muted);
 }
+
+/* Seções gerais */
 
 .relatorio-section {
   max-width: 960px;
@@ -96,23 +260,20 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  padding: 0.75rem 1rem;
-  background: var(--relatorio-surface);
-  border: 1px solid var(--relatorio-border);
-  border-radius: 0.75rem;
-  backdrop-filter: blur(8px);
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
 }
 
 .relatorio-spec-card__label {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--relatorio-ink-muted);
 }
 
 .relatorio-spec-card__valor {
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: 700;
+  font-size: 1.05rem;
   color: var(--relatorio-ink);
 }
 
@@ -120,10 +281,8 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem 1.5rem;
-  background: var(--relatorio-surface);
-  border: 1px solid var(--relatorio-border);
-  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
 }
 
 .relatorio-parceiro__logo {
@@ -143,10 +302,10 @@
   color: var(--relatorio-ink);
 }
 
+/* Análise técnica */
+
 .relatorio-grupo {
-  background: var(--relatorio-surface);
-  border: 1px solid var(--relatorio-border);
-  border-radius: 0.75rem;
+  border-radius: 1.25rem;
   margin-bottom: 0.75rem;
   overflow: hidden;
 }
@@ -155,9 +314,27 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
+  padding: 1rem 1.25rem;
   cursor: pointer;
   font-weight: 600;
+}
+
+.relatorio-grupo__titulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.relatorio-grupo__dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--relatorio-mint);
+}
+
+.relatorio-grupo__dot--atencao {
+  background: var(--relatorio-red);
 }
 
 .relatorio-grupo__contagem {
@@ -168,14 +345,14 @@
 .relatorio-item-list {
   list-style: none;
   margin: 0;
-  padding: 0.5rem 1rem 1rem;
+  padding: 0.5rem 1.25rem 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
 .relatorio-item-list__subcategoria {
-  margin: 0.5rem 1rem 0;
+  margin: 0.5rem 1.25rem 0;
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--relatorio-ink-muted);
@@ -186,14 +363,48 @@
 .relatorio-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .relatorio-item--ruim {
-  background: rgba(255, 84, 112, 0.12);
-  border: 1px solid rgba(255, 84, 112, 0.4);
+  background: rgba(226, 75, 74, 0.06);
+  border-color: rgba(226, 75, 74, 0.25);
+}
+
+.relatorio-item__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: rgba(0, 245, 160, 0.1);
+  color: var(--relatorio-mint);
+  flex-shrink: 0;
+}
+
+.relatorio-item__icon .material-symbols-outlined {
+  font-size: 1.2rem;
+}
+
+.relatorio-item__icon--ruim {
+  background: rgba(226, 75, 74, 0.12);
+  color: var(--relatorio-red);
+}
+
+.relatorio-item__icon--medio {
+  background: rgba(255, 176, 32, 0.12);
+  color: var(--relatorio-amber);
+}
+
+.relatorio-item__icon--na,
+.relatorio-item__icon--info {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--relatorio-ink-muted);
 }
 
 .relatorio-item__nome {
@@ -201,10 +412,18 @@
 }
 
 .relatorio-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0.75rem;
-  padding: 0.15rem 0.5rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
   border-radius: 999px;
   white-space: nowrap;
+}
+
+.relatorio-badge .material-symbols-outlined {
+  font-size: 0.9rem;
 }
 
 .relatorio-badge--otimo,
@@ -220,7 +439,7 @@
 
 .relatorio-badge--ruim,
 .relatorio-badge--atencao {
-  background: rgba(255, 84, 112, 0.15);
+  background: rgba(226, 75, 74, 0.15);
   color: var(--relatorio-red);
 }
 
@@ -234,16 +453,26 @@
 .relatorio-badge--garantia {
   background: rgba(0, 245, 160, 0.1);
   color: var(--relatorio-mint);
-  border: 1px solid var(--relatorio-mint);
+  border: 1px solid rgba(0, 245, 160, 0.3);
 }
 
 .relatorio-item__foto-icon,
 .relatorio-item__comentario-icon {
+  display: inline-flex;
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1rem;
-  line-height: 1;
+  color: var(--relatorio-ink-muted);
+  padding: 0.25rem;
+}
+
+.relatorio-item__foto-icon:hover,
+.relatorio-item__comentario-icon:hover {
+  color: var(--relatorio-ink);
+}
+
+.relatorio-item__comentario-icon--pisca {
+  color: var(--relatorio-red);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -262,61 +491,177 @@
   }
 }
 
+/* Diálogos de foto/comentário -- auto-contidos, nunca usam .dialog-panel/.btn
+   (essas sao do design system claro do resto do app; misturar quebrava a
+   identidade escura aqui dentro). */
+
 .relatorio-dialog {
   background: var(--relatorio-bg);
   color: var(--relatorio-ink);
   border: 1px solid var(--relatorio-border);
-  border-radius: 0.75rem;
-  padding: 1rem;
+  border-radius: 1rem;
+  padding: 1.25rem;
   max-width: 90vw;
+}
+
+.relatorio-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
 }
 
 .relatorio-dialog__foto {
   max-width: 100%;
-  border-radius: 0.5rem;
-  margin-bottom: 0.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.relatorio-dialog__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--relatorio-border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--relatorio-ink);
+  cursor: pointer;
+  font: inherit;
+}
+
+.relatorio-dialog__close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Veredito final */
+
+.relatorio-veredito-wrap {
+  max-width: 960px;
 }
 
 .relatorio-veredito {
-  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border-radius: 2.5rem;
+  padding: 2.5rem 1.75rem;
 }
 
-.relatorio-veredito__gauge {
-  display: inline-flex;
-  flex-direction: column;
+.relatorio-veredito__bg-icon {
+  position: absolute;
+  top: -1.5rem;
+  right: -1.5rem;
+  font-size: 12rem;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.relatorio-veredito__grid {
+  position: relative;
+  display: grid;
+  gap: 2.5rem;
   align-items: center;
-  width: 8rem;
-  height: 8rem;
-  border-radius: 50%;
-  border: 4px solid var(--relatorio-mint);
-  justify-content: center;
-  margin: 1rem 0;
 }
 
-.relatorio-veredito__nota {
-  font-size: 2rem;
-  font-weight: 700;
+@media (min-width: 768px) {
+  .relatorio-veredito__grid {
+    grid-template-columns: 1.2fr 1fr;
+  }
+}
+
+.relatorio-veredito__eyebrow {
+  color: var(--relatorio-mint);
+}
+
+.relatorio-veredito__grau {
+  font-size: clamp(2.25rem, 1.75rem + 2vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 1rem;
+}
+
+.relatorio-veredito__desc {
+  color: var(--relatorio-ink-muted);
+  line-height: 1.6;
+  max-width: 42ch;
+  margin: 0 0 1.5rem;
 }
 
 .relatorio-veredito__badges {
   display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  margin: 1rem 0;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
 }
 
-.relatorio-veredito__assinatura {
-  font-size: 0.85rem;
+.relatorio-veredito__assinatura-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.relatorio-veredito__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--relatorio-surface);
+  border: 1px solid var(--relatorio-border);
   color: var(--relatorio-ink-muted);
+  flex-shrink: 0;
+}
+
+.relatorio-veredito__assinatura-nome {
+  font-weight: 600;
+  margin: 0;
+}
+
+.relatorio-veredito__assinatura-cargo {
+  font-size: 0.8rem;
+  color: var(--relatorio-ink-muted);
+  margin: 0;
+}
+
+.relatorio-veredito__gauge-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.relatorio-veredito__gauge {
+  position: relative;
+  width: 14rem;
+  height: 14rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.relatorio-veredito__nota {
+  position: relative;
+  font-size: 3.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 0.25rem;
 }
 
 .relatorio-footer {
   max-width: 960px;
-  margin: 2rem auto 0;
-  padding: 1rem 1.5rem;
+  margin: 3rem auto 0;
+  padding: 1.5rem;
   border-top: 1px solid var(--relatorio-border);
+  background: rgba(255, 255, 255, 0.02);
   color: var(--relatorio-ink-muted);
   font-size: 0.85rem;
+}
+
+.relatorio-footer p {
+  margin: 0 0 0.35rem;
+}
+
+.relatorio-footer p:last-child {
+  margin-bottom: 0;
 }
 
 @media print {
@@ -328,7 +673,18 @@
     background: white;
     color: black;
   }
+  .relatorio-page .glass {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: transparent;
+  }
   .relatorio-item__comentario-icon--pisca {
     animation: none;
+    color: var(--relatorio-red);
+  }
+  .relatorio-gradient-text {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: black;
   }
 }

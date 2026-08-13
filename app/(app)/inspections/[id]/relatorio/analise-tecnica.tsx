@@ -10,7 +10,18 @@ import {
   type RelatorioMedicaoResultado,
   type RelatorioPhoto,
   type ReportItem,
+  type ReportItemStatus,
 } from "@/lib/report/build-relatorio";
+
+// Icone Material Symbols por status do item -- vocabulario reduzido (nao ha
+// como curar um icone por nome de item real, sao 320 nomes dinamicos).
+const ITEM_STATUS_ICON: Record<ReportItemStatus, string> = {
+  otimo: "check_circle",
+  medio: "info",
+  ruim: "warning",
+  na: "remove_circle",
+  info: "radio_button_unchecked",
+};
 
 // Agrupa por subcategoria preservando a ordem de primeira aparicao (mesma
 // convencao de groupItemsBySubcategoria em lib/checklist/progress.ts, que
@@ -88,13 +99,29 @@ export function AnaliseTecnica({
     <section className="relatorio-section relatorio-analise" ref={containerRef}>
       <h2>Análise técnica</h2>
       {grupos.map((grupo) => (
-        <details key={grupo.id} className="relatorio-grupo" open>
+        <details key={grupo.id} className="relatorio-grupo glass" open>
           <summary className="relatorio-grupo__cabecalho">
-            <span>{grupo.nome}</span>
+            <span className="relatorio-grupo__titulo">
+              <span
+                className={`relatorio-grupo__dot${grupo.atencao > 0 ? " relatorio-grupo__dot--atencao" : ""}`}
+                aria-hidden="true"
+              />
+              {grupo.nome}
+            </span>
             <span className="relatorio-grupo__contagem">
-              <span className="relatorio-badge relatorio-badge--ok">{grupo.ok} OK</span>
+              <span className="relatorio-badge relatorio-badge--ok">
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  check_circle
+                </span>
+                <span>{grupo.ok} OK</span>
+              </span>
               {grupo.atencao > 0 && (
-                <span className="relatorio-badge relatorio-badge--atencao">{grupo.atencao} atenção</span>
+                <span className="relatorio-badge relatorio-badge--atencao">
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    warning
+                  </span>
+                  <span>{grupo.atencao} atenção</span>
+                </span>
               )}
             </span>
           </summary>
@@ -104,6 +131,9 @@ export function AnaliseTecnica({
               <ul className="relatorio-item-list">
                 {sub.items.map((item) => (
                   <li key={item.id} className={`relatorio-item relatorio-item--${item.status}`}>
+                    <span className={`relatorio-item__icon relatorio-item__icon--${item.status}`} aria-hidden="true">
+                      <span className="material-symbols-outlined">{ITEM_STATUS_ICON[item.status]}</span>
+                    </span>
                     <span className="relatorio-item__nome">{item.nome}</span>
                     <span className={`relatorio-badge relatorio-badge--${item.status}`}>{item.respostaLabel}</span>
                     {item.fotos.length > 0 && (
@@ -116,7 +146,9 @@ export function AnaliseTecnica({
                           fotoDialogRef.current?.showModal();
                         }}
                       >
-                        📷
+                        <span className="material-symbols-outlined" aria-hidden="true">
+                          photo_camera
+                        </span>
                       </button>
                     )}
                     {item.comentario && (
@@ -129,7 +161,9 @@ export function AnaliseTecnica({
                           comentarioDialogRef.current?.showModal();
                         }}
                       >
-                        ℹ️
+                        <span className="material-symbols-outlined" aria-hidden="true">
+                          chat_bubble
+                        </span>
                       </button>
                     )}
                   </li>
@@ -140,19 +174,29 @@ export function AnaliseTecnica({
         </details>
       ))}
 
-      <dialog ref={fotoDialogRef} className="dialog-panel relatorio-dialog" onClose={() => setFotoAberta(null)}>
+      <dialog ref={fotoDialogRef} className="relatorio-dialog" onClose={() => setFotoAberta(null)}>
         {fotoAberta?.map((foto) => (
           // eslint-disable-next-line @next/next/no-img-element
           <img key={foto.id} src={foto.url} alt="Foto ampliada" className="relatorio-dialog__foto" />
         ))}
-        <button type="button" className="btn btn-secondary" onClick={() => fotoDialogRef.current?.close()}>
+        <button type="button" className="relatorio-dialog__close" onClick={() => fotoDialogRef.current?.close()}>
+          <span className="material-symbols-outlined" aria-hidden="true">
+            close
+          </span>
           Fechar
         </button>
       </dialog>
 
-      <dialog ref={comentarioDialogRef} className="dialog-panel relatorio-dialog" onClose={() => setComentarioAberto(null)}>
+      <dialog ref={comentarioDialogRef} className="relatorio-dialog" onClose={() => setComentarioAberto(null)}>
         <p>{comentarioAberto}</p>
-        <button type="button" className="btn btn-secondary" onClick={() => comentarioDialogRef.current?.close()}>
+        <button
+          type="button"
+          className="relatorio-dialog__close"
+          onClick={() => comentarioDialogRef.current?.close()}
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">
+            close
+          </span>
           Fechar
         </button>
       </dialog>

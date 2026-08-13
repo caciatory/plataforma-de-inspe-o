@@ -10,6 +10,34 @@ import "./relatorio.css";
 // entra em app/layout.tsx, que so carrega Space Grotesk/Inter para o resto da app.
 const dmSans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
+// Anel do gauge circular (SVG real, nao so um circulo com borda) -- raio 42
+// num viewBox 100x100, escalado via CSS pelo tamanho do container.
+const GAUGE_RADIUS = 42;
+const GAUGE_CIRCUMFERENCE = 2 * Math.PI * GAUGE_RADIUS;
+
+function gaugeOffset(notaSobre10: number): number {
+  const fracao = Math.min(Math.max(notaSobre10 / 10, 0), 1);
+  return GAUGE_CIRCUMFERENCE * (1 - fracao);
+}
+
+function Gauge({ nota, strokeTrack = 8, strokeFill = 8 }: { nota: number; strokeTrack?: number; strokeFill?: number }) {
+  return (
+    <svg className="relatorio-gauge__ring" viewBox="0 0 100 100" aria-hidden="true">
+      <circle className="relatorio-gauge__track" cx="50" cy="50" r={GAUGE_RADIUS} fill="none" strokeWidth={strokeTrack} />
+      <circle
+        className="relatorio-gauge__fill"
+        cx="50"
+        cy="50"
+        r={GAUGE_RADIUS}
+        fill="none"
+        strokeWidth={strokeFill}
+        strokeDasharray={GAUGE_CIRCUMFERENCE}
+        strokeDashoffset={gaugeOffset(nota)}
+      />
+    </svg>
+  );
+}
+
 export default async function RelatorioPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const currentUser = await getCurrentUser();
@@ -76,74 +104,114 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
   const vehicle = inspection.vehicle_data;
   const capaUrl = fotosCapa?.[0]?.url ?? null;
 
+  const dataAprovacao = inspection.certificado_emitido_em
+    ? new Date(inspection.certificado_emitido_em).toLocaleDateString("pt-PT")
+    : null;
+
   return (
     <main className={`relatorio-page ${dmSans.className}`}>
+      {/* Material Symbols nao tem suporte no next/font/google -- carregada via
+          link direto, hoisted pro <head> pelo App Router. display=block evita
+          o nome literal do icone aparecer como texto antes da fonte carregar. */}
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block"
+      />
       <section className="relatorio-hero" style={capaUrl ? { backgroundImage: `url(${capaUrl})` } : undefined}>
         <div className="relatorio-hero__overlay">
+          <div className="relatorio-hero__badge">
+            <span className="material-symbols-outlined" aria-hidden="true">
+              verified
+            </span>
+            <span>Relatório de Inspeção Certificada</span>
+          </div>
           <p className="relatorio-hero__matricula">{vehicle?.matricula}</p>
           <h1 className="relatorio-hero__titulo">
             {vehicle?.marca} {vehicle?.modelo}
           </h1>
-          {score && (
-            <div className="relatorio-gauge" data-classificacao={score.classificacao}>
-              <span className="relatorio-gauge__nota">{score.nota_geral.toFixed(1)}</span>
-              <span className="relatorio-gauge__classificacao">Classe {score.classificacao}</span>
+          {score ? (
+            <div className="relatorio-hero__dashboard glass">
+              <div className="relatorio-hero__metric">
+                <div className="relatorio-gauge" data-classificacao={score.classificacao}>
+                  <Gauge nota={score.nota_geral} />
+                  <span className="relatorio-gauge__valor">
+                    <span className="relatorio-gauge__nota">{score.nota_geral.toFixed(1)}</span>
+                    <span className="relatorio-gauge__classificacao">Classe {score.classificacao}</span>
+                  </span>
+                </div>
+                <div>
+                  <p className="relatorio-eyebrow">Status final</p>
+                  <p className="relatorio-hero__metric-value">Aprovada</p>
+                </div>
+              </div>
+              <div className="relatorio-hero__divider" aria-hidden="true" />
+              <div className="relatorio-hero__stats">
+                <div>
+                  <p className="relatorio-eyebrow">Inspeção</p>
+                  <p className="relatorio-hero__metric-value">Aprovada</p>
+                </div>
+                <div>
+                  <p className="relatorio-eyebrow">Data</p>
+                  <p className="relatorio-hero__metric-value">{dataAprovacao ?? "—"}</p>
+                </div>
+              </div>
             </div>
+          ) : (
+            <p className="relatorio-hero__status">Inspeção aprovada</p>
           )}
-          <p className="relatorio-hero__status">Inspeção aprovada</p>
         </div>
       </section>
 
       <section className="relatorio-section">
         <h2>Especificações do veículo</h2>
         <div className="relatorio-specs-grid">
-          <div className="relatorio-spec-card">
+          <div className="relatorio-spec-card glass">
             <span className="relatorio-spec-card__label">Matrícula</span>
             <span className="relatorio-spec-card__valor">{vehicle?.matricula ?? "—"}</span>
           </div>
-          <div className="relatorio-spec-card">
+          <div className="relatorio-spec-card glass">
             <span className="relatorio-spec-card__label">Marca</span>
             <span className="relatorio-spec-card__valor">{vehicle?.marca ?? "—"}</span>
           </div>
-          <div className="relatorio-spec-card">
+          <div className="relatorio-spec-card glass">
             <span className="relatorio-spec-card__label">Modelo</span>
             <span className="relatorio-spec-card__valor">{vehicle?.modelo ?? "—"}</span>
           </div>
-          <div className="relatorio-spec-card">
+          <div className="relatorio-spec-card glass">
             <span className="relatorio-spec-card__label">Versão</span>
             <span className="relatorio-spec-card__valor">{vehicle?.versao_trim ?? "—"}</span>
           </div>
-          <div className="relatorio-spec-card">
+          <div className="relatorio-spec-card glass">
             <span className="relatorio-spec-card__label">Ano de fabrico</span>
             <span className="relatorio-spec-card__valor">{vehicle?.ano_fabrico ?? "—"}</span>
           </div>
-          <div className="relatorio-spec-card">
+          <div className="relatorio-spec-card glass">
             <span className="relatorio-spec-card__label">Ano do modelo</span>
             <span className="relatorio-spec-card__valor">{vehicle?.ano_modelo ?? "—"}</span>
           </div>
-          <div className="relatorio-spec-card">
+          <div className="relatorio-spec-card glass">
             <span className="relatorio-spec-card__label">Cor</span>
             <span className="relatorio-spec-card__valor">{vehicle?.cor ?? "—"}</span>
           </div>
-          <div className="relatorio-spec-card">
+          <div className="relatorio-spec-card glass">
             <span className="relatorio-spec-card__label">VIN</span>
             <span className="relatorio-spec-card__valor">{vehicle?.vin ?? "—"}</span>
           </div>
-          <div className="relatorio-spec-card">
+          <div className="relatorio-spec-card glass">
             <span className="relatorio-spec-card__label">Motor</span>
             <span className="relatorio-spec-card__valor">{vehicle?.numero_motor ?? "—"}</span>
           </div>
-          <div className="relatorio-spec-card">
+          <div className="relatorio-spec-card glass">
             <span className="relatorio-spec-card__label">Portas</span>
             <span className="relatorio-spec-card__valor">{vehicle?.numero_portas ?? "—"}</span>
           </div>
-          <div className="relatorio-spec-card">
+          <div className="relatorio-spec-card glass">
             <span className="relatorio-spec-card__label">Combustível / Caixa</span>
             <span className="relatorio-spec-card__valor">
               {vehicle?.combustivel ?? "—"} / {vehicle?.caixa_velocidades ?? "—"}
             </span>
           </div>
-          <div className="relatorio-spec-card">
+          <div className="relatorio-spec-card glass">
             <span className="relatorio-spec-card__label">Quilometragem</span>
             <span className="relatorio-spec-card__valor">
               {vehicle?.quilometragem != null ? `${vehicle.quilometragem} km` : "—"}
@@ -153,7 +221,7 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
       </section>
 
       {inspection.parceiro_nome && (
-        <section className="relatorio-section relatorio-parceiro">
+        <section className="relatorio-section relatorio-parceiro glass">
           {inspection.parceiro_logo_url && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={inspection.parceiro_logo_url} alt={inspection.parceiro_nome} className="relatorio-parceiro__logo" />
@@ -181,22 +249,56 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
         photos={photos ?? []}
       />
 
-      <section className="relatorio-section relatorio-veredito">
-        <h2>Selo de Qualidade Check Auto</h2>
-        {score && (
-          <div className="relatorio-veredito__gauge" data-classificacao={score.classificacao}>
-            <span className="relatorio-veredito__nota">{score.nota_geral.toFixed(1)}</span>
-            <span>Pontuação final</span>
+      <section className="relatorio-section relatorio-veredito-wrap">
+        <div className="relatorio-veredito glass">
+          <span className="material-symbols-outlined relatorio-veredito__bg-icon" aria-hidden="true">
+            verified_user
+          </span>
+          <div className="relatorio-veredito__grid">
+            <div>
+              <p className="relatorio-eyebrow relatorio-veredito__eyebrow">Selo de Qualidade Check Auto</p>
+              {score && <h2 className="relatorio-veredito__grau relatorio-gradient-text">Classe {score.classificacao}</h2>}
+              <p className="relatorio-veredito__desc">
+                Este veículo foi submetido a uma vistoria técnica completa pela Check Auto. O relatório detalhado
+                com todos os pontos verificados está disponível na análise técnica acima.
+              </p>
+              <div className="relatorio-veredito__badges">
+                <span className="relatorio-badge relatorio-badge--selo">
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    verified
+                  </span>
+                  Estado avaliado
+                </span>
+                <span className="relatorio-badge relatorio-badge--garantia">
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    security
+                  </span>
+                  Elegível para Garantia
+                </span>
+              </div>
+              <div className="relatorio-veredito__assinatura-row">
+                <span className="relatorio-veredito__avatar" aria-hidden="true">
+                  <span className="material-symbols-outlined">signature</span>
+                </span>
+                <div>
+                  <p className="relatorio-veredito__assinatura-nome">{inspection.users?.nome}</p>
+                  {inspection.users?.credencial_interna && (
+                    <p className="relatorio-veredito__assinatura-cargo">{inspection.users.credencial_interna}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+            {score && (
+              <div className="relatorio-veredito__gauge-wrap">
+                <div className="relatorio-veredito__gauge" data-classificacao={score.classificacao}>
+                  <Gauge nota={score.nota_geral} strokeTrack={3} strokeFill={10} />
+                  <span className="relatorio-veredito__nota relatorio-gradient-text">{score.nota_geral.toFixed(1)}</span>
+                  <span className="relatorio-eyebrow">Pontuação final</span>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-        <div className="relatorio-veredito__badges">
-          <span className="relatorio-badge relatorio-badge--selo">Estado avaliado</span>
-          <span className="relatorio-badge relatorio-badge--garantia">Elegível para Garantia</span>
         </div>
-        <p className="relatorio-veredito__assinatura">
-          {inspection.users?.nome}
-          {inspection.users?.credencial_interna ? `, ${inspection.users.credencial_interna}` : ""}
-        </p>
       </section>
 
       <footer className="relatorio-footer">

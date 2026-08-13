@@ -65,10 +65,10 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
   const [
     { data: score },
     { data: fotosCapa },
-    { data: groups },
-    { data: items },
-    { data: responses },
-    { data: equipamentos },
+    { data: groups, error: groupsError },
+    { data: items, error: itemsError },
+    { data: responses, error: responsesError },
+    { data: equipamentos, error: equipamentosError },
   ] = await Promise.all([
     supabase.from("inspection_score").select("nota_geral, classificacao").eq("inspection_id", id).maybeSingle(),
     supabase
@@ -93,34 +93,62 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
       .order("ordem"),
   ]);
 
+  // Falha silenciosa aqui renderizaria um certificado com "0 pontos
+  // verificados" -- pior que uma pagina de erro, porque parece valido.
+  // score/fotosCapa ficam de fora de proposito: ja degradam bem (sem nota ->
+  // UI de fallback; sem foto de capa -> hero sem carrossel).
+  if (groupsError || itemsError || responsesError || equipamentosError) {
+    console.error("relatorio checklist fetch failed", {
+      groupsError,
+      itemsError,
+      responsesError,
+      equipamentosError,
+    });
+    throw new Error("Não foi possível carregar os dados do relatório.");
+  }
+
   const conjuntoIds = Array.from(
     new Set((items ?? []).map((i) => i.conjunto_opcao_id).filter((v): v is string => v !== null))
   );
   const responseIds = (responses ?? []).map((r) => r.id);
   const equipamentoIds = (equipamentos ?? []).map((e) => e.id);
 
-  const [{ data: opcoes }, { data: medicaoResultados }, { data: photos }, { data: equipamentoFotos }] =
-    await Promise.all([
-      conjuntoIds.length > 0
-        ? supabase.from("opcoes").select("id, conjunto_id, label, ordem, exige_foto").in("conjunto_id", conjuntoIds)
-        : Promise.resolve({ data: [] }),
-      responseIds.length > 0
-        ? supabase.from("medicoes_resultado").select("item_response_id, resultado").in("item_response_id", responseIds)
-        : Promise.resolve({ data: [] }),
-      responseIds.length > 0
-        ? supabase
-            .from("photos")
-            .select("id, url, item_response_id")
-            .eq("contexto", "item")
-            .in("item_response_id", responseIds)
-        : Promise.resolve({ data: [] }),
-      equipamentoIds.length > 0
-        ? supabase
-            .from("equipamento_fotos")
-            .select("id, url, equipamento_inspecao_id")
-            .in("equipamento_inspecao_id", equipamentoIds)
-        : Promise.resolve({ data: [] }),
-    ]);
+  const [
+    { data: opcoes, error: opcoesError },
+    { data: medicaoResultados, error: medicaoResultadosError },
+    { data: photos, error: photosError },
+    { data: equipamentoFotos, error: equipamentoFotosError },
+  ] = await Promise.all([
+    conjuntoIds.length > 0
+      ? supabase.from("opcoes").select("id, conjunto_id, label, ordem, exige_foto").in("conjunto_id", conjuntoIds)
+      : Promise.resolve({ data: [], error: null }),
+    responseIds.length > 0
+      ? supabase.from("medicoes_resultado").select("item_response_id, resultado").in("item_response_id", responseIds)
+      : Promise.resolve({ data: [], error: null }),
+    responseIds.length > 0
+      ? supabase
+          .from("photos")
+          .select("id, url, item_response_id")
+          .eq("contexto", "item")
+          .in("item_response_id", responseIds)
+      : Promise.resolve({ data: [], error: null }),
+    equipamentoIds.length > 0
+      ? supabase
+          .from("equipamento_fotos")
+          .select("id, url, equipamento_inspecao_id")
+          .in("equipamento_inspecao_id", equipamentoIds)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+
+  if (opcoesError || medicaoResultadosError || photosError || equipamentoFotosError) {
+    console.error("relatorio checklist detail fetch failed", {
+      opcoesError,
+      medicaoResultadosError,
+      photosError,
+      equipamentoFotosError,
+    });
+    throw new Error("Não foi possível carregar os dados do relatório.");
+  }
 
   const vehicle = inspection.vehicle_data;
 

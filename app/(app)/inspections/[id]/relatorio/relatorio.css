@@ -252,6 +252,11 @@
 .relatorio-hero__overlay {
   position: relative;
   z-index: 2;
+  /* .relatorio-hero e display:flex (row) -- sem width:100% aqui, este item
+     vira shrink-to-fit (largura do proprio conteudo) em vez de esticar ate
+     o max-width, e o margin:auto centraliza uma caixa mais estreita do que
+     o container das outras secoes em vez de alinhar a mesma borda. */
+  width: 100%;
   max-width: var(--relatorio-container-max);
   margin: 0 auto;
   padding: 2rem 1.5rem;

@@ -49,6 +49,25 @@
   margin-bottom: 1.25rem;
 }
 
+/* Cabecalho de secao com subtitulo + linha separadora -- igual ao padrao do
+   mockup ("Análise Técnica Expandida" + descricao + border-b). Usado em
+   Especificações do veículo e Análise técnica. */
+.relatorio-section__header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--relatorio-border);
+}
+
+.relatorio-section__header h2 {
+  margin-bottom: 0.5rem;
+}
+
+.relatorio-section__subtitle {
+  color: var(--relatorio-ink-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
 .relatorio-page a:focus-visible,
 .relatorio-page button:focus-visible,
 .relatorio-page summary:focus-visible {
@@ -435,10 +454,16 @@
 .relatorio-spec-card {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 0.25rem;
   padding: 1.25rem 1.5rem;
   border-radius: 1rem;
   min-width: 0;
+  /* Uniforme entre todos os cards -- sem isso, um valor que quebra em 2
+     linhas (ex: "Gasolina / Manual" em Combustivel) so estica as outras
+     colunas DA MESMA linha do grid (comportamento padrao de stretch), nao
+     as linhas vizinhas -- resultado: altura inconsistente linha a linha. */
+  min-height: 6rem;
 }
 
 .relatorio-spec-card__label {
@@ -727,6 +752,13 @@
   max-width: var(--relatorio-container-max);
   margin-top: 4rem;
   margin-bottom: 4rem;
+  /* Brilho verde suave atras do card -- receita do mockup (.emerald-glow),
+     so nessa secao (o "climax" do relatorio), nao nos outros glass-cards.
+     Precisa ficar no wrapper, nao em .relatorio-veredito -- esse tem
+     overflow:hidden (pro icone de fundo gigante) e clipa qualquer
+     box-shadow que extrapole a propria caixa. */
+  border-radius: 3rem;
+  box-shadow: 0 0 60px rgba(0, 245, 160, 0.12);
 }
 
 .relatorio-veredito {
@@ -822,6 +854,18 @@
   font-size: 0.8rem;
   color: var(--relatorio-ink-muted);
   margin: 0;
+}
+
+.relatorio-veredito__codigo {
+  margin: 1.5rem 0 0;
+  font-size: 0.8rem;
+  color: var(--relatorio-ink-muted);
+}
+
+.relatorio-veredito__codigo-valor {
+  font-weight: 700;
+  color: var(--relatorio-mint);
+  letter-spacing: 0.05em;
 }
 
 .relatorio-veredito__gauge-wrap {

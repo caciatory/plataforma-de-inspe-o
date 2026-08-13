@@ -195,7 +195,10 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
       </section>
 
       <section className="relatorio-section">
-        <h2>Especificações do veículo</h2>
+        <div className="relatorio-section__header">
+          <h2>Especificações do veículo</h2>
+          <p className="relatorio-section__subtitle">Dados técnicos do veículo registados nesta inspeção.</p>
+        </div>
         <div className="relatorio-specs-grid">
           <div className="relatorio-spec-card glass">
             <span className="relatorio-spec-card__label">Matrícula</span>
@@ -299,6 +302,12 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
                   )}
                 </div>
               </div>
+              {inspection.codigo_certificado && (
+                <p className="relatorio-veredito__codigo">
+                  Código de certificado{" "}
+                  <span className="relatorio-veredito__codigo-valor">{inspection.codigo_certificado}</span>
+                </p>
+              )}
             </div>
             {score && (
               <div className="relatorio-veredito__gauge-wrap">

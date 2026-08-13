@@ -94,10 +94,14 @@ export function AnaliseTecnica({
   const comentarioDialogRef = useRef<HTMLDialogElement>(null);
 
   const grupos = buildRelatorioGrupos(groups, items, responses, opcoes, medicaoResultados, photos);
+  const totalItens = grupos.reduce((soma, grupo) => soma + grupo.items.length, 0);
 
   return (
     <section className="relatorio-section relatorio-analise" ref={containerRef}>
-      <h2>Análise técnica</h2>
+      <div className="relatorio-section__header">
+        <h2>Análise técnica</h2>
+        <p className="relatorio-section__subtitle">{totalItens} pontos de controlo verificados nesta inspeção.</p>
+      </div>
       <div className="relatorio-grupos-grid">
       {grupos.map((grupo) => (
         <details key={grupo.id} className="relatorio-grupo glass">

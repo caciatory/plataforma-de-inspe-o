@@ -47,4 +47,16 @@ describe("OutrosEquipamentos", () => {
     fireEvent.click(botaoComentario);
     expect(screen.getByText("Vidro traseiro direito lento")).toBeInTheDocument();
   });
+
+  it("expande todos os grupos colapsados ao disparar o evento beforeprint, e restaura no afterprint", () => {
+    render(<OutrosEquipamentos equipamentos={equipamentos} fotos={[]} />);
+    const details = document.querySelector("details") as HTMLDetailsElement;
+    details.open = false;
+
+    fireEvent(window, new Event("beforeprint"));
+    expect(details.open).toBe(true);
+
+    fireEvent(window, new Event("afterprint"));
+    expect(details.open).toBe(false);
+  });
 });

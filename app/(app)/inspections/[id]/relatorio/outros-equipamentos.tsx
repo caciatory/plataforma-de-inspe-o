@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { usePrintExpandsDetails } from "./use-print-expands-details";
 
 export type EquipamentoRow = {
   id: string;
@@ -50,6 +51,9 @@ export function OutrosEquipamentos({
   equipamentos: EquipamentoRow[];
   fotos: EquipamentoFoto[];
 }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  usePrintExpandsDetails(containerRef);
+
   const [fotoAberta, setFotoAberta] = useState<{ id: string; url: string }[] | null>(null);
   const [comentarioAberto, setComentarioAberto] = useState<string | null>(null);
   const fotoDialogRef = useRef<HTMLDialogElement>(null);
@@ -67,7 +71,7 @@ export function OutrosEquipamentos({
   const categorias = groupByCategoria(equipamentos);
 
   return (
-    <section className="relatorio-section relatorio-analise">
+    <section className="relatorio-section relatorio-analise" ref={containerRef}>
       <div className="relatorio-section__header">
         <h2>Outros equipamentos</h2>
         <p className="relatorio-section__subtitle">{equipamentos.length} equipamentos verificados.</p>

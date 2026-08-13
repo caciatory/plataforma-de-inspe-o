@@ -25,11 +25,13 @@ function buildQuery(result: unknown) {
   return query;
 }
 
+let inspectionsQuery: ReturnType<typeof buildQuery> | undefined;
+
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({
     from: (table: string) => {
       if (table === "inspections") {
-        return buildQuery({
+        inspectionsQuery = buildQuery({
           id: "insp-1",
           status: "aprovada",
           codigo_certificado: "CK7X29QP",
@@ -54,6 +56,7 @@ vi.mock("@/lib/supabase/server", () => ({
           },
           users: { nome: "Técnico Teste", credencial_interna: null },
         });
+        return inspectionsQuery;
       }
       if (table === "inspection_score") return buildQuery({ nota_geral: 8.5, classificacao: "A" });
       if (table === "photos") return buildQuery([]);
@@ -82,5 +85,14 @@ describe("RelatorioPage — RF-50", () => {
     expect(container.textContent).toContain("AA-00-XX");
     expect(container.textContent).toContain("Toyota");
     expect(container.textContent).toContain("Corolla");
+
+    // Regressao: <dialog> (do CertificadoInfoButton) nunca pode ficar
+    // aninhado dentro de um <p> -- HTML invalido, causa mismatch de hidratacao.
+    expect(container.querySelector("p dialog")).toBeNull();
+
+    // Regressao: ninguem pode adicionar um embed client_data(*) na mesma
+    // query de "inspections" (o throw genérico só pegaria uma tabela nova).
+    const selectArg = inspectionsQuery?.select.mock.calls[0][0];
+    expect(selectArg).not.toContain("client_data");
   });
 });

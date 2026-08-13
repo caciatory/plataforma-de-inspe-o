@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   buildRelatorioGrupos,
   type RelatorioGroupTemplate,
@@ -12,6 +12,7 @@ import {
   type ReportItem,
   type ReportItemStatus,
 } from "@/lib/report/build-relatorio";
+import { usePrintExpandsDetails } from "./use-print-expands-details";
 
 // Icone Material Symbols por status do item -- vocabulario reduzido (nao ha
 // como curar um icone por nome de item real, sao 320 nomes dinamicos).
@@ -37,37 +38,6 @@ function groupBySubcategoria(items: ReportItem[]): { subcategoria: string | null
     buckets.get(item.subcategoria)!.push(item);
   }
   return order.map((subcategoria) => ({ subcategoria, items: buckets.get(subcategoria)! }));
-}
-
-// ponytail: <details>/<summary> nativos cobrem o colapsar/expandir sem
-// nenhum estado React -- só a impressão precisa de JS, porque um <details>
-// fechado nao imprime o conteudo. beforeprint forca tudo aberto e afterprint
-// devolve o estado anterior, sem tocar nos que ja estavam abertos.
-function usePrintExpandsDetails(containerRef: React.RefObject<HTMLElement | null>) {
-  useEffect(() => {
-    function expandAll() {
-      const list = containerRef.current?.querySelectorAll("details") ?? [];
-      list.forEach((d) => {
-        if (!d.open) {
-          d.setAttribute("data-relatorio-fechado-antes", "true");
-          d.open = true;
-        }
-      });
-    }
-    function restore() {
-      const list = containerRef.current?.querySelectorAll("details[data-relatorio-fechado-antes='true']") ?? [];
-      list.forEach((d) => {
-        (d as HTMLDetailsElement).open = false;
-        d.removeAttribute("data-relatorio-fechado-antes");
-      });
-    }
-    window.addEventListener("beforeprint", expandAll);
-    window.addEventListener("afterprint", restore);
-    return () => {
-      window.removeEventListener("beforeprint", expandAll);
-      window.removeEventListener("afterprint", restore);
-    };
-  }, [containerRef]);
 }
 
 export function AnaliseTecnica({

@@ -114,26 +114,26 @@ export function AnaliseTecnica({
               {grupo.nome}
             </span>
             <span className="relatorio-grupo__contagem">
-              <span className="relatorio-badge relatorio-badge--ok">
+              <span className="relatorio-badge relatorio-badge--ok" aria-label={`${grupo.ok} OK`}>
                 <span className="material-symbols-outlined" aria-hidden="true">
                   check_circle
                 </span>
-                <span>{grupo.ok} OK</span>
+                <span aria-hidden="true">{grupo.ok}</span>
               </span>
               {grupo.medio > 0 && (
-                <span className="relatorio-badge relatorio-badge--medio">
+                <span className="relatorio-badge relatorio-badge--medio" aria-label={`${grupo.medio} atenção`}>
                   <span className="material-symbols-outlined" aria-hidden="true">
                     warning
                   </span>
-                  <span>{grupo.medio} atenção</span>
+                  <span aria-hidden="true">{grupo.medio}</span>
                 </span>
               )}
               {grupo.ruim > 0 && (
-                <span className="relatorio-badge relatorio-badge--ruim">
+                <span className="relatorio-badge relatorio-badge--ruim" aria-label={`${grupo.ruim} ruim`}>
                   <span className="material-symbols-outlined" aria-hidden="true">
                     error
                   </span>
-                  <span>{grupo.ruim} ruim</span>
+                  <span aria-hidden="true">{grupo.ruim}</span>
                 </span>
               )}
             </span>

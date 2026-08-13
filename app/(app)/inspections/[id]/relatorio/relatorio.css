@@ -169,7 +169,6 @@
   pointer-events: none;
 }
 
-.relatorio-hero__carousel-arrow,
 .relatorio-hero__carousel-expand {
   display: inline-flex;
   align-items: center;
@@ -184,31 +183,13 @@
   color: var(--relatorio-ink);
   cursor: pointer;
   pointer-events: auto;
-}
-
-.relatorio-hero__carousel-arrow:hover,
-.relatorio-hero__carousel-expand:hover {
-  background: rgba(0, 0, 0, 0.6);
-}
-
-.relatorio-hero__carousel-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.relatorio-hero__carousel-arrow--prev {
-  left: 1rem;
-}
-
-.relatorio-hero__carousel-arrow--next {
-  right: 1rem;
-}
-
-.relatorio-hero__carousel-expand {
   position: absolute;
   top: 1.5rem;
   right: 1.5rem;
+}
+
+.relatorio-hero__carousel-expand:hover {
+  background: rgba(0, 0, 0, 0.6);
 }
 
 /* No topo, nao embaixo -- a parte de baixo do hero e onde vive o badge,
@@ -245,10 +226,41 @@
   max-width: 95vw;
 }
 
+.relatorio-hero__lightbox-photo {
+  position: relative;
+}
+
 .relatorio-hero__lightbox .relatorio-dialog__foto {
+  display: block;
   max-height: 80vh;
   width: 100%;
   object-fit: contain;
+}
+
+/* Botao de fechar como icone vermelho no canto da foto, nao mais uma
+   pill com texto embaixo -- pedido explicito do usuario, fica mais limpo. */
+.relatorio-hero__lightbox-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: none;
+  background: var(--relatorio-red);
+  color: white;
+  cursor: pointer;
+}
+
+.relatorio-hero__lightbox-close:hover {
+  background: #c73f3e;
+}
+
+.relatorio-hero__lightbox-close .material-symbols-outlined {
+  font-size: 1.1rem;
 }
 
 .relatorio-hero__lightbox-nav {
@@ -665,23 +677,27 @@
 .relatorio-badge--ok {
   background: rgba(0, 245, 160, 0.15);
   color: var(--relatorio-mint);
+  border: 1px solid rgba(0, 245, 160, 0.3);
 }
 
 .relatorio-badge--medio {
   background: rgba(255, 176, 32, 0.15);
   color: var(--relatorio-amber);
+  border: 1px solid rgba(255, 176, 32, 0.3);
 }
 
 .relatorio-badge--ruim,
 .relatorio-badge--atencao {
   background: rgba(226, 75, 74, 0.15);
   color: var(--relatorio-red);
+  border: 1px solid rgba(226, 75, 74, 0.3);
 }
 
 .relatorio-badge--na,
 .relatorio-badge--info {
   background: rgba(255, 255, 255, 0.08);
   color: var(--relatorio-ink-muted);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .relatorio-badge--selo,

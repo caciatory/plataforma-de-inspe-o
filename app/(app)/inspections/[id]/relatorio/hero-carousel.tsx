@@ -39,32 +39,10 @@ export function HeroCarousel({ fotos }: { fotos: HeroCarouselPhoto[] }) {
         ))}
       </div>
 
+      {/* Setas de navegação manual só existem dentro do lightbox (depois de
+          "Ampliar") -- na página principal, só auto-avanço + bolinhas, pra
+          não carregar a foto de capa com controles grandes por cima. */}
       <div className="relatorio-hero__carousel-controls">
-        {fotos.length > 1 && (
-          <>
-            <button
-              type="button"
-              className="relatorio-hero__carousel-arrow relatorio-hero__carousel-arrow--prev"
-              aria-label="Foto anterior"
-              onClick={anterior}
-            >
-              <span className="material-symbols-outlined" aria-hidden="true">
-                chevron_left
-              </span>
-            </button>
-            <button
-              type="button"
-              className="relatorio-hero__carousel-arrow relatorio-hero__carousel-arrow--next"
-              aria-label="Próxima foto"
-              onClick={proxima}
-            >
-              <span className="material-symbols-outlined" aria-hidden="true">
-                chevron_right
-              </span>
-            </button>
-          </>
-        )}
-
         <button
           type="button"
           className="relatorio-hero__carousel-expand"
@@ -92,8 +70,20 @@ export function HeroCarousel({ fotos }: { fotos: HeroCarouselPhoto[] }) {
       </div>
 
       <dialog ref={dialogRef} className="relatorio-dialog relatorio-hero__lightbox">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={fotos[index].url} alt="Foto de capa ampliada" className="relatorio-dialog__foto" />
+        <div className="relatorio-hero__lightbox-photo">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={fotos[index].url} alt="Foto de capa ampliada" className="relatorio-dialog__foto" />
+          <button
+            type="button"
+            className="relatorio-hero__lightbox-close"
+            aria-label="Fechar"
+            onClick={() => dialogRef.current?.close()}
+          >
+            <span className="material-symbols-outlined" aria-hidden="true">
+              close
+            </span>
+          </button>
+        </div>
         {fotos.length > 1 && (
           <div className="relatorio-hero__lightbox-nav">
             <button type="button" className="relatorio-dialog__close" onClick={anterior}>
@@ -110,12 +100,6 @@ export function HeroCarousel({ fotos }: { fotos: HeroCarouselPhoto[] }) {
             </button>
           </div>
         )}
-        <button type="button" className="relatorio-dialog__close" onClick={() => dialogRef.current?.close()}>
-          <span className="material-symbols-outlined" aria-hidden="true">
-            close
-          </span>
-          Fechar
-        </button>
       </dialog>
     </>
   );

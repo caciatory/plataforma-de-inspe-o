@@ -23,12 +23,14 @@ const responses = [
 const photos = [{ id: "p1", url: "https://example.com/a.jpg", item_response_id: "r2" }];
 
 describe("AnaliseTecnica", () => {
-  it("mostra a contagem OK/atenção/ruim no cabeçalho do grupo", () => {
-    render(<AnaliseTecnica groups={groups} items={items} responses={responses} opcoes={opcoes} medicaoResultados={[]} photos={[]} />);
+  it("mostra a contagem OK/atenção/ruim no cabeçalho do grupo (só ícone + número, texto vai no aria-label)", () => {
+    const { container } = render(
+      <AnaliseTecnica groups={groups} items={items} responses={responses} opcoes={opcoes} medicaoResultados={[]} photos={[]} />
+    );
     expect(screen.getByText("Pneus")).toBeInTheDocument();
-    expect(screen.getByText("2 OK")).toBeInTheDocument();
-    expect(screen.getByText("1 atenção")).toBeInTheDocument();
-    expect(screen.getByText("1 ruim")).toBeInTheDocument();
+    expect(container.querySelector('[aria-label="2 OK"]')).toBeInTheDocument();
+    expect(container.querySelector('[aria-label="1 atenção"]')).toBeInTheDocument();
+    expect(container.querySelector('[aria-label="1 ruim"]')).toBeInTheDocument();
   });
 
   it("agrupa os itens por subcategoria, com uma subheading por subcategoria", () => {

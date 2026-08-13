@@ -22,13 +22,13 @@ describe("OutrosEquipamentos", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("agrupa por categoria com contagem OK/atenção no cabeçalho", () => {
-    render(<OutrosEquipamentos equipamentos={equipamentos} fotos={fotos} />);
+  it("agrupa por categoria com contagem OK/atenção no cabeçalho (só ícone + número, texto vai no aria-label)", () => {
+    const { container } = render(<OutrosEquipamentos equipamentos={equipamentos} fotos={fotos} />);
     expect(screen.getByText("Interior")).toBeInTheDocument();
     expect(screen.getByText("Exterior")).toBeInTheDocument();
     // Interior: 1 bom + 1 atencao -> "1 OK"/"1 atenção"; Exterior: 1 bom -> "1 OK" tambem
-    expect(screen.getAllByText("1 OK")).toHaveLength(2);
-    expect(screen.getByText("1 atenção")).toBeInTheDocument();
+    expect(container.querySelectorAll('[aria-label="1 OK"]')).toHaveLength(2);
+    expect(container.querySelector('[aria-label="1 atenção"]')).toBeInTheDocument();
   });
 
   it("mostra o ícone de foto só no equipamento que tem foto, e abre o diálogo ao clicar", () => {

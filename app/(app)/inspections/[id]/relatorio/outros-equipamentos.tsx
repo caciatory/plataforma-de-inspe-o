@@ -87,18 +87,18 @@ export function OutrosEquipamentos({
                   {grupo.categoria}
                 </span>
                 <span className="relatorio-grupo__contagem">
-                  <span className="relatorio-badge relatorio-badge--ok">
+                  <span className="relatorio-badge relatorio-badge--ok" aria-label={`${ok} OK`}>
                     <span className="material-symbols-outlined" aria-hidden="true">
                       check_circle
                     </span>
-                    <span>{ok} OK</span>
+                    <span aria-hidden="true">{ok}</span>
                   </span>
                   {atencao > 0 && (
-                    <span className="relatorio-badge relatorio-badge--atencao">
+                    <span className="relatorio-badge relatorio-badge--atencao" aria-label={`${atencao} atenção`}>
                       <span className="material-symbols-outlined" aria-hidden="true">
                         warning
                       </span>
-                      <span>{atencao} atenção</span>
+                      <span aria-hidden="true">{atencao}</span>
                     </span>
                   )}
                 </span>

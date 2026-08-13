@@ -7,24 +7,28 @@ const items = [
   { id: "i1", group_id: "g1", subcategoria: "Rodas", nome: "Pneu dianteiro", tipo: "escolha" as const, conjunto_opcao_id: "c1" },
   { id: "i2", group_id: "g1", subcategoria: "Rodas", nome: "Pneu traseiro", tipo: "escolha" as const, conjunto_opcao_id: "c1" },
   { id: "i3", group_id: "g1", subcategoria: "Travões", nome: "Disco dianteiro", tipo: "escolha" as const, conjunto_opcao_id: "c1" },
+  { id: "i4", group_id: "g1", subcategoria: "Rodas", nome: "Amortecedor", tipo: "escolha" as const, conjunto_opcao_id: "c1" },
 ];
 const opcoes = [
   { id: "o1", conjunto_id: "c1", label: "Ótimo", ordem: 1, exige_foto: false },
-  { id: "o2", conjunto_id: "c1", label: "Mau", ordem: 2, exige_foto: true },
+  { id: "o2", conjunto_id: "c1", label: "Médio", ordem: 2, exige_foto: false },
+  { id: "o3", conjunto_id: "c1", label: "Mau", ordem: 3, exige_foto: true },
 ];
 const responses = [
   { id: "r1", item_template_id: "i1", opcao_id: "o1", resposta_texto: null, resposta_data: null, observacao: null },
-  { id: "r2", item_template_id: "i2", opcao_id: "o2", resposta_texto: null, resposta_data: null, observacao: "Risco fundo" },
+  { id: "r2", item_template_id: "i2", opcao_id: "o3", resposta_texto: null, resposta_data: null, observacao: "Risco fundo" },
   { id: "r3", item_template_id: "i3", opcao_id: "o1", resposta_texto: null, resposta_data: null, observacao: null },
+  { id: "r4", item_template_id: "i4", opcao_id: "o2", resposta_texto: null, resposta_data: null, observacao: null },
 ];
 const photos = [{ id: "p1", url: "https://example.com/a.jpg", item_response_id: "r2" }];
 
 describe("AnaliseTecnica", () => {
-  it("mostra a contagem OK/atenção no cabeçalho do grupo", () => {
+  it("mostra a contagem OK/atenção/ruim no cabeçalho do grupo", () => {
     render(<AnaliseTecnica groups={groups} items={items} responses={responses} opcoes={opcoes} medicaoResultados={[]} photos={[]} />);
     expect(screen.getByText("Pneus")).toBeInTheDocument();
     expect(screen.getByText("2 OK")).toBeInTheDocument();
     expect(screen.getByText("1 atenção")).toBeInTheDocument();
+    expect(screen.getByText("1 ruim")).toBeInTheDocument();
   });
 
   it("agrupa os itens por subcategoria, com uma subheading por subcategoria", () => {

@@ -108,7 +108,7 @@ export function AnaliseTecnica({
           <summary className="relatorio-grupo__cabecalho">
             <span className="relatorio-grupo__titulo">
               <span
-                className={`relatorio-grupo__dot${grupo.atencao > 0 ? " relatorio-grupo__dot--atencao" : ""}`}
+                className={`relatorio-grupo__dot${grupo.medio > 0 || grupo.ruim > 0 ? " relatorio-grupo__dot--atencao" : ""}`}
                 aria-hidden="true"
               />
               {grupo.nome}
@@ -120,12 +120,20 @@ export function AnaliseTecnica({
                 </span>
                 <span>{grupo.ok} OK</span>
               </span>
-              {grupo.atencao > 0 && (
-                <span className="relatorio-badge relatorio-badge--atencao">
+              {grupo.medio > 0 && (
+                <span className="relatorio-badge relatorio-badge--medio">
                   <span className="material-symbols-outlined" aria-hidden="true">
                     warning
                   </span>
-                  <span>{grupo.atencao} atenção</span>
+                  <span>{grupo.medio} atenção</span>
+                </span>
+              )}
+              {grupo.ruim > 0 && (
+                <span className="relatorio-badge relatorio-badge--ruim">
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    error
+                  </span>
+                  <span>{grupo.ruim} ruim</span>
                 </span>
               )}
             </span>

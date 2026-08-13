@@ -34,7 +34,7 @@ export type ReportItem = {
   piscaComentario: boolean;
 };
 
-export type ReportGroup = { id: string; nome: string; ok: number; atencao: number; items: ReportItem[] };
+export type ReportGroup = { id: string; nome: string; ok: number; medio: number; ruim: number; items: ReportItem[] };
 
 const MEDICAO_LABEL: Record<RelatorioMedicaoResultado["resultado"], string> = {
   ok: "Conforme",
@@ -124,8 +124,9 @@ export function buildRelatorioGrupos(
       return {
         id: group.id,
         nome: group.nome,
-        ok: reportItems.filter((i) => i.status !== "ruim").length,
-        atencao: reportItems.filter((i) => i.status === "ruim").length,
+        ok: reportItems.filter((i) => i.status === "otimo" || i.status === "na" || i.status === "info").length,
+        medio: reportItems.filter((i) => i.status === "medio").length,
+        ruim: reportItems.filter((i) => i.status === "ruim").length,
         items: reportItems,
       };
     })

@@ -211,9 +211,14 @@
   right: 1.5rem;
 }
 
+/* No topo, nao embaixo -- a parte de baixo do hero e onde vive o badge,
+   titulo e a barra do dashboard (que cresce de altura dependendo de ter ou
+   nao parceiro/codigo/etc), entao um offset fixo tipo bottom:1.5rem sempre
+   ia acabar colidindo com esse conteudo em algum breakpoint. O topo do
+   hero e so foto, sempre sobra espaco. */
 .relatorio-hero__carousel-dots {
   position: absolute;
-  bottom: 1.5rem;
+  top: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;

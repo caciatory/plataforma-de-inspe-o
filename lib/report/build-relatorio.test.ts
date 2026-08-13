@@ -12,6 +12,7 @@ const items = [
   { id: "i3", group_id: "g1", subcategoria: "Travões", nome: "Espessura pastilha", tipo: "medicao" as const, conjunto_opcao_id: null },
   { id: "i4", group_id: "g1", subcategoria: "Rodas", nome: "Cor da jante", tipo: "texto" as const, conjunto_opcao_id: null },
   { id: "i5", group_id: "g2", subcategoria: null, nome: "Item nunca respondido", tipo: "escolha" as const, conjunto_opcao_id: "c1" },
+  { id: "i6", group_id: "g1", subcategoria: "Rodas", nome: "Pneu sobressalente", tipo: "escolha" as const, conjunto_opcao_id: "c1" },
 ];
 
 const opcoes = [
@@ -25,6 +26,7 @@ const responses = [
   { id: "r2", item_template_id: "i2", opcao_id: "o3", resposta_texto: null, resposta_data: null, observacao: "Risco fundo na lateral" },
   { id: "r3", item_template_id: "i3", opcao_id: null, resposta_texto: null, resposta_data: null, observacao: null },
   { id: "r4", item_template_id: "i4", opcao_id: null, resposta_texto: "Preto", resposta_data: null, observacao: "Cor repintada" },
+  { id: "r6", item_template_id: "i6", opcao_id: "o2", resposta_texto: null, resposta_data: null, observacao: null },
 ];
 
 const medicaoResultados = [{ item_response_id: "r3", resultado: "critico" as const }];
@@ -61,10 +63,11 @@ describe("buildRelatorioGrupos", () => {
     expect(texto.respostaLabel).toBe("Preto");
   });
 
-  it("conta OK/atenção por grupo com base em quantos itens são 'ruim'", () => {
+  it("conta OK/atenção/ruim por grupo separando as 3 severidades", () => {
     const [grupo] = buildRelatorioGrupos(groups, items, responses, opcoes, medicaoResultados, photos);
-    expect(grupo.atencao).toBe(2); // i2 (ruim) + i3 (crítico -> ruim)
     expect(grupo.ok).toBe(2); // i1 (ótimo) + i4 (info)
+    expect(grupo.medio).toBe(1); // i6 (médio)
+    expect(grupo.ruim).toBe(2); // i2 (ruim) + i3 (crítico -> ruim)
   });
 
   it("anexa fotos ao item pela resposta correspondente", () => {

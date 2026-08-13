@@ -100,7 +100,7 @@ export function AnaliseTecnica({
       <h2>Análise técnica</h2>
       <div className="relatorio-grupos-grid">
       {grupos.map((grupo) => (
-        <details key={grupo.id} className="relatorio-grupo glass" open>
+        <details key={grupo.id} className="relatorio-grupo glass">
           <summary className="relatorio-grupo__cabecalho">
             <span className="relatorio-grupo__titulo">
               <span

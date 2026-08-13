@@ -17,6 +17,11 @@
   --relatorio-mint-soft: #cdffde;
   --relatorio-red: #e24b4a;
   --relatorio-amber: #ffb020;
+  /* Largura mestra do container -- Analise tecnica e a referencia (precisa
+     de mais espaco pras 2 colunas). Todo bloco da pagina (hero, specs,
+     analise, selo, rodape) usa essa mesma largura + o mesmo padding lateral
+     pra bordas alinhadas verticalmente entre si. */
+  --relatorio-container-max: 1200px;
 
   color-scheme: dark;
   background: var(--relatorio-bg);
@@ -239,11 +244,17 @@
   pointer-events: none;
 }
 
+/* Mesmo container das outras secoes (max-width + margin auto + padding
+   lateral) -- antes o overlay so tinha padding:2rem sem max-width, entao o
+   conteudo do hero comecava/terminava numa borda diferente de
+   .relatorio-section em telas largas (onde o container centralizado tem
+   margem lateral bem maior que 2rem). */
 .relatorio-hero__overlay {
   position: relative;
   z-index: 2;
-  width: 100%;
-  padding: 2rem;
+  max-width: var(--relatorio-container-max);
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
 }
 
 .relatorio-hero__badge {
@@ -288,7 +299,6 @@
   padding: 1.5rem 2rem;
   border-radius: 1.75rem;
   width: 100%;
-  max-width: 56rem;
   margin: 1.75rem 0 0;
 }
 
@@ -400,7 +410,7 @@
 /* Seções gerais */
 
 .relatorio-section {
-  max-width: 960px;
+  max-width: var(--relatorio-container-max);
   margin: 2rem auto;
   padding: 0 1.5rem;
 }
@@ -458,7 +468,7 @@
    2 grupos fixos do mockup -- columns se comporta melhor que grid aqui
    porque nao intercala 1-2-1-2, preenche a coluna 1 inteira primeiro). */
 .relatorio-analise {
-  max-width: 1200px;
+  max-width: var(--relatorio-container-max);
 }
 
 @media (min-width: 900px) {
@@ -709,7 +719,7 @@
 /* Veredito final */
 
 .relatorio-veredito-wrap {
-  max-width: 1100px;
+  max-width: var(--relatorio-container-max);
   margin-top: 4rem;
   margin-bottom: 4rem;
 }
@@ -841,7 +851,7 @@
 }
 
 .relatorio-footer {
-  max-width: 960px;
+  max-width: var(--relatorio-container-max);
   margin: 3rem auto 0;
   padding: 1.5rem;
   border-top: 1px solid var(--relatorio-border);

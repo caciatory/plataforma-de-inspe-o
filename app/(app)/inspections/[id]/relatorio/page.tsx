@@ -4,6 +4,7 @@ import { DM_Sans } from "next/font/google";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import { AnaliseTecnica } from "./analise-tecnica";
+import { CertificadoInfoButton } from "./certificado-info";
 import { HeroCarousel } from "./hero-carousel";
 import { OutrosEquipamentos } from "./outros-equipamentos";
 import "./relatorio.css";
@@ -454,10 +455,13 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
                 </div>
               </div>
               {inspection.codigo_certificado && (
-                <p className="relatorio-veredito__codigo">
+                // div, nao <p> -- <dialog> (dentro de CertificadoInfoButton) nao e
+                // conteudo de fraseado, um <p> so aceita filhos inline/fraseado.
+                <div className="relatorio-veredito__codigo">
                   Código de certificado{" "}
                   <span className="relatorio-veredito__codigo-valor">{inspection.codigo_certificado}</span>
-                </p>
+                  <CertificadoInfoButton />
+                </div>
               )}
             </div>
             {score && (

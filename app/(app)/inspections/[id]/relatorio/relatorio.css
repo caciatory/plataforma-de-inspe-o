@@ -911,6 +911,49 @@
   letter-spacing: 0.05em;
 }
 
+.relatorio-info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-left: 0.35rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--relatorio-ink-muted);
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.relatorio-info-icon:hover {
+  color: var(--relatorio-mint);
+}
+
+.relatorio-info-icon .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+.relatorio-info-dialog {
+  max-width: min(90vw, 420px);
+}
+
+.relatorio-info-dialog h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  color: var(--relatorio-ink);
+}
+
+.relatorio-info-dialog p {
+  color: var(--relatorio-ink-muted);
+  line-height: 1.6;
+  margin: 0 0 0.75rem;
+}
+
+.relatorio-info-dialog strong {
+  color: var(--relatorio-ink);
+}
+
 .relatorio-veredito__gauge-wrap {
   display: flex;
   justify-content: center;

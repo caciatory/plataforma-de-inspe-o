@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import { AnaliseTecnica } from "./analise-tecnica";
 import { HeroCarousel } from "./hero-carousel";
+import { OutrosEquipamentos } from "./outros-equipamentos";
 import "./relatorio.css";
 
 // Fonte exclusiva desta rota (identidade visual dark-glassmorphism) -- nao
@@ -66,6 +67,7 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
     { data: groups },
     { data: items },
     { data: responses },
+    { data: equipamentos },
   ] = await Promise.all([
     supabase.from("inspection_score").select("nota_geral, classificacao").eq("inspection_id", id).maybeSingle(),
     supabase
@@ -83,24 +85,41 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
       .from("checklist_item_responses")
       .select("id, item_template_id, opcao_id, resposta_texto, resposta_data, observacao")
       .eq("inspection_id", id),
+    supabase
+      .from("equipamento_inspecao")
+      .select("id, categoria, nome_equipamento, condicao, comentario, ordem")
+      .eq("inspection_id", id)
+      .order("ordem"),
   ]);
 
   const conjuntoIds = Array.from(
     new Set((items ?? []).map((i) => i.conjunto_opcao_id).filter((v): v is string => v !== null))
   );
   const responseIds = (responses ?? []).map((r) => r.id);
+  const equipamentoIds = (equipamentos ?? []).map((e) => e.id);
 
-  const [{ data: opcoes }, { data: medicaoResultados }, { data: photos }] = await Promise.all([
-    conjuntoIds.length > 0
-      ? supabase.from("opcoes").select("id, conjunto_id, label, ordem, exige_foto").in("conjunto_id", conjuntoIds)
-      : Promise.resolve({ data: [] }),
-    responseIds.length > 0
-      ? supabase.from("medicoes_resultado").select("item_response_id, resultado").in("item_response_id", responseIds)
-      : Promise.resolve({ data: [] }),
-    responseIds.length > 0
-      ? supabase.from("photos").select("id, url, item_response_id").eq("contexto", "item").in("item_response_id", responseIds)
-      : Promise.resolve({ data: [] }),
-  ]);
+  const [{ data: opcoes }, { data: medicaoResultados }, { data: photos }, { data: equipamentoFotos }] =
+    await Promise.all([
+      conjuntoIds.length > 0
+        ? supabase.from("opcoes").select("id, conjunto_id, label, ordem, exige_foto").in("conjunto_id", conjuntoIds)
+        : Promise.resolve({ data: [] }),
+      responseIds.length > 0
+        ? supabase.from("medicoes_resultado").select("item_response_id, resultado").in("item_response_id", responseIds)
+        : Promise.resolve({ data: [] }),
+      responseIds.length > 0
+        ? supabase
+            .from("photos")
+            .select("id, url, item_response_id")
+            .eq("contexto", "item")
+            .in("item_response_id", responseIds)
+        : Promise.resolve({ data: [] }),
+      equipamentoIds.length > 0
+        ? supabase
+            .from("equipamento_fotos")
+            .select("id, url, equipamento_inspecao_id")
+            .in("equipamento_inspecao_id", equipamentoIds)
+        : Promise.resolve({ data: [] }),
+    ]);
 
   const vehicle = inspection.vehicle_data;
 
@@ -257,6 +276,81 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
               {vehicle?.quilometragem != null ? `${vehicle.quilometragem} km` : "—"}
             </span>
           </div>
+          <div className="relatorio-spec-card glass">
+            <span className="relatorio-spec-card__label">Código da cor</span>
+            <span className="relatorio-spec-card__valor">{vehicle?.codigo_cor ?? "—"}</span>
+          </div>
+          <div className="relatorio-spec-card glass">
+            <span className="relatorio-spec-card__label">Tração</span>
+            <span className="relatorio-spec-card__valor">{vehicle?.tracao ?? "—"}</span>
+          </div>
+          <div className="relatorio-spec-card glass">
+            <span className="relatorio-spec-card__label">Potência</span>
+            <span className="relatorio-spec-card__valor">{vehicle?.potencia_cv != null ? `${vehicle.potencia_cv} cv` : "—"}</span>
+          </div>
+          <div className="relatorio-spec-card glass">
+            <span className="relatorio-spec-card__label">Torque</span>
+            <span className="relatorio-spec-card__valor">{vehicle?.torque_nm != null ? `${vehicle.torque_nm} Nm` : "—"}</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="relatorio-section">
+        <div className="relatorio-section__header">
+          <h2>Histórico do veículo</h2>
+          <p className="relatorio-section__subtitle">Informações declaradas na abertura da inspeção.</p>
+        </div>
+        <div className="relatorio-specs-grid">
+          <div className="relatorio-spec-card glass">
+            <span className="relatorio-spec-card__label">Situação fiscal</span>
+            <span className="relatorio-spec-card__valor">
+              {vehicle?.situacao_fiscal_regular ? "Regular" : "Irregular"}
+            </span>
+          </div>
+          {vehicle?.situacao_fiscal_observacoes && (
+            <div className="relatorio-spec-card glass">
+              <span className="relatorio-spec-card__label">Observações fiscais</span>
+              <span className="relatorio-spec-card__valor">{vehicle.situacao_fiscal_observacoes}</span>
+            </div>
+          )}
+          {vehicle?.numero_proprietarios_anteriores != null && (
+            <div className="relatorio-spec-card glass">
+              <span className="relatorio-spec-card__label">Proprietários anteriores</span>
+              <span className="relatorio-spec-card__valor">{vehicle.numero_proprietarios_anteriores}</span>
+            </div>
+          )}
+          {vehicle?.indicios_adulteracao_km && (
+            <div className="relatorio-spec-card glass">
+              <span className="relatorio-spec-card__label">Indícios de adulteração de KM</span>
+              <span className="relatorio-spec-card__valor">{vehicle.indicios_adulteracao_km}</span>
+            </div>
+          )}
+          {vehicle?.registo_acidentes_anteriores && (
+            <div className="relatorio-spec-card glass">
+              <span className="relatorio-spec-card__label">Registo de acidentes anteriores</span>
+              <span className="relatorio-spec-card__valor">{vehicle.registo_acidentes_anteriores}</span>
+            </div>
+          )}
+          {vehicle?.historico_manutencao && (
+            <div className="relatorio-spec-card glass">
+              <span className="relatorio-spec-card__label">Histórico de manutenção</span>
+              <span className="relatorio-spec-card__valor">{vehicle.historico_manutencao}</span>
+            </div>
+          )}
+          {vehicle?.inspecoes_periodicas_ipo_data && (
+            <div className="relatorio-spec-card glass">
+              <span className="relatorio-spec-card__label">Inspeção periódica (IPO)</span>
+              <span className="relatorio-spec-card__valor">
+                {new Date(vehicle.inspecoes_periodicas_ipo_data).toLocaleDateString("pt-PT")}
+              </span>
+            </div>
+          )}
+          {vehicle?.inspecoes_periodicas_ipo_notas && (
+            <div className="relatorio-spec-card glass">
+              <span className="relatorio-spec-card__label">Notas da inspeção periódica</span>
+              <span className="relatorio-spec-card__valor">{vehicle.inspecoes_periodicas_ipo_notas}</span>
+            </div>
+          )}
         </div>
       </section>
 
@@ -268,6 +362,8 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
         medicaoResultados={medicaoResultados ?? []}
         photos={photos ?? []}
       />
+
+      <OutrosEquipamentos equipamentos={equipamentos ?? []} fotos={equipamentoFotos ?? []} />
 
       <section className="relatorio-section relatorio-veredito-wrap">
         <div className="relatorio-veredito__glow">

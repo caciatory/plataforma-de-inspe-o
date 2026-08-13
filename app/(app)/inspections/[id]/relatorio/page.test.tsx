@@ -62,6 +62,8 @@ vi.mock("@/lib/supabase/server", () => ({
       if (table === "checklist_item_responses") return buildQuery([]);
       if (table === "opcoes") return buildQuery([]);
       if (table === "medicoes_resultado") return buildQuery([]);
+      if (table === "equipamento_inspecao") return buildQuery([]);
+      if (table === "equipamento_fotos") return buildQuery([]);
       throw new Error(`unexpected table ${table}`);
     },
   }),

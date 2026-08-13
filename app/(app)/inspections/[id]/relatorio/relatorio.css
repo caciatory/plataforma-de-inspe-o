@@ -101,13 +101,128 @@
 .relatorio-hero {
   position: relative;
   min-height: 60vh;
-  background-size: cover;
-  background-position: center;
+  overflow: hidden;
   display: flex;
   align-items: flex-end;
 }
 
+/* Slideshow de fotos de capa -- fotos empilhadas absolutas, crossfade via
+   opacity (permite transicao suave, ao contrario de trocar background-image
+   direto). Auto-avanca e tem controles manuais (HeroCarousel, client). */
+.relatorio-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.relatorio-hero__bg-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .relatorio-hero__bg-slide {
+    transition: opacity 1.2s ease;
+  }
+}
+
+.relatorio-hero__carousel-controls {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.relatorio-hero__carousel-arrow,
+.relatorio-hero__carousel-expand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--relatorio-ink);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.relatorio-hero__carousel-arrow:hover,
+.relatorio-hero__carousel-expand:hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.relatorio-hero__carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.relatorio-hero__carousel-arrow--prev {
+  left: 1rem;
+}
+
+.relatorio-hero__carousel-arrow--next {
+  right: 1rem;
+}
+
+.relatorio-hero__carousel-expand {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+}
+
+.relatorio-hero__carousel-dots {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  pointer-events: auto;
+}
+
+.relatorio-hero__carousel-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+}
+
+.relatorio-hero__carousel-dot--ativo {
+  width: 1.5rem;
+  background: var(--relatorio-mint);
+}
+
+.relatorio-hero__lightbox {
+  max-width: 95vw;
+}
+
+.relatorio-hero__lightbox .relatorio-dialog__foto {
+  max-height: 80vh;
+  width: 100%;
+  object-fit: contain;
+}
+
+.relatorio-hero__lightbox-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
 .relatorio-hero__overlay {
+  position: relative;
+  z-index: 1;
   width: 100%;
   padding: 2rem;
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 70%);
@@ -140,33 +255,46 @@
   margin: 0.25rem 0 0;
 }
 
-.relatorio-hero__matricula {
-  color: var(--relatorio-ink-muted);
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-  margin: 0.5rem 0 1.5rem;
-}
-
 .relatorio-hero__status {
   color: var(--relatorio-mint);
   font-weight: 600;
+  margin: 1.5rem 0 0;
 }
 
 .relatorio-hero__dashboard {
-  display: inline-flex;
+  display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 2rem;
   padding: 1.5rem 2rem;
   border-radius: 1.75rem;
+  width: 100%;
+  max-width: 56rem;
+  margin-top: 1.75rem;
 }
 
 .relatorio-hero__metric {
   display: flex;
   align-items: center;
   gap: 1.25rem;
+}
+
+.relatorio-hero__parceiro {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.relatorio-hero__parceiro p {
+  margin: 0;
+}
+
+.relatorio-hero__parceiro .relatorio-parceiro__whatsapp {
+  display: inline-block;
+  margin-left: 0;
+  margin-top: 0.15rem;
+  font-size: 0.85rem;
 }
 
 .relatorio-hero__metric-value {
@@ -279,14 +407,6 @@
   color: var(--relatorio-ink);
 }
 
-.relatorio-parceiro {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.25rem 1.5rem;
-  border-radius: 1rem;
-}
-
 .relatorio-parceiro__logo {
   width: 3rem;
   height: 3rem;
@@ -297,11 +417,6 @@
 .relatorio-parceiro__whatsapp {
   margin-left: auto;
   color: var(--relatorio-mint);
-}
-
-.relatorio-parceiro__nome {
-  font-weight: 600;
-  color: var(--relatorio-ink);
 }
 
 /* Análise técnica -- duas colunas em desktop (mockup: grid-cols-1

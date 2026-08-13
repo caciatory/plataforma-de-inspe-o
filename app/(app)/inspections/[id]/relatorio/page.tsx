@@ -4,6 +4,7 @@ import { DM_Sans } from "next/font/google";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import { AnaliseTecnica } from "./analise-tecnica";
+import { HeroCarousel } from "./hero-carousel";
 import "./relatorio.css";
 
 // Fonte exclusiva desta rota (identidade visual dark-glassmorphism) -- nao
@@ -102,11 +103,14 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
   ]);
 
   const vehicle = inspection.vehicle_data;
-  const capaUrl = fotosCapa?.[0]?.url ?? null;
 
-  const dataAprovacao = inspection.certificado_emitido_em
-    ? new Date(inspection.certificado_emitido_em).toLocaleDateString("pt-PT")
-    : null;
+  // Data da inspeção em si (quando o tecnico finalizou em campo), nao a data
+  // de emissao do certificado (que e so quando o admin aprovou depois).
+  const dataInspecao = inspection.data_finalizacao
+    ? new Date(inspection.data_finalizacao).toLocaleDateString("pt-PT")
+    : inspection.data_abertura
+      ? new Date(inspection.data_abertura).toLocaleDateString("pt-PT")
+      : null;
 
   return (
     <main className={`relatorio-page ${dmSans.className}`}>
@@ -117,7 +121,8 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block"
       />
-      <section className="relatorio-hero" style={capaUrl ? { backgroundImage: `url(${capaUrl})` } : undefined}>
+      <section className="relatorio-hero">
+        <HeroCarousel fotos={fotosCapa ?? []} />
         <div className="relatorio-hero__overlay">
           <div className="relatorio-hero__badge">
             <span className="material-symbols-outlined" aria-hidden="true">
@@ -128,7 +133,6 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
           <h1 className="relatorio-hero__titulo">
             {vehicle?.marca} {vehicle?.modelo}
           </h1>
-          <p className="relatorio-hero__matricula">{vehicle?.matricula}</p>
           {score ? (
             <div className="relatorio-hero__dashboard glass">
               <div className="relatorio-hero__metric">
@@ -144,15 +148,42 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
                   <p className="relatorio-hero__metric-value">Aprovada</p>
                 </div>
               </div>
+
+              {inspection.parceiro_nome && (
+                <>
+                  <div className="relatorio-hero__divider" aria-hidden="true" />
+                  <div className="relatorio-hero__parceiro">
+                    {inspection.parceiro_logo_url && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={inspection.parceiro_logo_url}
+                        alt={inspection.parceiro_nome}
+                        className="relatorio-parceiro__logo"
+                      />
+                    )}
+                    <div>
+                      <p className="relatorio-eyebrow">Parceiro</p>
+                      <p className="relatorio-hero__metric-value">{inspection.parceiro_nome}</p>
+                      {inspection.parceiro_telefone && (
+                        <a
+                          href={`https://wa.me/${inspection.parceiro_telefone.replace(/\D/g, "")}`}
+                          className="relatorio-parceiro__whatsapp"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Falar no WhatsApp
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
               <div className="relatorio-hero__divider" aria-hidden="true" />
               <div className="relatorio-hero__stats">
                 <div>
-                  <p className="relatorio-eyebrow">Inspeção</p>
-                  <p className="relatorio-hero__metric-value">Aprovada</p>
-                </div>
-                <div>
-                  <p className="relatorio-eyebrow">Data</p>
-                  <p className="relatorio-hero__metric-value">{dataAprovacao ?? "—"}</p>
+                  <p className="relatorio-eyebrow">Data da inspeção</p>
+                  <p className="relatorio-hero__metric-value">{dataInspecao ?? "—"}</p>
                 </div>
               </div>
             </div>
@@ -219,26 +250,6 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
           </div>
         </div>
       </section>
-
-      {inspection.parceiro_nome && (
-        <section className="relatorio-section relatorio-parceiro glass">
-          {inspection.parceiro_logo_url && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={inspection.parceiro_logo_url} alt={inspection.parceiro_nome} className="relatorio-parceiro__logo" />
-          )}
-          <span className="relatorio-parceiro__nome">{inspection.parceiro_nome}</span>
-          {inspection.parceiro_telefone && (
-            <a
-              href={`https://wa.me/${inspection.parceiro_telefone.replace(/\D/g, "")}`}
-              className="relatorio-parceiro__whatsapp"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Falar no WhatsApp
-            </a>
-          )}
-        </section>
-      )}
 
       <AnaliseTecnica
         groups={groups ?? []}

@@ -147,7 +147,7 @@ export function InspectionsTable({ rows }: { rows: AdminInspectionRow[] }) {
                         parceiro_logo_url: r.parceiroLogoUrl,
                         parceiro_telefone: r.parceiroTelefone,
                       }}
-                      initialFotos={[]}
+                      initialFotos={r.fotosCapa}
                     />
                   )}
                 </td>

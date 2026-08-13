@@ -14,6 +14,7 @@ export type AdminInspectionRow = {
   parceiroNome: string | null;
   parceiroLogoUrl: string | null;
   parceiroTelefone: string | null;
+  fotosCapa: { id: string; url: string }[];
 };
 
 export function buildAdminInspectionRows(
@@ -29,9 +30,16 @@ export function buildAdminInspectionRows(
     vehicle_data: { matricula: string; marca: string; modelo: string } | null;
     users: { nome: string } | null;
   }[],
-  scores: { inspection_id: string; nota_geral: number; classificacao: string }[]
+  scores: { inspection_id: string; nota_geral: number; classificacao: string }[],
+  fotosCapa: { id: string; url: string; inspection_id: string }[] = []
 ): AdminInspectionRow[] {
   const scoreByInspectionId = new Map(scores.map((s) => [s.inspection_id, s]));
+  const fotosByInspectionId = new Map<string, { id: string; url: string }[]>();
+  for (const foto of fotosCapa) {
+    const lista = fotosByInspectionId.get(foto.inspection_id) ?? [];
+    lista.push({ id: foto.id, url: foto.url });
+    fotosByInspectionId.set(foto.inspection_id, lista);
+  }
 
   return inspections.map((i) => {
     const score = scoreByInspectionId.get(i.id);
@@ -49,6 +57,7 @@ export function buildAdminInspectionRows(
       parceiroNome: i.parceiro_nome,
       parceiroLogoUrl: i.parceiro_logo_url,
       parceiroTelefone: i.parceiro_telefone,
+      fotosCapa: fotosByInspectionId.get(i.id) ?? [],
     };
   });
 }

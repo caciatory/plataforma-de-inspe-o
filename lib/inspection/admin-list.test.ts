@@ -52,4 +52,23 @@ describe("buildAdminInspectionRows", () => {
     expect(rows[1].parceiroLogoUrl).toBe("https://example.com/logo.png");
     expect(rows[1].parceiroTelefone).toBe("351912345678");
   });
+
+  it("agrupa fotos de capa por inspection_id, lista vazia quando não há fotos", () => {
+    const fotosCapa = [
+      { id: "f1", url: "https://example.com/a.jpg", inspection_id: "insp-2" },
+      { id: "f2", url: "https://example.com/b.jpg", inspection_id: "insp-2" },
+    ];
+    const rows = buildAdminInspectionRows(inspections, scores, fotosCapa);
+    expect(rows[0].fotosCapa).toEqual([]);
+    expect(rows[1].fotosCapa).toEqual([
+      { id: "f1", url: "https://example.com/a.jpg" },
+      { id: "f2", url: "https://example.com/b.jpg" },
+    ]);
+  });
+
+  it("fotosCapa fica vazia quando o parâmetro nem é passado (chamador antigo)", () => {
+    const rows = buildAdminInspectionRows(inspections, scores);
+    expect(rows[0].fotosCapa).toEqual([]);
+    expect(rows[1].fotosCapa).toEqual([]);
+  });
 });

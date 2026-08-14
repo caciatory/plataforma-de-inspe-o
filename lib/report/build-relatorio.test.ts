@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildRelatorioGrupos } from "./build-relatorio";
+import { buildRelatorioGrupos, formatDataInspecao } from "./build-relatorio";
 
 const groups = [
   { id: "g1", ordem: 1, nome: "Pneus" },
@@ -83,5 +83,23 @@ describe("buildRelatorioGrupos", () => {
     const textoComComentario = grupo.items.find((i) => i.id === "i4")!; // info + comentário
     expect(pneuTraseiro.piscaComentario).toBe(true);
     expect(textoComComentario.piscaComentario).toBe(false);
+  });
+});
+
+describe("formatDataInspecao", () => {
+  it("usa data_finalizacao quando existe", () => {
+    expect(formatDataInspecao("2026-08-10T10:00:00Z", "2026-08-01T10:00:00Z")).toBe(
+      new Date("2026-08-10T10:00:00Z").toLocaleDateString("pt-PT")
+    );
+  });
+
+  it("cai pra data_abertura quando data_finalizacao e null", () => {
+    expect(formatDataInspecao(null, "2026-08-01T10:00:00Z")).toBe(
+      new Date("2026-08-01T10:00:00Z").toLocaleDateString("pt-PT")
+    );
+  });
+
+  it("devolve null quando as duas sao null", () => {
+    expect(formatDataInspecao(null, null)).toBeNull();
   });
 });

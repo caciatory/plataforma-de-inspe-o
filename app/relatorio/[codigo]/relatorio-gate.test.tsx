@@ -66,4 +66,19 @@ describe("RelatorioGate", () => {
 
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Relatório não encontrado."));
   });
+
+  it("sai do estado 'carregando' e mostra erro com opção de tentar de novo quando a action rejeita", async () => {
+    registrarAcessoAction.mockRejectedValue(new Error("falha de rede"));
+
+    render(<RelatorioGate codigo="CK7X29QP" />);
+    fireEvent.click(screen.getByText("WhatsApp"));
+
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Relatório não encontrado."));
+    const tentarNovamente = screen.getByText("Tentar novamente");
+    expect(tentarNovamente).toBeInTheDocument();
+
+    fireEvent.click(tentarNovamente);
+    expect(screen.getByText("WhatsApp")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
 });

@@ -93,6 +93,36 @@ begin
     raise exception 'FALHOU: anon conseguiu ler client_access_logs (esperava 0 linhas visiveis, achou %)', v_count;
   end if;
   raise notice 'OK: anon nao ve nenhuma linha de client_access_logs (RLS)';
+
+  -- garantia estrutural do design: get_relatorio_publico e o UNICO ponto
+  -- de acesso anonimo aos dados -- anon nao pode ler inspections nem
+  -- vehicle_data diretamente (nenhuma policy pro papel anon nessas tabelas).
+  select count(*) into v_count from public.inspections;
+  if v_count <> 0 then
+    raise exception 'FALHOU: anon conseguiu ler public.inspections diretamente (esperava 0 linhas, achou %)', v_count;
+  end if;
+  raise notice 'OK: anon nao ve nenhuma linha de public.inspections (RLS)';
+
+  select count(*) into v_count from public.vehicle_data;
+  if v_count <> 0 then
+    raise exception 'FALHOU: anon conseguiu ler public.vehicle_data diretamente (esperava 0 linhas, achou %)', v_count;
+  end if;
+  raise notice 'OK: anon nao ve nenhuma linha de public.vehicle_data (RLS)';
+end $$;
+reset role;
+
+-- authenticated (nao-admin, ex: tecnico) tambem consegue inserir em
+-- client_access_logs -- um admin/tecnico logado que abre o proprio link
+-- compartilhado nao pode ter o log silenciosamente rejeitado pelo RLS.
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+set local request.jwt.claims = '{"sub":"11111111-1111-1111-1111-111111111111"}';
+do $$
+declare
+  v_inspection_id uuid := current_setting('acesso_cliente_053.inspection_id')::uuid;
+begin
+  insert into public.client_access_logs (inspection_id, origem) values (v_inspection_id, 'stand');
+  raise notice 'OK: authenticated (tecnico, nao-admin) consegue inserir em client_access_logs';
 end $$;
 reset role;
 

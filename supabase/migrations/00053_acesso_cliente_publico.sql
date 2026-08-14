@@ -13,7 +13,7 @@
 alter table public.client_access_logs alter column email drop not null;
 
 create policy client_access_logs_insert on public.client_access_logs
-  for insert to anon
+  for insert to anon, authenticated
   with check (true);
 
 create policy client_access_logs_select on public.client_access_logs
@@ -30,7 +30,7 @@ declare
 begin
   select id into v_id
   from public.inspections
-  where codigo_certificado = p_codigo and status = 'aprovada';
+  where codigo_certificado = upper(p_codigo) and status = 'aprovada';
 
   if v_id is null then
     return null;
@@ -55,7 +55,7 @@ begin
       where i.id = v_id
     ),
     'vehicle', (
-      select to_jsonb(vd) - 'id' - 'inspection_id'
+      select to_jsonb(vd) - 'inspection_id'
       from public.vehicle_data vd
       where vd.inspection_id = v_id
     ),

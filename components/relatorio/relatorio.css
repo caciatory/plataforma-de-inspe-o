@@ -1132,4 +1132,10 @@
 
 .relatorio-gate__erro {
   color: var(--relatorio-red);
+  margin-bottom: 1rem;
+}
+
+.relatorio-gate__status {
+  margin-top: 1rem;
+  font-size: 0.85rem;
 }

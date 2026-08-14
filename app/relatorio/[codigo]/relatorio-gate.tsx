@@ -18,12 +18,17 @@ export function RelatorioGate({ codigo }: { codigo: string }) {
 
   async function onEscolherOrigem(origem: OrigemAcesso) {
     setEstado("carregando");
-    const resultado = await registrarAcessoAction(codigo, origem);
-    if (resultado.status === "erro") {
+    try {
+      const resultado = await registrarAcessoAction(codigo, origem);
+      if (resultado.status === "erro") {
+        setEstado("erro");
+        return;
+      }
+      setDados(resultado.dados);
+    } catch (erro) {
+      console.error("registrarAcessoAction rejeitou", erro);
       setEstado("erro");
-      return;
     }
-    setDados(resultado.dados);
   }
 
   if (dados) return <RelatorioConteudo dados={dados} />;
@@ -33,9 +38,14 @@ export function RelatorioGate({ codigo }: { codigo: string }) {
       <div className="relatorio-gate glass">
         <h1>Ver relatório</h1>
         {estado === "erro" ? (
-          <p role="alert" className="relatorio-gate__erro">
-            Relatório não encontrado.
-          </p>
+          <>
+            <p role="alert" className="relatorio-gate__erro">
+              Relatório não encontrado.
+            </p>
+            <button type="button" className="relatorio-gate__opcao" onClick={() => setEstado("gate")}>
+              Tentar novamente
+            </button>
+          </>
         ) : (
           <>
             <p>De onde você está vindo?</p>
@@ -52,6 +62,7 @@ export function RelatorioGate({ codigo }: { codigo: string }) {
                 </button>
               ))}
             </div>
+            {estado === "carregando" && <p className="relatorio-gate__status">A verificar...</p>}
           </>
         )}
       </div>

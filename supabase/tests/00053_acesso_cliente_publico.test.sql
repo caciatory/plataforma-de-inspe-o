@@ -83,16 +83,16 @@ set local role anon;
 do $$
 declare
   v_inspection_id uuid := current_setting('acesso_cliente_053.inspection_id')::uuid;
+  v_count int;
 begin
   insert into public.client_access_logs (inspection_id, origem) values (v_inspection_id, 'whatsapp');
   raise notice 'OK: anon consegue inserir em client_access_logs';
 
-  begin
-    perform 1 from public.client_access_logs limit 1;
-    raise exception 'FALHOU: anon conseguiu ler client_access_logs';
-  exception when insufficient_privilege then
-    raise notice 'OK: anon bloqueado ao tentar ler client_access_logs';
-  end;
+  select count(*) into v_count from public.client_access_logs;
+  if v_count <> 0 then
+    raise exception 'FALHOU: anon conseguiu ler client_access_logs (esperava 0 linhas visiveis, achou %)', v_count;
+  end if;
+  raise notice 'OK: anon nao ve nenhuma linha de client_access_logs (RLS)';
 end $$;
 reset role;
 

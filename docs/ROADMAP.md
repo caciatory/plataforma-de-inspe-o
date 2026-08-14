@@ -1,6 +1,6 @@
 # Roadmap — Check Auto v1.0
 
-Atualizado: 2026-08-07. Baseado em `docs/especificacao-tecnica-v1.md` §5 (9 fases) e no estado real do código (branches, migrations) nesta data.
+Atualizado: 2026-08-14. Baseado em `docs/especificacao-tecnica-v1.md` §5 (9 fases) e no estado real do código (branches, migrations) nesta data.
 
 Cada passo abaixo é uma unidade fechada: você cola o prompt sugerido, o processo documentado em `docs/PROCESSO.md` (`brainstorming` → `writing-plans` → `subagent-driven-development`) roda até o fim, e o passo só é considerado pronto quando passar pelas 3 skills de fechamento (seção final deste doc). Só então vá para o próximo prompt da lista.
 
@@ -56,9 +56,11 @@ Todo o bloco 0 (housekeeping) está concluído — ver seção Progresso acima. 
 
 **Fase 4 (pontuação) — ✅ completa (2026-08-05).** RF-38 a RF-42 generalizados pro schema de `conjuntos_opcao` da Fase 2.8, fórmula por posição, coluna `opcoes.is_na` e as 3 views de pontuação (`checklist_item_score`, `checklist_group_score`, `inspection_score`) — todas verificadas contra a base real pelo usuário. Ver detalhes na seção "Fase 4 — Pontuação" abaixo.
 
-**Fase 5 completa (2026-08-07), ainda não mesclada em `main`.** Sub-projeto 1 (finalização do técnico) já está em `main`. Sub-projeto 2+3 (lista/aprovação/edição/auditoria/cancelamento do admin + gestão de técnico) está implementado, revisado (whole-branch + `ponytail-review`) e testado ao vivo pelo usuário na branch `worktree-revisao-gestao-admin` — 273/273 testes, `tsc` limpo — mas o merge ainda não rodou. Ver detalhes na seção "Fase 5" abaixo. Migration `00046` (policy de INSERT em `public.users`, achado real da revisão final) ainda precisa ser aplicada manualmente no Supabase, como as outras.
+**Fase 5 completa e mesclada em `main` (2026-08-07).** Sub-projeto 1 (finalização do técnico) e sub-projeto 2+3 (lista/aprovação/edição/auditoria/cancelamento do admin + gestão de técnico) — ambos em `main`. Ver detalhes na seção "Fase 5" abaixo. Migration `00046` (policy de INSERT em `public.users`, achado real da revisão final) ainda precisa ser aplicada manualmente no Supabase, como as outras.
 
-**Fase 5, sub-projeto 1 (finalização do técnico) — ✅ completo (2026-08-06).** RF-23/24 e RF-33/34. Ver detalhes na seção "Fase 5" abaixo. Próxima prioridade real: Fase 5 sub-projeto 2 (lista + aprovação/devolução do admin) ou Fase 6 (relatório final).
+**Fase 5, sub-projeto 1 (finalização do técnico) — ✅ completo (2026-08-06).** RF-23/24 e RF-33/34. Ver detalhes na seção "Fase 5" abaixo.
+
+**Estado real em 2026-08-14:** todos os itens acima estão em `main`, incluindo Fase 5 sub-projeto 2+3, "Remoção da duplicação Identificação/Histórico" e **Fase 6 (relatório final)** — as 3 últimas entradas deste doc ficaram por um tempo marcadas como "aguardando merge" mesmo já mescladas (fast-forward local sem atualizar o texto na hora); corrigido nesta atualização. `npm test` limpo (329/329), `tsc --noEmit` limpo, `npm run build` limpo. `main` ainda não foi enviado ao GitHub desde a Fase 6 (`origin/main` desatualizado). Migrations `00046` e `00052` seguem pendentes de aplicação manual no Supabase. Próxima fase real: **Fase 7 — Acesso do cliente**.
 
 ---
 
@@ -148,7 +150,7 @@ RF-31 a RF-37, RF-57 a RF-62. Tabelas `review_events`, `audit_log_entries` e ín
 2. **Lista do admin + aprovação/devolução (RF-31–34, RF-57–59, RF-62) — ✅ completo (2026-08-07), fundido com o sub-projeto 3.**
 3. **Edição do admin + auditoria + cancelamento (RF-35–37, RF-60–61) — ✅ completo (2026-08-07), ver sub-projeto 2.**
 
-**Fase 5 completa** — todos os RF-31 a RF-37 e RF-57 a RF-62 implementados, revisados e verificados ao vivo. Falta só o merge em `main` (branch `worktree-revisao-gestao-admin`, ainda não mesclada nem enviada — ver detalhes no sub-projeto 2+3 abaixo).
+**Fase 5 completa** — todos os RF-31 a RF-37 e RF-57 a RF-62 implementados, revisados, verificados ao vivo e mesclados em `main` (branch `worktree-revisao-gestao-admin` — ver detalhes no sub-projeto 2+3 abaixo).
 
 ### Sub-projeto 1 — Finalização do técnico ✅ completo (2026-08-06)
 
@@ -172,7 +174,7 @@ RF-31–37, RF-57–62. Fundidos num ciclo só no brainstorming — a RLS já su
 
 **Teste ao vivo pelo usuário** (criou a primeira conta admin real do projeto, `gestor@checkauto.pt` — `admin@checkauto.pt` foi rejeitado pelo Supabase Auth por validação de email, domínio `checkauto.pt` não tem infraestrutura de entrega real então o signup público também não funciona, conta criada direto no Dashboard) encontrou 2 gaps de navegação reais que nenhuma revisão tinha pego: `/admin/tecnicos` e `/inspections/[id]` (destino de todo clique em "Ver" na lista do admin) não tinham nenhum link de volta. Resolvidos junto com uma passada `impeccable` nas telas novas: removida uma borda lateral (`border-left`) que é o "AI-tell" mais reconhecível segundo a própria ferramenta; `.stack-row` (pensada pra grupo de botão de diálogo, `justify-content: flex-end`) estava sendo reaproveitada sem querer pra título+ação de página e pra barra de busca/filtro, empurrando os dois pra direita da tela — duas classes novas (`.page-header`, `.filter-bar`) resolvem cada caso; `.page` (640px, pensada pro formulário do técnico) espremia a tabela de 7 colunas do admin — nova variante `.page--wide`.
 
-273/273 testes, `tsc` limpo. Migration `00046` (+ teste) ainda precisa ser aplicada manualmente no Supabase, mesmo processo de sempre. Branch `worktree-revisao-gestao-admin` implementada, revisada e testada ao vivo — merge em `main` pendente. Design: `docs/superpowers/specs/2026-08-06-revisao-gestao-admin-design.md`, plano: `docs/superpowers/plans/2026-08-06-revisao-gestao-admin.md`.
+273/273 testes, `tsc` limpo. Migration `00046` (+ teste) ainda precisa ser aplicada manualmente no Supabase, mesmo processo de sempre. Branch `worktree-revisao-gestao-admin` implementada, revisada, testada ao vivo e mesclada em `main`. Design: `docs/superpowers/specs/2026-08-06-revisao-gestao-admin-design.md`, plano: `docs/superpowers/plans/2026-08-06-revisao-gestao-admin.md`.
 
 **Segunda rodada de polish de UI (2026-08-09), a pedido do usuário, com as skills `frontend-design` e `web-design-guidelines`:** teste ao vivo de `/inspections` (lista do técnico) e `/admin` (lista do admin) encontrou uma lista de problemas visuais reais — layout centralizado cansativo, sem estrutura visual, badges de estado inconsistentes, tabela do admin comprimida, filtro sem padrão visual. O pedido inicial incluía redesign maior (sidebar de navegação, cards) — como isso mexeria no app shell inteiro e não só nas duas telas, disparou `brainstorming` (mandatório pra feature nova, ver topo deste doc), mas o usuário interrompeu pra pedir uma passada mais enxuta: manter listas/tabelas (sem cards), gastando poucos tokens. Ficou fora do escopo desta rodada — cards continuam como alternativa se esta direção não for suficiente.
 
@@ -186,7 +188,7 @@ Mudanças aplicadas, todas reaproveitando tokens já existentes em `DESIGN.md`/`
 
 273/273 testes, `tsc` limpo (confirmado depois de cada mudança). Nenhuma migration nova. Doc/spec formal não foi escrita pra esta rodada — passada iterativa direto no código, por pedido explícito do usuário de manter o custo baixo.
 
-## Remoção da duplicação Identificação/Histórico ✅ completo (2026-08-10), aguardando merge
+## Remoção da duplicação Identificação/Histórico ✅ completo e mesclado em `main` (2026-08-10)
 
 Achado durante teste ao vivo do usuário (não é uma das 9 fases originais): o formulário "Nova Inspeção" já coletava marca/modelo/cor/VIN/matrícula/etc. e quilometragem/histórico de manutenção/indícios de adulteração/etc., e o checklist (grupo `ordem=1`, subcategorias "Identificação"/"Histórico") pedia os mesmos 22 dados de novo — 4 deles do tipo `escolha` pontuando indevidamente na nota geral (usuário confirmou que só "Equipamentos" deveria contar nota). Desenhado via `brainstorming` → `writing-plans` → `subagent-driven-development` (8 tasks, cada uma com implementer + revisor + fix loop). Design: `docs/superpowers/specs/2026-08-10-remocao-duplicacao-identificacao-historico-design.md`, plano: `docs/superpowers/plans/2026-08-10-remocao-duplicacao-identificacao-historico.md`.
 
@@ -202,14 +204,25 @@ Achado durante teste ao vivo do usuário (não é uma das 9 fases originais): o 
 
 **Pendência pra decisão futura:** a confirmação de "Guardar alterações" aparece sempre, mesmo se nenhum campo foi de fato alterado (não há rastreamento de "sujo"/dirty-state). Usuário perguntou se isso é normal — confirmado que sim, é o comportamento pretendido (mesma proteção contra toque acidental, independente de ter mudado algo). Rastrear mudança real em todos os 39 campos + equipamentos pra só perguntar quando algo mudou de verdade é possível, mas é trabalho bem maior — fica em aberto, sem decisão de fazer.
 
-285/285 testes, `tsc` limpo. Cinco migrations novas (`00047` a `00051`) já aplicadas manualmente pelo usuário no Supabase. Branch `worktree-remocao-duplicacao-identificacao-historico` implementada, revisada, testada ao vivo com correções — merge em `main` pendente.
+285/285 testes, `tsc` limpo. Cinco migrations novas (`00047` a `00051`) já aplicadas manualmente pelo usuário no Supabase. Branch `worktree-remocao-duplicacao-identificacao-historico` implementada, revisada, testada ao vivo com correções e mesclada em `main`.
 
-## Fase 6 — Relatório final
+## Fase 6 — Relatório final ✅ completo e mesclado em `main` (2026-08-14)
 
-RF-43 a RF-53, RNF-13.
+RF-43 a RF-53, RNF-13. Desenhado via `brainstorming` → `writing-plans` → `subagent-driven-development` a partir de um mockup visual de referência trazido pelo usuário — decisão explícita de exceção ao `DESIGN.md` (modo claro): a página do relatório usa identidade visual própria (dark glassmorphism, verde-menta `#00f5a0`, DM Sans, Material Symbols), escopada inteiramente a `.relatorio-page` via CSS custom properties, sem reconciliar com o resto do app. Design: `docs/superpowers/specs/2026-08-12-relatorio-final-design.md`, plano: `docs/superpowers/plans/2026-08-12-relatorio-final.md`.
 
-**Prompt:**
-> Vamos desenhar o relatório final (RF-43 a RF-53). Use `superpowers:brainstorming`.
+**Implementação inicial (9 tasks via `subagent-driven-development`):** migration `00052` (colunas `parceiro_nome`/`parceiro_logo_url`/`parceiro_telefone` em `inspections`, recriação da view `inspections_with_flags` com `security_invoker=true`), diálogo "Fotos & Parceiro" no admin, `gerarCodigoCertificado()` (RF-51/RNF-13), `buildRelatorioGrupos` (agrupamento por severidade), página `/inspections/[id]/relatorio` com hero + especificações + `AnaliseTecnica`, filtros (Todos/Pontos de Atenção/Com Fotos), rodapé com técnico responsável (RF-53). RF-50 (dados do solicitante nunca aparecem no relatório) blindado por teste de regressão dedicado, reverificado por todos os revisores ao longo da sessão.
+
+**Rodada extensa de teste ao vivo pelo usuário** (~20 commits de correção adicionais além das 9 tasks originais), guiada por HTML renderizado colado direto do navegador a cada rodada: redesenho completo da barra do dashboard (3 tentativas até alinhar largura/centralização com o resto das seções), carrossel de fotos automático (6s) + manual com lightbox, dados do parceiro + data da inspeção exibidos no dashboard, código de certificado exibido no hero e no card de veredito com botão de informação (modal explicativo + efeito "pisca até o primeiro clique"), contagem de itens por severidade nos cabeçalhos dos grupos de Análise Técnica (3 níveis — ok/médio/ruim — em vez de 2), duas seções novas com dados que já eram coletados mas nunca apareciam no relatório — "Histórico do veículo" (com bloco condicional "Veículo importado") e "Outros equipamentos" (`equipamento_inspecao`/`equipamento_fotos`, tabelas que o relatório nunca tinha consultado) —, glow esmeralda nos cards de especificações/análise técnica, correção de responsividade mobile (overflow horizontal real, não só visual).
+
+**15 bugs reais encontrados e corrigidos ao longo da sessão**, os mais relevantes: drift de schema (`vehicle_data.situacao_fiscal_regular` virou texto livre e `situacao_fiscal_observacoes` foi removida pela migration `00040`, invalidando a primeira versão do bloco "Histórico" que tinha sido escrita contra o schema antigo — lembrete de sempre conferir contra a migration mais recente, não a primeira encontrada); overflow horizontal mobile causado por `flex: 1` sem `min-width: 0` num nome de item longo; `<dialog>` aninhado dentro de `<p>` (HTML inválido, warning de hidratação) — ocorreu duas vezes, corrigido nas duas; fotos de capa não recarregavam ao reabrir o diálogo "Fotos & Parceiro" do admin (`initialFotos={[]}` fixo, agora vem da query real).
+
+**Revisão final whole-branch (2026-08-13, modelo mais capaz)** encontrou 0 Críticos e 6 Importantes, todos corrigidos numa única rodada de fix + re-revisão limpa: impressão descartava silenciosamente a seção "Outros equipamentos" (faltava o hook de forçar `<details>` aberto antes de imprimir — extraído pra `use-print-expands-details.ts`, compartilhado com `AnaliseTecnica`); a folha de impressão não escurecia `--relatorio-mint`, deixando código de certificado/badges quase invisíveis no papel; as 8 queries de checklist/equipamento ignoravam erro do Supabase, arriscando um relatório "certificado" silenciosamente vazio numa falha transitória — agora lançam (queries de `score`/fotos de capa continuam graciosas, por design); o anel do gauge nunca refletia a classificação (atributo `data-classificacao` morto) — corrigido, escopado só ao anel pra preservar o texto mint "Classe X" por pedido explícito anterior do usuário; `gerarCodigoCertificado()` usava `Math.random()`, contradizendo RNF-13 (código não-adivinhável) — trocado por `crypto.randomInt`.
+
+**`ponytail:ponytail-review`** achou 5 pontos de simplicidade (~165 linhas cortáveis) — deferidos, não aplicados, mesmo critério de precedente já usado noutras fases deste roadmap.
+
+329/329 testes, `tsc --noEmit` limpo, `npm run build` limpo. Mesclada em `main` via `finishing-a-development-branch` (merge local) em 2026-08-14 — único conflito real foi um add/add em `docs/superpowers/plans/2026-08-12-relatorio-final.md` (main tinha a versão original do plano; a branch tinha a versão corrigida, com o pré-preenchimento de `parceiro_logo_url`/`parceiro_telefone` no diálogo do admin pra evitar perda de dado ao salvar — resolvido tomando a versão da branch inteira). Worktree e branch `worktree-relatorio-final` removidos após confirmar testes/tipos limpos no `main` mesclado. Migration `00052` ainda precisa ser aplicada manualmente no Supabase, como as outras. `main` está à frente de `origin/main` (ainda não enviado ao remoto).
+
+**Fora de escopo, não resolvido:** RF-52 (tela pública de consulta do certificado por código) segue fora do v1.0 — mas o texto do modal de `CertificadoInfoButton` já referencia `checkauto.pt` como se essa consulta existisse hoje. Sinalizado ao usuário; sem decisão de mudar a cópia por enquanto.
 
 ## Fase 7 — Acesso do cliente
 

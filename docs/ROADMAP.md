@@ -1,6 +1,6 @@
 # Roadmap — Check Auto v1.0
 
-Atualizado: 2026-08-14. Baseado em `docs/especificacao-tecnica-v1.md` §5 (9 fases) e no estado real do código (branches, migrations) nesta data.
+Atualizado: 2026-08-15. Baseado em `docs/especificacao-tecnica-v1.md` §5 (9 fases) e no estado real do código (branches, migrations) nesta data.
 
 Cada passo abaixo é uma unidade fechada: você cola o prompt sugerido, o processo documentado em `docs/PROCESSO.md` (`brainstorming` → `writing-plans` → `subagent-driven-development`) roda até o fim, e o passo só é considerado pronto quando passar pelas 3 skills de fechamento (seção final deste doc). Só então vá para o próximo prompt da lista.
 
@@ -233,10 +233,23 @@ RF-54 a RF-56. Tabela `client_access_logs` existe mas **sem nenhuma RLS policy**
 
 ## Fase 8 — Hardening & QA
 
-RNFs restantes (performance, segurança, edge cases).
+RNFs restantes (performance, segurança, edge cases) — **escopo concretizado em 2026-08-15** pelo usuário numa lista de 10 itens priorizados, antes de considerar o v1.0 pronto. Ordem e motivo são os do usuário; a coluna Dificuldade é uma estimativa inicial baseada no código atual, a confirmar em cada `brainstorming` individual.
 
-**Prompt:**
-> Vamos levantar o escopo de hardening final (RNFs restantes). Use `superpowers:brainstorming` pra mapear o escopo; qualquer bug que aparecer no meio do processo usa `superpowers:systematic-debugging` antes de qualquer fix.
+| # | Item | Motivo (usuário) | Dificuldade | Nota |
+|---|---|---|---|---|
+| 1 | Comentário obrigatório em itens marcados médio/ruim (mesma regra que já existe pra foto) | Regra de negócio crítica — evita avaliação negativa/mediana sem justificativa nem evidência | **Médio** | O campo `observacao` já existe e já é salvo em todo tipo de resposta; a severidade por opção já é calculada (`resolveEscolhaColorModifier` em `lib/checklist/siblings.ts`). O precedente é RF-16 (`check_exige_foto`, migration `00033`) — mesma forma, um trigger novo (ou estendido) pra exigir `observacao` quando a resposta resolve pra médio/ruim (`escolha`) ou atenção/crítico (`medicao`). |
+| 2 | Corrigir fotos de item quando há mais de uma | Bug/ajuste de fluxo — coleta de evidência não pode falhar | **A investigar** | Sintoma não descrito ainda — precisa de `systematic-debugging` antes de estimar tamanho de verdade. Uma vez a causa raiz identificada, provável **Baixo-Médio**: `PhotoManager` já é um componente maduro reaproveitado em 3+ telas. |
+| 3 | Compressão de foto antes do upload | Performance/infra — evita lentidão, estouro de memória, custo de storage | **Médio** | Sem schema/RLS novo, mas toca ~5 pontos de upload (`fotos-parceiro-dialog.tsx`, `inspections/new/actions.ts`, `inspections/[id]/editar/actions.ts`, `photo-manager.tsx`) — a compressão tem que rodar no navegador *antes* do arquivo entrar no `FormData` que essas Server Actions recebem. |
+| 4 | Melhorar a impressão + botão de imprimir no fim da tela do relatório | Completa a jornada — documento final sem quebra de layout, fácil de acessar | **Baixo** (botão) **+ a especificar** (melhoria) | O botão em si é trivial (`onClick={() => window.print()}`, não existe hoje). "Melhorar a impressão" precisa de exemplo concreto do que está quebrando — já existe CSS de impressão desde a Fase 6 (`@media print` em `relatorio.css`). |
+| 5 | Ícone/sinalização melhor pra apoiar anexo de foto | UX — deixa claro onde/quando anexar, reduz dúvida no preenchimento | **Baixo-Médio** | Polimento de UI localizado ao redor do `PhotoManager` existente. Candidato natural pra `impeccable`/`frontend-design`. |
+| 6 | Arrumar pendências que ficaram pra trás | Fecha débito técnico solto antes da limpeza/revisão final | **Depende — precisa de lista** | Candidatas já registradas neste ROADMAP: duplicação `parseEquipamentos`/`isEquipamentoValido`/`buildPhotoPath` entre `inspections/new/actions.ts` e `inspections/[id]/editar/actions.ts` (~35 linhas, achado do `ponytail` pós-merge da remoção de duplicação); achados Minor deferidos em várias fases (ex.: os 5 do `ponytail-review` da Fase 6, ~165 linhas). Usuário precisa confirmar se é isso ou se há outra coisa em mente. |
+| 7 | Tirar botões de dev | Segurança/organização — atalho de teste não pode vazar pra produção | **Baixo** | Já gated por `NODE_ENV !== "production"` (`inspections/new/new-inspection-form.tsx`) — nunca vai pro build de produção hoje. Remover é apagar 1 componente + o uso dele. |
+| 8 | Limpar arquivos mortos e sem uso | Legibilidade + tamanho final da aplicação | **Baixo-Médio** | Bom encaixe pra skill `ponytail:ponytail-audit` (audita o repo inteiro por código morto/duplicado, já instalada). Maioria é deleção mecânica uma vez auditado. |
+| 9 | Passar o code review | Qualidade final de arquitetura/segurança/boas práticas | **Baixo** (esforço) | Processo já estabelecido no projeto (`superpowers:requesting-code-review`, whole-branch). Tem que vir depois dos itens 1-8, por definição — revisa o resultado deles. |
+| 10 | Melhorar o design geral | Polimento visual final, depois de todo campo/botão/elemento novo já consolidado | **Alto** | Maior escopo da lista, deliberadamente por último. Precisa do próprio ciclo `brainstorming` (provavelmente com `frontend-design`), não cabe num fix pontual. |
+
+**Prompt (por item, na ordem acima):**
+> Vamos [item N da lista]. Use `superpowers:brainstorming`; se for correção de bug (itens 2, 6), `superpowers:systematic-debugging` primeiro pra achar a causa raiz antes de desenhar o fix.
 
 ## Fase 9 — Motorização especial (futura)
 

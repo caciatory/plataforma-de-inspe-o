@@ -116,7 +116,7 @@ export function buildRelatorioGrupos(
             status,
             fotos: fotosByResponseId.get(response.id) ?? [],
             comentario: response.observacao,
-            piscaComentario: response.observacao !== null && status === "ruim",
+            piscaComentario: response.observacao !== null && (status === "ruim" || status === "medio"),
           };
         })
         .filter((i): i is ReportItem => i !== null);

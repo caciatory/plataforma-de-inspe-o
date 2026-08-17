@@ -26,7 +26,7 @@ const responses = [
   { id: "r2", item_template_id: "i2", opcao_id: "o3", resposta_texto: null, resposta_data: null, observacao: "Risco fundo na lateral" },
   { id: "r3", item_template_id: "i3", opcao_id: null, resposta_texto: null, resposta_data: null, observacao: null },
   { id: "r4", item_template_id: "i4", opcao_id: null, resposta_texto: "Preto", resposta_data: null, observacao: "Cor repintada" },
-  { id: "r6", item_template_id: "i6", opcao_id: "o2", resposta_texto: null, resposta_data: null, observacao: null },
+  { id: "r6", item_template_id: "i6", opcao_id: "o2", resposta_texto: null, resposta_data: null, observacao: "Pneu com desgaste irregular" },
 ];
 
 const medicaoResultados = [{ item_response_id: "r3", resultado: "critico" as const }];
@@ -77,11 +77,13 @@ describe("buildRelatorioGrupos", () => {
     expect(grupo.items.find((i) => i.id === "i1")!.fotos).toEqual([]);
   });
 
-  it("pisca o comentário só quando o item também está 'ruim' (RF-48 + regra do piscar)", () => {
+  it("pisca o comentário quando o item está 'ruim' ou 'médio' (RF-48 + regra do piscar)", () => {
     const [grupo] = buildRelatorioGrupos(groups, items, responses, opcoes, medicaoResultados, photos);
     const pneuTraseiro = grupo.items.find((i) => i.id === "i2")!; // ruim + comentário
+    const pneuSobressalente = grupo.items.find((i) => i.id === "i6")!; // médio + comentário
     const textoComComentario = grupo.items.find((i) => i.id === "i4")!; // info + comentário
     expect(pneuTraseiro.piscaComentario).toBe(true);
+    expect(pneuSobressalente.piscaComentario).toBe(true);
     expect(textoComComentario.piscaComentario).toBe(false);
   });
 });

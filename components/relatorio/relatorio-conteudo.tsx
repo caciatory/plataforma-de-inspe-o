@@ -12,6 +12,7 @@ import { AnaliseTecnica } from "./analise-tecnica";
 import { CertificadoInfoButton } from "./certificado-info";
 import { HeroCarousel, type HeroCarouselPhoto } from "./hero-carousel";
 import { OutrosEquipamentos, type EquipamentoRow, type EquipamentoFoto } from "./outros-equipamentos";
+import { PrintButton } from "./print-button";
 import "./relatorio.css";
 
 // Fonte exclusiva desta rota (identidade visual dark-glassmorphism) -- nao
@@ -468,6 +469,7 @@ export function RelatorioConteudo({ dados }: { dados: RelatorioDados }) {
               ` — emitido em ${new Date(dados.certificadoEmitidoEm).toLocaleDateString("pt-PT")}`}
           </p>
         )}
+        <PrintButton />
       </footer>
     </main>
   );

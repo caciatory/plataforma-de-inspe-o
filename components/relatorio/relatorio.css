@@ -1043,6 +1043,25 @@
   margin-bottom: 0.25rem;
 }
 
+.relatorio-print-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--relatorio-border);
+  background: transparent;
+  color: var(--relatorio-ink);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.relatorio-print-button:hover {
+  border-color: var(--relatorio-mint);
+  color: var(--relatorio-mint);
+}
+
 .relatorio-footer {
   max-width: var(--relatorio-container-max);
   margin: 3rem auto 0;

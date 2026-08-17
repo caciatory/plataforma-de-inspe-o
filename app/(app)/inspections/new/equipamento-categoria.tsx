@@ -2,6 +2,21 @@
 
 import { useRef, useState, type ChangeEvent, type FocusEvent } from "react";
 import type { EquipamentoCategoriaId } from "@/lib/equipamento/catalog";
+import { compressImage } from "@/lib/upload/compress-image";
+
+// O input de foto e nativo (sem estado React), pra continuar submetendo
+// pelo form normal do navegador -- comprime e substitui input.files via
+// DataTransfer antes do envio, em vez de virar um upload controlado.
+async function handleFotoChange(e: ChangeEvent<HTMLInputElement>) {
+  const input = e.target;
+  const file = input.files?.[0];
+  if (!file) return;
+  const compressed = await compressImage(file);
+  if (compressed === file) return;
+  const dataTransfer = new DataTransfer();
+  dataTransfer.items.add(compressed);
+  input.files = dataTransfer.files;
+}
 
 type Condicao = "" | "bom" | "atencao";
 
@@ -162,7 +177,14 @@ function EquipamentoItem({
                   Foto atual anexada — escolher um novo arquivo substitui.
                 </p>
               )}
-              <input id={`${prefix}__foto1`} name={`${prefix}__foto1`} type="file" accept="image/*" className="input" />
+              <input
+                id={`${prefix}__foto1`}
+                name={`${prefix}__foto1`}
+                type="file"
+                accept="image/*"
+                className="input"
+                onChange={handleFotoChange}
+              />
             </div>
             <div className="field">
               <label htmlFor={`${prefix}__foto2`} className="label">
@@ -173,7 +195,14 @@ function EquipamentoItem({
                   Foto atual anexada — escolher um novo arquivo substitui.
                 </p>
               )}
-              <input id={`${prefix}__foto2`} name={`${prefix}__foto2`} type="file" accept="image/*" className="input" />
+              <input
+                id={`${prefix}__foto2`}
+                name={`${prefix}__foto2`}
+                type="file"
+                accept="image/*"
+                className="input"
+                onChange={handleFotoChange}
+              />
             </div>
           </div>
         </div>

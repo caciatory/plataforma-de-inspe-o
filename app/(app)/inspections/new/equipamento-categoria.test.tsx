@@ -1,6 +1,31 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { EquipamentoCategoria } from "./equipamento-categoria";
+
+const compressImage = vi.fn();
+vi.mock("@/lib/upload/compress-image", () => ({
+  compressImage: (...args: unknown[]) => compressImage(...args),
+}));
+
+// jsdom não implementa DataTransfer (é uma API real de navegador, usada aqui
+// pra substituir o arquivo de um <input type="file"> depois de comprimir) --
+// stub mínimo só com o que handleFotoChange usa.
+class FakeDataTransfer {
+  private _files: File[] = [];
+  items = {
+    add: (file: File) => {
+      this._files.push(file);
+    },
+  };
+  get files() {
+    return this._files as unknown as FileList;
+  }
+}
+
+beforeEach(() => {
+  compressImage.mockReset();
+  vi.stubGlobal("DataTransfer", FakeDataTransfer);
+});
 
 function renderCategoria(itensPersonalizados: string[] = []) {
   return render(
@@ -304,5 +329,36 @@ describe("EquipamentoCategoria in edit mode", () => {
 
     expect(checkbox).not.toBeChecked();
     expect(screen.queryByRole("button", { name: /confirmar remo/i })).not.toBeInTheDocument();
+  });
+
+  it("comprime a foto escolhida e substitui o arquivo do input antes do envio do form", async () => {
+    const originalFile = new File(["conteudo-grande"], "foto.png", { type: "image/png" });
+    const compressedFile = new File(["conteudo-pequeno"], "foto.jpg", { type: "image/jpeg" });
+    compressImage.mockResolvedValue(compressedFile);
+
+    renderCategoria();
+    fireEvent.click(screen.getByLabelText("Sistema ABS/ESP"));
+    fireEvent.click(screen.getByLabelText("⚠️ Atenção (Sistema ABS/ESP)"));
+
+    const input = screen.getByLabelText("Foto 1 (Sistema ABS/ESP)") as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [originalFile] } });
+
+    expect(compressImage).toHaveBeenCalledWith(originalFile);
+    await waitFor(() => expect(input.files?.[0]).toBe(compressedFile));
+  });
+
+  it("não mexe no input quando a compressão devolve o mesmo arquivo (não era imagem, ou falhou)", async () => {
+    const originalFile = new File(["conteudo"], "foto.jpg", { type: "image/jpeg" });
+    compressImage.mockResolvedValue(originalFile);
+
+    renderCategoria();
+    fireEvent.click(screen.getByLabelText("Sistema ABS/ESP"));
+    fireEvent.click(screen.getByLabelText("⚠️ Atenção (Sistema ABS/ESP)"));
+
+    const input = screen.getByLabelText("Foto 1 (Sistema ABS/ESP)") as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [originalFile] } });
+
+    await waitFor(() => expect(compressImage).toHaveBeenCalled());
+    expect(input.files?.[0]).toBe(originalFile);
   });
 });

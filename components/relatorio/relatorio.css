@@ -439,7 +439,17 @@
 
 .relatorio-hero__stats {
   display: flex;
+  align-items: center;
   gap: 2rem;
+}
+
+/* Mesmo botão do canto do hero, só que solto no fluxo normal (não
+   absolute) -- vive junto da "Data da inspeção" pra ser mais fácil de
+   notar do que só o canto da foto. Mesmo brilho verde pulsando. */
+.relatorio-hero__carousel-expand--inline {
+  position: static;
+  top: auto;
+  right: auto;
 }
 
 .relatorio-hero__stats p {

@@ -13,6 +13,7 @@ import { CertificadoInfoButton } from "./certificado-info";
 import { HeroCarousel, type HeroCarouselPhoto } from "./hero-carousel";
 import { OutrosEquipamentos, type EquipamentoRow, type EquipamentoFoto } from "./outros-equipamentos";
 import { PrintButton } from "./print-button";
+import { VerFotosButton } from "./ver-fotos-button";
 import "./relatorio.css";
 
 // Fonte exclusiva desta rota (identidade visual dark-glassmorphism) -- nao
@@ -190,6 +191,7 @@ export function RelatorioConteudo({ dados }: { dados: RelatorioDados }) {
                   <p className="relatorio-eyebrow">Data da inspeção</p>
                   <p className="relatorio-hero__metric-value">{dados.dataInspecao ?? "—"}</p>
                 </div>
+                {dados.fotosCapa.length > 0 && <VerFotosButton />}
               </div>
             </div>
           ) : (

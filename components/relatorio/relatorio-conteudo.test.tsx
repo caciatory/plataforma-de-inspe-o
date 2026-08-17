@@ -86,4 +86,14 @@ describe("RelatorioConteudo", () => {
     );
     expect(container.textContent).toContain("Stand Central");
   });
+
+  it("mostra o botão 'Ver fotos' junto da Data da inspeção só quando há fotos de capa", () => {
+    const { container: semFotos } = render(<RelatorioConteudo dados={dadosBase} />);
+    expect(semFotos.querySelector('[aria-label="Ver fotos"]')).toBeNull();
+
+    const { container: comFotos } = render(
+      <RelatorioConteudo dados={{ ...dadosBase, fotosCapa: [{ id: "f1", url: "https://example.com/1.jpg" }] }} />
+    );
+    expect(comFotos.querySelector('[aria-label="Ver fotos"]')).not.toBeNull();
+  });
 });

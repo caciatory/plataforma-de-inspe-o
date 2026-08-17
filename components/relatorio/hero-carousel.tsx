@@ -13,6 +13,9 @@ export function HeroCarousel({ fotos }: { fotos: HeroCarouselPhoto[] }) {
   useEffect(() => {
     if (fotos.length <= 1) return;
     const timer = setInterval(() => {
+      // Pausa o auto-avanco enquanto o lightbox esta aberto -- ninguem quer
+      // a foto trocando sozinha embaixo do dedo enquanto olha com calma.
+      if (dialogRef.current?.open) return;
       setIndex((i) => (i + 1) % fotos.length);
     }, AUTO_ADVANCE_MS);
     return () => clearInterval(timer);
@@ -69,7 +72,7 @@ export function HeroCarousel({ fotos }: { fotos: HeroCarouselPhoto[] }) {
         )}
       </div>
 
-      <dialog ref={dialogRef} className="relatorio-dialog relatorio-hero__lightbox">
+      <dialog id="relatorio-hero-lightbox" ref={dialogRef} className="relatorio-dialog relatorio-hero__lightbox">
         <div className="relatorio-hero__lightbox-photo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={fotos[index].url} alt="Foto de capa ampliada" className="relatorio-dialog__foto" />

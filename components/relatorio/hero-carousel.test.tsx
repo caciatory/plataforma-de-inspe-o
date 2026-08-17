@@ -46,6 +46,28 @@ describe("HeroCarousel", () => {
     expect(slides[1]).toHaveStyle({ opacity: 1 });
   });
 
+  it("não avança automaticamente enquanto o lightbox está aberto", () => {
+    vi.useFakeTimers();
+    const { container } = render(<HeroCarousel fotos={fotos} />);
+    const slides = container.querySelectorAll(".relatorio-hero__bg-slide");
+
+    fireEvent.click(screen.getByRole("button", { name: "Ampliar foto" }));
+    expect((document.querySelector("dialog") as HTMLDialogElement).open).toBe(true);
+
+    act(() => {
+      vi.advanceTimersByTime(12000);
+    });
+    expect(slides[0]).toHaveStyle({ opacity: 1 });
+    expect(slides[1]).toHaveStyle({ opacity: 0 });
+
+    fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
+    act(() => {
+      vi.advanceTimersByTime(6000);
+    });
+    expect(slides[0]).toHaveStyle({ opacity: 0 });
+    expect(slides[1]).toHaveStyle({ opacity: 1 });
+  });
+
   it("botão Ampliar abre o lightbox, e as setas do lightbox mudam a foto exibida", () => {
     render(<HeroCarousel fotos={fotos} />);
     const dialog = document.querySelector("dialog") as HTMLDialogElement;

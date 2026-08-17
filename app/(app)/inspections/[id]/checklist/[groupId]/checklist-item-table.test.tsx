@@ -84,6 +84,15 @@ const opcoes: TableOpcao[] = [
   { id: "opt-mau", conjunto_id: "conj-1", label: "Mau", exige_foto: true, ordem: 2 },
 ];
 
+// 3 opções pra exercitar "médio" de verdade (o fixture de 2 opções acima só
+// tem otimo/ruim — resolveEscolhaColorModifier nunca devolve "medio" com
+// menos de 3 opções não-N.A.).
+const opcoesTres: TableOpcao[] = [
+  { id: "opt-otimo", conjunto_id: "conj-1", label: "Ótimo", exige_foto: false, ordem: 1 },
+  { id: "opt-medio", conjunto_id: "conj-1", label: "Médio", exige_foto: false, ordem: 2 },
+  { id: "opt-ruim", conjunto_id: "conj-1", label: "Ruim", exige_foto: false, ordem: 3 },
+];
+
 describe("ChecklistItemTable", () => {
   it("renders an escolha row as a segmented control scoped to the item's conjunto", () => {
     render(
@@ -177,6 +186,75 @@ describe("ChecklistItemTable", () => {
     );
 
     expect(screen.getByTestId("photo-manager")).toHaveTextContent("item-escolha");
+  });
+
+  it("não mostra campo de comentário quando a opção é 'ótimo'", () => {
+    render(
+      <ChecklistItemTable
+        inspectionId="insp-1"
+        items={[escolhaItem]}
+        allGroupItems={[]}
+        responses={[]}
+        opcoes={opcoesTres}
+        photos={[]}
+        medicaoResultados={[]}
+        medicaoValores={[]}
+      />
+    );
+
+    fireEvent.click(screen.getByLabelText("Ótimo"));
+
+    expect(screen.queryByLabelText("Comentário (obrigatório)")).not.toBeInTheDocument();
+  });
+
+  it("mostra campo de comentário obrigatório quando a opção é 'médio' ou 'ruim'", () => {
+    render(
+      <ChecklistItemTable
+        inspectionId="insp-1"
+        items={[escolhaItem]}
+        allGroupItems={[]}
+        responses={[]}
+        opcoes={opcoesTres}
+        photos={[]}
+        medicaoResultados={[]}
+        medicaoValores={[]}
+      />
+    );
+
+    expect(screen.queryByLabelText("Comentário (obrigatório)")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("Médio"));
+    expect(screen.getByLabelText("Comentário (obrigatório)")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("Ruim"));
+    expect(screen.getByLabelText("Comentário (obrigatório)")).toBeInTheDocument();
+  });
+
+  it("salva o texto do comentário digitado ao perder o foco", async () => {
+    saveEscolhaAction.mockResolvedValue({ status: "idle" });
+    render(
+      <ChecklistItemTable
+        inspectionId="insp-1"
+        items={[escolhaItem]}
+        allGroupItems={[]}
+        responses={[]}
+        opcoes={opcoesTres}
+        photos={[]}
+        medicaoResultados={[]}
+        medicaoValores={[]}
+      />
+    );
+
+    fireEvent.click(screen.getByLabelText("Médio"));
+    await waitFor(() => expect(saveEscolhaAction).toHaveBeenCalledTimes(1));
+
+    const textarea = screen.getByLabelText("Comentário (obrigatório)");
+    fireEvent.change(textarea, { target: { value: "Desgaste leve, dentro do esperado." } });
+    fireEvent.blur(textarea);
+
+    await waitFor(() => expect(saveEscolhaAction).toHaveBeenCalledTimes(2));
+    const [, formData] = saveEscolhaAction.mock.calls[1];
+    expect((formData as FormData).get("observacao")).toBe("Desgaste leve, dentro do esperado.");
   });
 
   it("renders a texto row and saves resposta_texto on blur", async () => {

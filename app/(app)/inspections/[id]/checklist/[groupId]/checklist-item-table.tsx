@@ -214,14 +214,19 @@ function EscolhaCell({
   editable?: boolean;
 }) {
   const [opcaoId, setOpcaoId] = useState(response?.opcao_id ?? "");
+  const [observacao, setObservacao] = useState(response?.observacao ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  function save(currentOpcaoId: string) {
+  useEffect(() => {
+    setObservacao(response?.observacao ?? "");
+  }, [response?.observacao]);
+
+  function save(currentOpcaoId: string, currentObservacao: string) {
     setError(null);
     onSaveStart();
-    const formData = buildEscolhaFormData(inspectionId, item.id, currentOpcaoId, response?.observacao ?? "");
+    const formData = buildEscolhaFormData(inspectionId, item.id, currentOpcaoId, currentObservacao);
     startTransition(async () => {
       const result = await saveEscolhaAction({ status: "idle" }, formData);
       if (result.status === "error") {
@@ -235,10 +240,17 @@ function EscolhaCell({
 
   function handleChange(newOpcaoId: string) {
     setOpcaoId(newOpcaoId);
-    save(newOpcaoId);
+    save(newOpcaoId, observacao);
+  }
+
+  function handleObservacaoBlur() {
+    if (observacao === (response?.observacao ?? "")) return;
+    save(opcaoId, observacao);
   }
 
   const requiresPhoto = opcoes.find((o) => o.id === opcaoId)?.exige_foto === true;
+  const severidade = opcaoId ? resolveEscolhaColorModifier(opcoes, opcaoId) : null;
+  const requiresComentario = severidade === "medio" || severidade === "ruim";
 
   return (
     <div className="escolha-options">
@@ -266,6 +278,21 @@ function EscolhaCell({
           {o.label}
         </label>
       ))}
+      {requiresComentario && (
+        <div className="field">
+          <label htmlFor={`observacao-${item.id}`} className="label">
+            Comentário (obrigatório)
+          </label>
+          <textarea
+            id={`observacao-${item.id}`}
+            className="input item-table__input"
+            value={observacao}
+            disabled={isPending || !editable}
+            onChange={(e) => setObservacao(e.target.value)}
+            onBlur={handleObservacaoBlur}
+          />
+        </div>
+      )}
       {requiresPhoto && (
         <PhotoManager inspectionId={inspectionId} itemTemplateId={item.id} initialPhotos={photos} editable={editable} />
       )}
@@ -275,7 +302,12 @@ function EscolhaCell({
         </p>
       )}
       {error && (
-        <button type="button" className="btn btn-secondary" disabled={isPending || !editable} onClick={() => save(opcaoId)}>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          disabled={isPending || !editable}
+          onClick={() => save(opcaoId, observacao)}
+        >
           Tentar novamente
         </button>
       )}

@@ -42,21 +42,11 @@ export function HeroCarousel({ fotos }: { fotos: HeroCarouselPhoto[] }) {
         ))}
       </div>
 
-      {/* Setas de navegação manual só existem dentro do lightbox (depois de
-          "Ampliar") -- na página principal, só auto-avanço + bolinhas, pra
-          não carregar a foto de capa com controles grandes por cima. */}
+      {/* Setas de navegação manual só existem dentro do lightbox -- na
+          página principal, só auto-avanço + bolinhas. O gatilho pra abrir o
+          lightbox vive fora daqui agora (VerFotosButton, junto da Data da
+          inspeção) -- este componente só precisa manter o <dialog> abaixo. */}
       <div className="relatorio-hero__carousel-controls">
-        <button
-          type="button"
-          className="relatorio-hero__carousel-expand"
-          aria-label="Ampliar foto"
-          onClick={() => dialogRef.current?.showModal()}
-        >
-          <span className="material-symbols-outlined" aria-hidden="true">
-            photo_library
-          </span>
-        </button>
-
         {fotos.length > 1 && (
           <div className="relatorio-hero__carousel-dots">
             {fotos.map((foto, i) => (

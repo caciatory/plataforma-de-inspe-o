@@ -50,9 +50,13 @@ describe("HeroCarousel", () => {
     vi.useFakeTimers();
     const { container } = render(<HeroCarousel fotos={fotos} />);
     const slides = container.querySelectorAll(".relatorio-hero__bg-slide");
+    const dialog = document.querySelector("dialog") as HTMLDialogElement;
 
-    fireEvent.click(screen.getByRole("button", { name: "Ampliar foto" }));
-    expect((document.querySelector("dialog") as HTMLDialogElement).open).toBe(true);
+    // O gatilho pra abrir vive num componente separado (VerFotosButton,
+    // testado à parte) -- aqui abrimos o <dialog> direto, mesma coisa do
+    // ponto de vista deste componente.
+    dialog.showModal();
+    expect(dialog.open).toBe(true);
 
     act(() => {
       vi.advanceTimersByTime(12000);
@@ -68,12 +72,12 @@ describe("HeroCarousel", () => {
     expect(slides[1]).toHaveStyle({ opacity: 1 });
   });
 
-  it("botão Ampliar abre o lightbox, e as setas do lightbox mudam a foto exibida", () => {
+  it("as setas do lightbox mudam a foto exibida", () => {
     render(<HeroCarousel fotos={fotos} />);
     const dialog = document.querySelector("dialog") as HTMLDialogElement;
     expect(dialog.open).toBe(false);
 
-    fireEvent.click(screen.getByRole("button", { name: "Ampliar foto" }));
+    dialog.showModal();
     expect(dialog.open).toBe(true);
 
     const imagemAmpliada = screen.getByRole("img", { name: "Foto de capa ampliada" });

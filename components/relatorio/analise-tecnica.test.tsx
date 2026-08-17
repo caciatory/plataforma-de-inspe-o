@@ -58,6 +58,24 @@ describe("AnaliseTecnica", () => {
     expect(screen.getByRole("img", { name: "Foto ampliada" })).toHaveAttribute("src", "https://example.com/a.jpg");
   });
 
+  it("com mais de uma foto no item, mostra uma por vez (não lado a lado) e navega com Anterior/Próxima", () => {
+    const duasFotos = [
+      { id: "p1", url: "https://example.com/a.jpg", item_response_id: "r2" },
+      { id: "p2", url: "https://example.com/b.jpg", item_response_id: "r2" },
+    ];
+    render(<AnaliseTecnica groups={groups} items={items} responses={responses} opcoes={opcoes} medicaoResultados={[]} photos={duasFotos} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Ver foto/ }));
+    expect(screen.getAllByRole("img", { name: "Foto ampliada" })).toHaveLength(1);
+    expect(screen.getByRole("img", { name: "Foto ampliada" })).toHaveAttribute("src", "https://example.com/a.jpg");
+
+    fireEvent.click(screen.getByRole("button", { name: /Próxima/ }));
+    expect(screen.getByRole("img", { name: "Foto ampliada" })).toHaveAttribute("src", "https://example.com/b.jpg");
+
+    fireEvent.click(screen.getByRole("button", { name: /Anterior/ }));
+    expect(screen.getByRole("img", { name: "Foto ampliada" })).toHaveAttribute("src", "https://example.com/a.jpg");
+  });
+
   it("mostra o ícone de comentário só no item que tem observação, e abre o diálogo ao clicar", () => {
     render(<AnaliseTecnica groups={groups} items={items} responses={responses} opcoes={opcoes} medicaoResultados={[]} photos={[]} />);
 

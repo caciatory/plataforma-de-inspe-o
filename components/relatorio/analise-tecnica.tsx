@@ -59,6 +59,7 @@ export function AnaliseTecnica({
   usePrintExpandsDetails(containerRef);
 
   const [fotoAberta, setFotoAberta] = useState<{ id: string; url: string }[] | null>(null);
+  const [fotoIndex, setFotoIndex] = useState(0);
   const [comentarioAberto, setComentarioAberto] = useState<string | null>(null);
   const fotoDialogRef = useRef<HTMLDialogElement>(null);
   const comentarioDialogRef = useRef<HTMLDialogElement>(null);
@@ -126,6 +127,7 @@ export function AnaliseTecnica({
                         aria-label={`Ver foto de ${item.nome}`}
                         onClick={() => {
                           setFotoAberta(item.fotos);
+                          setFotoIndex(0);
                           fotoDialogRef.current?.showModal();
                         }}
                       >
@@ -159,10 +161,34 @@ export function AnaliseTecnica({
       </div>
 
       <dialog ref={fotoDialogRef} className="relatorio-dialog" onClose={() => setFotoAberta(null)}>
-        {fotoAberta?.map((foto) => (
+        {fotoAberta && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img key={foto.id} src={foto.url} alt="Foto ampliada" className="relatorio-dialog__foto" />
-        ))}
+          <img src={fotoAberta[fotoIndex].url} alt="Foto ampliada" className="relatorio-dialog__foto" />
+        )}
+        {fotoAberta && fotoAberta.length > 1 && (
+          <div className="relatorio-hero__lightbox-nav">
+            <button
+              type="button"
+              className="relatorio-dialog__close"
+              onClick={() => setFotoIndex((i) => (i - 1 + fotoAberta.length) % fotoAberta.length)}
+            >
+              <span className="material-symbols-outlined" aria-hidden="true">
+                chevron_left
+              </span>
+              Anterior
+            </button>
+            <button
+              type="button"
+              className="relatorio-dialog__close"
+              onClick={() => setFotoIndex((i) => (i + 1) % fotoAberta.length)}
+            >
+              Próxima
+              <span className="material-symbols-outlined" aria-hidden="true">
+                chevron_right
+              </span>
+            </button>
+          </div>
+        )}
         <button type="button" className="relatorio-dialog__close" onClick={() => fotoDialogRef.current?.close()}>
           <span className="material-symbols-outlined" aria-hidden="true">
             close

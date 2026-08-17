@@ -216,6 +216,7 @@ function EscolhaCell({
 }) {
   const [opcaoId, setOpcaoId] = useState(response?.opcao_id ?? "");
   const [observacao, setObservacao] = useState(response?.observacao ?? "");
+  const [livePhotoCount, setLivePhotoCount] = useState(photos.length);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -239,14 +240,40 @@ function EscolhaCell({
     });
   }
 
+  // Só tenta salvar quando o que a opção exige (comentário/foto) já está
+  // preenchido -- evita a tentativa fadada a falhar (que hoje só se
+  // corrige com "Tentar novamente"). Assim que o campo que faltava é
+  // preenchido, o autosave dispara sozinho -- sem botão manual, mesma
+  // filosofia do resto do checklist.
+  function isSatisfied(candidateOpcaoId: string, candidateObservacao: string, photoCount: number): boolean {
+    const opt = opcoes.find((o) => o.id === candidateOpcaoId);
+    const severidadeCandidata = candidateOpcaoId ? resolveEscolhaColorModifier(opcoes, candidateOpcaoId) : null;
+    const precisaComentario = severidadeCandidata === "medio" || severidadeCandidata === "ruim";
+    const precisaFoto = opt?.exige_foto === true;
+    if (precisaComentario && candidateObservacao.trim() === "") return false;
+    if (precisaFoto && photoCount === 0) return false;
+    return true;
+  }
+
   function handleChange(newOpcaoId: string) {
     setOpcaoId(newOpcaoId);
-    save(newOpcaoId, observacao);
+    if (isSatisfied(newOpcaoId, observacao, livePhotoCount)) {
+      save(newOpcaoId, observacao);
+    }
   }
 
   function handleObservacaoBlur() {
     if (observacao === (response?.observacao ?? "")) return;
-    save(opcaoId, observacao);
+    if (isSatisfied(opcaoId, observacao, livePhotoCount)) {
+      save(opcaoId, observacao);
+    }
+  }
+
+  function handlePhotosChange(newPhotos: Photo[]) {
+    setLivePhotoCount(newPhotos.length);
+    if (isSatisfied(opcaoId, observacao, newPhotos.length)) {
+      save(opcaoId, observacao);
+    }
   }
 
   const requiresPhoto = opcoes.find((o) => o.id === opcaoId)?.exige_foto === true;
@@ -295,7 +322,13 @@ function EscolhaCell({
         </div>
       )}
       {requiresPhoto && (
-        <PhotoManager inspectionId={inspectionId} itemTemplateId={item.id} initialPhotos={photos} editable={editable} />
+        <PhotoManager
+          inspectionId={inspectionId}
+          itemTemplateId={item.id}
+          initialPhotos={photos}
+          onPhotosChange={handlePhotosChange}
+          editable={editable}
+        />
       )}
       {error && <ErrorInfoIcon message={error} />}
       {error && (

@@ -27,8 +27,19 @@ vi.mock("./[itemId]/batch-apply-panel", () => ({
 }));
 
 vi.mock("./[itemId]/photo-manager", () => ({
-  PhotoManager: ({ itemTemplateId }: { itemTemplateId: string }) => (
-    <div data-testid="photo-manager">Fotos de {itemTemplateId}</div>
+  PhotoManager: ({
+    itemTemplateId,
+    onPhotosChange,
+  }: {
+    itemTemplateId: string;
+    onPhotosChange?: (photos: { id: string; url: string }[]) => void;
+  }) => (
+    <div data-testid="photo-manager">
+      Fotos de {itemTemplateId}
+      <button onClick={() => onPhotosChange?.([{ id: "p1", url: "https://example.com/p1.jpg" }])}>
+        Simular anexar foto
+      </button>
+    </div>
   ),
 }));
 
@@ -112,8 +123,8 @@ describe("ChecklistItemTable", () => {
     expect(screen.getByText("Mau")).toBeInTheDocument();
   });
 
-  it("saves the selected escolha option and shows the DB's error inline", async () => {
-    saveEscolhaAction.mockResolvedValue({ status: "error", message: "Esta resposta exige pelo menos 1 foto anexada." });
+  it("saves an option with no extra requirement immediately, and shows a real DB failure inline", async () => {
+    saveEscolhaAction.mockResolvedValue({ status: "error", message: "Não foi possível guardar. Tente novamente." });
     render(
       <ChecklistItemTable
         inspectionId="insp-1"
@@ -127,14 +138,13 @@ describe("ChecklistItemTable", () => {
       />
     );
 
-    fireEvent.click(screen.getByLabelText("Mau"));
+    fireEvent.click(screen.getByLabelText("Bom"));
 
     await waitFor(() => expect(saveEscolhaAction).toHaveBeenCalledWith({ status: "idle" }, expect.any(FormData)));
-    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(/foto/i));
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(/n[aã]o foi poss[ií]vel/i));
   });
 
-  it("shows the photo uploader once an option requiring a photo is selected, and lets the técnico retry the save", async () => {
-    saveEscolhaAction.mockResolvedValue({ status: "error", message: "Esta resposta exige pelo menos 1 foto anexada." });
+  it("shows the photo uploader once an option requiring a photo is selected, but only attempts to save once a photo is actually attached (and lets the técnico retry a real failure)", async () => {
     render(
       <ChecklistItemTable
         inspectionId="insp-1"
@@ -153,6 +163,19 @@ describe("ChecklistItemTable", () => {
     fireEvent.click(screen.getByLabelText("Mau"));
 
     expect(screen.getByTestId("photo-manager")).toHaveTextContent("item-escolha");
+    // "Mau" também é a opção "ruim" por posição neste fixture de 2 opções —
+    // exige comentário também, então nem a foto sozinha basta ainda.
+    expect(screen.getByLabelText("Comentário (obrigatório)")).toBeInTheDocument();
+    expect(saveEscolhaAction).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByLabelText("Comentário (obrigatório)"), { target: { value: "Risco fundo" } });
+    fireEvent.blur(screen.getByLabelText("Comentário (obrigatório)"));
+    expect(saveEscolhaAction).not.toHaveBeenCalled(); // ainda falta a foto
+
+    saveEscolhaAction.mockResolvedValue({ status: "error", message: "Esta resposta exige pelo menos 1 foto anexada." });
+    fireEvent.click(screen.getByRole("button", { name: "Simular anexar foto" }));
+
+    await waitFor(() => expect(saveEscolhaAction).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
 
     saveEscolhaAction.mockResolvedValue({ status: "idle" });
@@ -246,14 +269,15 @@ describe("ChecklistItemTable", () => {
     );
 
     fireEvent.click(screen.getByLabelText("Médio"));
-    await waitFor(() => expect(saveEscolhaAction).toHaveBeenCalledTimes(1));
+    // Médio exige comentário -- ainda vazio, então não tenta salvar ainda.
+    expect(saveEscolhaAction).not.toHaveBeenCalled();
 
     const textarea = screen.getByLabelText("Comentário (obrigatório)");
     fireEvent.change(textarea, { target: { value: "Desgaste leve, dentro do esperado." } });
     fireEvent.blur(textarea);
 
-    await waitFor(() => expect(saveEscolhaAction).toHaveBeenCalledTimes(2));
-    const [, formData] = saveEscolhaAction.mock.calls[1];
+    await waitFor(() => expect(saveEscolhaAction).toHaveBeenCalledTimes(1));
+    const [, formData] = saveEscolhaAction.mock.calls[0];
     expect((formData as FormData).get("observacao")).toBe("Desgaste leve, dentro do esperado.");
   });
 

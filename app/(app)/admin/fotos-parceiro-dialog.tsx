@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { compressImage } from "@/lib/upload/compress-image";
 import { saveParceiroAction, attachCapaPhotoAction, deleteCapaPhotoAction } from "./actions";
 
 type Parceiro = { parceiro_nome: string | null; parceiro_logo_url: string | null; parceiro_telefone: string | null };
@@ -64,10 +65,11 @@ export function FotosParceiroDialog({
   function handleUploadCapa(file: File) {
     setError(null);
     startTransition(async () => {
+      const compressed = await compressImage(file);
       const supabase = createClient();
-      const path = buildCapaPhotoPath(inspectionId, file.name);
+      const path = buildCapaPhotoPath(inspectionId, compressed.name);
 
-      const { error: uploadError } = await supabase.storage.from("fotos-inspecao").upload(path, file);
+      const { error: uploadError } = await supabase.storage.from("fotos-inspecao").upload(path, compressed);
       if (uploadError) {
         setError("Não foi possível enviar a foto. Tente novamente.");
         return;

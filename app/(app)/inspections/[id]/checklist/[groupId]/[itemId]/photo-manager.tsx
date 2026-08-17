@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { compressImage } from "@/lib/upload/compress-image";
 import { attachPhotoAction, deletePhotoAction } from "./actions";
 
 export type Photo = { id: string; url: string };
@@ -39,10 +40,11 @@ export function PhotoManager({
   function handleUpload(file: File) {
     setError(null);
     startTransition(async () => {
+      const compressed = await compressImage(file);
       const supabase = createClient();
-      const path = buildPhotoPath(inspectionId, itemTemplateId, file.name);
+      const path = buildPhotoPath(inspectionId, itemTemplateId, compressed.name);
 
-      const { error: uploadError } = await supabase.storage.from("fotos-inspecao").upload(path, file);
+      const { error: uploadError } = await supabase.storage.from("fotos-inspecao").upload(path, compressed);
       if (uploadError) {
         setError("Não foi possível enviar a foto. Tente novamente.");
         return;

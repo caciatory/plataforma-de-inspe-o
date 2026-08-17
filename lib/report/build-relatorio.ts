@@ -132,3 +132,10 @@ export function buildRelatorioGrupos(
     })
     .filter((g) => g.items.length > 0);
 }
+
+// Data da inspeção em si (quando o tecnico finalizou em campo), nao a data
+// de emissao do certificado (que e so quando o admin aprovou depois).
+export function formatDataInspecao(dataFinalizacao: string | null, dataAbertura: string | null): string | null {
+  const data = dataFinalizacao ?? dataAbertura;
+  return data ? new Date(data).toLocaleDateString("pt-PT") : null;
+}

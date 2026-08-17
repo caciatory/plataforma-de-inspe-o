@@ -8,6 +8,7 @@ import { computeGroupProgress, type GroupProgress } from "@/lib/checklist/progre
 import { mergeHistorico } from "@/lib/inspection/historico";
 import { SubmitInspectionPanel } from "./submit-inspection-panel";
 import { AdminActionsPanel } from "./admin-actions-panel";
+import { CopiarLinkRelatorioButton } from "./copiar-link-relatorio";
 
 const STATUS_LABEL: Record<InspectionStatus, string> = {
   rascunho: "Rascunho",
@@ -217,6 +218,10 @@ export default async function InspectionSummaryPage({
           <Link href={`/inspections/${id}/relatorio`} className="btn btn-secondary summary-cta">
             Ver relatório
           </Link>
+        )}
+
+        {status === "aprovada" && currentUser?.role === "admin" && inspection.codigo_certificado && (
+          <CopiarLinkRelatorioButton codigo={inspection.codigo_certificado} />
         )}
       </div>
 

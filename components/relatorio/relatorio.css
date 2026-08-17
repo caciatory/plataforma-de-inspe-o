@@ -173,8 +173,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(8px);
@@ -186,10 +186,27 @@
   position: absolute;
   top: 1.5rem;
   right: 1.5rem;
+  box-shadow: 0 0 0 0 rgba(0, 245, 160, 0.6);
 }
 
 .relatorio-hero__carousel-expand:hover {
   background: rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .relatorio-hero__carousel-expand {
+    animation: relatorio-carousel-glow 1.8s ease-in-out infinite;
+  }
+}
+
+@keyframes relatorio-carousel-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 245, 160, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(0, 245, 160, 0);
+  }
 }
 
 /* No topo, nao embaixo -- a parte de baixo do hero e onde vive o badge,

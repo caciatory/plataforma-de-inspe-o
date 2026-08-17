@@ -50,7 +50,7 @@ export function HeroCarousel({ fotos }: { fotos: HeroCarouselPhoto[] }) {
           onClick={() => dialogRef.current?.showModal()}
         >
           <span className="material-symbols-outlined" aria-hidden="true">
-            open_in_full
+            photo_library
           </span>
         </button>
 

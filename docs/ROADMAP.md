@@ -1,6 +1,6 @@
 # Roadmap — Check Auto v1.0
 
-Atualizado: 2026-08-15. Baseado em `docs/especificacao-tecnica-v1.md` §5 (9 fases) e no estado real do código (branches, migrations) nesta data.
+Atualizado: 2026-08-17. Baseado em `docs/especificacao-tecnica-v1.md` §5 (9 fases) e no estado real do código (branches, migrations) nesta data.
 
 Cada passo abaixo é uma unidade fechada: você cola o prompt sugerido, o processo documentado em `docs/PROCESSO.md` (`brainstorming` → `writing-plans` → `subagent-driven-development`) roda até o fim, e o passo só é considerado pronto quando passar pelas 3 skills de fechamento (seção final deste doc). Só então vá para o próximo prompt da lista.
 
@@ -60,7 +60,7 @@ Todo o bloco 0 (housekeeping) está concluído — ver seção Progresso acima. 
 
 **Fase 5, sub-projeto 1 (finalização do técnico) — ✅ completo (2026-08-06).** RF-23/24 e RF-33/34. Ver detalhes na seção "Fase 5" abaixo.
 
-**Estado real em 2026-08-14:** todos os itens acima estão em `main`, incluindo Fase 5 sub-projeto 2+3, "Remoção da duplicação Identificação/Histórico" e **Fase 6 (relatório final)** — as 3 últimas entradas deste doc ficaram por um tempo marcadas como "aguardando merge" mesmo já mescladas (fast-forward local sem atualizar o texto na hora); corrigido nesta atualização. `npm test` limpo (329/329), `tsc --noEmit` limpo, `npm run build` limpo. `main` ainda não foi enviado ao GitHub desde a Fase 6 (`origin/main` desatualizado). Migrations `00046` e `00052` seguem pendentes de aplicação manual no Supabase. Próxima fase real: **Fase 7 — Acesso do cliente**.
+**Estado real em 2026-08-17:** todos os itens acima estão em `main`, incluindo Fase 5 sub-projeto 2+3, "Remoção da duplicação Identificação/Histórico", **Fase 6 (relatório final)** e **Fase 7 (acesso do cliente)** — ver detalhes nas seções "Fase 6" e "Fase 7" abaixo. `npm test` limpo (343/343), `tsc --noEmit` limpo, `npm run build` limpo. `main` ainda não foi enviado ao GitHub desde antes da Fase 6 (`origin/main` desatualizado, 42+ commits atrás). Migrations `00046`, `00052` e `00053` seguem pendentes de aplicação manual no Supabase **exceto `00053`, já aplicada pelo usuário**. Próxima fase real: **Fase 8 — Hardening & QA** (escopo já concretizado em 10 itens priorizados, ver seção abaixo) — dois pontos aguardando o usuário antes de começar: descrição do bug de "múltiplas fotos por item" (item 2) e confirmação da lista de "pendências que ficaram pra trás" (item 6).
 
 ---
 
@@ -224,12 +224,19 @@ RF-43 a RF-53, RNF-13. Desenhado via `brainstorming` → `writing-plans` → `su
 
 **Fora de escopo, não resolvido:** RF-52 (tela pública de consulta do certificado por código) segue fora do v1.0 — mas o texto do modal de `CertificadoInfoButton` já referencia `checkauto.pt` como se essa consulta existisse hoje. Sinalizado ao usuário; sem decisão de mudar a cópia por enquanto.
 
-## Fase 7 — Acesso do cliente
+## Fase 7 — Acesso do cliente ✅ completo e mesclado em `main` (2026-08-17)
 
-RF-54 a RF-56. Tabela `client_access_logs` existe mas **sem nenhuma RLS policy** ainda.
+RF-54 a RF-56. Desenhado via `brainstorming` → `writing-plans` → `subagent-driven-development` (4 tasks). Design: `docs/superpowers/specs/2026-08-14-acesso-cliente-design.md`, plano: `docs/superpowers/plans/2026-08-14-acesso-cliente.md`.
 
-**Prompt:**
-> Vamos desenhar o acesso do cliente (RF-54 a RF-56), incluindo as RLS policies de `client_access_logs` que ainda não existem. Use `superpowers:brainstorming` e considere `docs/superpowers/plans/2026-07-10-inspecta-rls-policies.md` como referência de como desenhamos RLS antes.
+**Dois desvios deliberados do texto literal de RF-55/56, decididos pelo usuário no brainstorming:** captura só a origem do acesso (WhatsApp/Stand-Loja física/Indicação/Redes sociais/Outro), sem email; a barreira aparece em **todo** carregamento de página, sem cookie/persistência entre visitas. RF-52 (busca pública de certificado por código) confirmado fora deste repositório — vira projeto externo separado no `checkauto.pt`, alimentado por uma exportação de códigos que o usuário fará por fora; o texto do `CertificadoInfoButton` (que já promete essa consulta) foi mantido como está por causa disso.
+
+**Arquitetura:** rota nova `app/relatorio/[codigo]/`, fora do middleware de autenticação (que só cobre `/inspections/*` e `/admin/*`) — sem precisar de nenhum carve-out. Uma função `security definer` única no banco, `get_relatorio_publico(codigo)` (migration `00053`), é o único ponto de acesso anônimo aos dados — nenhuma das ~9 tabelas que o relatório já lia ganhou policy de RLS nova para `anon`; a exclusão de `client_data` (RF-50) é estrutural na própria query da função, não uma checagem depois. `client_access_logs` (RLS ligada desde a migration `00010`, sem nenhuma policy até agora) ganhou duas: `anon`/`authenticated` inserem, admin lê. A renderização visual do relatório (que só existia na rota interna autenticada, da Fase 6) foi extraída pra um componente compartilhado (`components/relatorio/relatorio-conteudo.tsx`), reaproveitado tanto pela rota interna quanto pela nova rota pública — refactor comportamental-neutro, sem mudança visual.
+
+**Revisão final whole-branch (2026-08-15, modelo mais capaz), com foco declarado em segurança** (primeiro acesso anônimo do app inteiro): 0 Críticos, 2 Importantes corrigidos numa rodada só — o log de acesso rejeitava silenciosamente o insert de quem já estava logado (policy só cobria `anon`, não `authenticated`); uma falha de rede na tela de origem travava o visitante numa tela sem saída, sem botão de tentar de novo. Mais 3 ajustes menores aplicados junto: busca de código virou case-insensitive, teste de RLS ganhou uma asserção direta de que `anon` não lê `inspections`/`vehicle_data` (o invariante central do design), e uma limpeza cosmética. Revisor verificou a superfície de segurança por leitura direta do schema, não só dos comentários — confirmou exatamente 1 policy nova pra `anon` no branch inteiro, `client_data` inalcançável em todo caminho novo, `search_path` correto nas 12 referências de tabela dentro da função.
+
+**Uma decisão tomada durante a execução (ruling do controlador, não do usuário):** a spec descrevia escolher a origem + confirmar num botão separado; a implementação ficou com um toque só (clicar na opção já libera o relatório) — julgado melhor pra quem está no celular vindo de um link do WhatsApp, sem enfraquecer a captura de dado. Reversível se o usuário preferir o fluxo com confirmação depois de testar mais.
+
+343/343 testes, `tsc --noEmit` limpo, `npm run build` limpo (rota `/relatorio/[codigo]` compila como dinâmica). **Testado ao vivo pelo usuário** no navegador: tela de origem, liberação do relatório, botão "Copiar link do relatório" no admin. Migration `00053` já aplicada manualmente pelo usuário no Supabase. Mesclada em `main` via `finishing-a-development-branch` (merge local); branch e worktree `worktree-acesso-cliente` removidos.
 
 ## Fase 8 — Hardening & QA
 

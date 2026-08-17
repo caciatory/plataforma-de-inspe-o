@@ -145,6 +145,28 @@ describe("saveEscolhaAction", () => {
     }
   });
 
+  it("returns a friendly comment message when the DB rejects a médio/ruim response without a comment (check_violation)", async () => {
+    templateQuery.single.mockResolvedValue({ data: { conjunto_opcao_id: "conj-1" }, error: null });
+    opcoesQuery.maybeSingle.mockResolvedValue({ data: { id: "opt-medio" }, error: null });
+    upsertQuery.single.mockResolvedValue({
+      data: null,
+      error: { code: "23514", message: "COMENTARIO_OBRIGATORIO: esta resposta exige um comentario (item x)" },
+    });
+    const { saveEscolhaAction } = await import("./actions");
+    const formData = new FormData();
+    formData.set("inspectionId", "insp-1");
+    formData.set("itemTemplateId", "item-1");
+    formData.set("opcao_id", "opt-medio");
+
+    const result = await saveEscolhaAction({ status: "idle" }, formData);
+
+    expect(result.status).toBe("error");
+    if (result.status === "error") {
+      expect(result.message).toMatch(/coment[aá]rio/i);
+      expect(result.message).not.toMatch(/foto/i);
+    }
+  });
+
   it("logs an audit entry when the caller is admin", async () => {
     templateQuery.single.mockResolvedValue({ data: { conjunto_opcao_id: "conj-1" }, error: null });
     opcoesQuery.maybeSingle.mockResolvedValue({ data: { id: "opt-medio" }, error: null });

@@ -7,8 +7,17 @@ import { recordAdminEdit } from "@/lib/audit/log";
 export type SaveEscolhaState = { status: "idle" } | { status: "error"; message: string };
 export type SaveMeasurementState = { status: "idle" } | { status: "error"; message: string } | { status: "success" };
 
-function friendlyDbError(error: { code?: string; message?: string }, exigeFotoMessage: string): string {
-  if (error.code === "23514") return exigeFotoMessage;
+function friendlyDbError(
+  error: { code?: string; message?: string },
+  exigeFotoMessage: string,
+  exigeComentarioMessage?: string
+): string {
+  if (error.code === "23514") {
+    if (exigeComentarioMessage && error.message?.includes("COMENTARIO_OBRIGATORIO")) {
+      return exigeComentarioMessage;
+    }
+    return exigeFotoMessage;
+  }
   return "Não foi possível guardar. Tente novamente.";
 }
 
@@ -57,7 +66,11 @@ export async function saveEscolhaAction(
     console.error("saveEscolhaAction failed", error);
     return {
       status: "error",
-      message: friendlyDbError(error, "Esta resposta exige pelo menos 1 foto anexada. Anexe uma foto antes de salvar."),
+      message: friendlyDbError(
+        error,
+        "Esta resposta exige pelo menos 1 foto anexada. Anexe uma foto antes de salvar.",
+        "Esta resposta exige um comentário. Escreva uma observação antes de salvar."
+      ),
     };
   }
 

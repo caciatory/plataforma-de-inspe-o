@@ -296,6 +296,48 @@ textarea.input {
   margin: 0;
 }
 
+.error-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error-info__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--color-red-600);
+  background: transparent;
+  color: var(--color-red-600);
+  cursor: pointer;
+  padding: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .error-info__icon {
+    animation: error-info-pulse 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes error-info-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.error-info__text {
+  font-size: 0.875rem;
+  color: var(--color-red-600);
+}
+
 /* Buttons */
 
 .btn {

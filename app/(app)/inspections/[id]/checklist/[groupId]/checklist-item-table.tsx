@@ -16,6 +16,7 @@ import {
   type SiblingResponseRow,
 } from "@/lib/checklist/siblings";
 import { PhotoManager, type Photo } from "./[itemId]/photo-manager";
+import { ErrorInfoIcon } from "./error-info-icon";
 
 export type TableItem = {
   id: string;
@@ -296,11 +297,7 @@ function EscolhaCell({
       {requiresPhoto && (
         <PhotoManager inspectionId={inspectionId} itemTemplateId={item.id} initialPhotos={photos} editable={editable} />
       )}
-      {error && (
-        <p role="alert" className="error-text">
-          {error}
-        </p>
-      )}
+      {error && <ErrorInfoIcon message={error} />}
       {error && (
         <button
           type="button"
@@ -373,11 +370,7 @@ function TextoCell({
         onChange={(e) => setValue(e.target.value)}
         onBlur={handleBlur}
       />
-      {error && (
-        <p role="alert" className="error-text">
-          {error}
-        </p>
-      )}
+      {error && <ErrorInfoIcon message={error} />}
       {error && (
         <button type="button" className="btn btn-secondary" disabled={isPending || !editable} onClick={() => save(value)}>
           Tentar novamente
@@ -445,11 +438,7 @@ function DataCell({
         onChange={(e) => setValue(e.target.value)}
         onBlur={handleBlur}
       />
-      {error && (
-        <p role="alert" className="error-text">
-          {error}
-        </p>
-      )}
+      {error && <ErrorInfoIcon message={error} />}
       {error && (
         <button type="button" className="btn btn-secondary" disabled={isPending || !editable} onClick={() => save(value)}>
           Tentar novamente

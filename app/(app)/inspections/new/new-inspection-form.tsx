@@ -212,67 +212,8 @@ export function NewInspectionForm({
     }
   }
 
-  // ponytail: dev-only manual test helper, gated out of prod builds by the
-  // NODE_ENV check below. Equipamento items own selecionado/condição as
-  // local state (not lifted here), so those are filled via real .click()
-  // calls instead of setters — same reason handleNext/handleGuardarClick
-  // already reach into the DOM instead of tracking everything in state.
-  function handleFillTestData() {
-    setNomeSolicitante(`Cliente Teste ${Math.floor(Math.random() * 1000)}`);
-    setContacto("912345678");
-    setEmail("teste@example.com");
-    setResponsavelPresente("Técnico Teste");
-    setMatricula(`AA-${Math.floor(10 + Math.random() * 89)}-BB`);
-    setMarca("Toyota");
-    setModelo("Corolla");
-    setVersaoTrim("Comfort");
-    setAnoFabrico("2020");
-    setAnoModelo("2021");
-    setCor("Preto");
-    setVin(`9BWZZZ377VT${Math.floor(100000 + Math.random() * 900000)}`);
-    setNumeroMotor(`MOT${Math.floor(Math.random() * 10000)}`);
-    setNumeroPortas("5");
-    setCombustivel("Gasolina");
-    setCaixaVelocidades("Manual");
-    setTracao("Dianteira");
-    setPotenciaCv("120");
-    setTorqueNm("200");
-    setQuilometragem(String(Math.floor(Math.random() * 200000)));
-    setIndiciosAdulteracaoPresentes("nao");
-    setNumeroProprietariosAnteriores("1");
-    setRegistoAcidentesAnteriores("Sem registo relevante.");
-    setHistoricoManutencao("Revisões em dia, sem intervenções fora do previsto.");
-    setInspecoesPeriodicasIpoNotas("Sem observações.");
-    setInspecoesPeriodicasIpoData("2026-01-15");
-    setSituacaoFiscalRegular("IUC em dia");
-    setVeiculoImportado("nao");
-    setDataPrimeiraMatricula("2020-03-01");
-    setValorBaseIucAnual("120");
-
-    setTimeout(() => {
-      const checkboxes = Array.from(
-        formRef.current?.querySelectorAll<HTMLInputElement>('input[type="checkbox"][name$="__selecionado"]') ?? []
-      )
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 8);
-      checkboxes.forEach((c) => c.click());
-
-      setTimeout(() => {
-        checkboxes.forEach((c) => {
-          const prefix = c.name.replace(/__selecionado$/, "");
-          formRef.current?.querySelector<HTMLInputElement>(`input[name="${prefix}__condicao"][value="bom"]`)?.click();
-        });
-      }, 0);
-    }, 0);
-  }
-
   return (
     <form ref={formRef} action={formAction} className="stack">
-      {!inspectionId && process.env.NODE_ENV !== "production" && (
-        <button type="button" className="btn btn-secondary" onClick={handleFillTestData}>
-          Preencher com dados de teste
-        </button>
-      )}
       {inspectionId && <input type="hidden" name="inspectionId" value={inspectionId} />}
       {inspectionId && equipamentosRemovidos.length > 0 && (
         <input type="hidden" name="equipamentosRemovidos" value={equipamentosRemovidos.join(",")} />
